@@ -1,6 +1,6 @@
 'use strict';
 
-function integrarPontoMedio(f, a, b, h) {
+function pontoMedio(f, a, b, h) {
     let steps = (b-a) / h;
     let sum = 0;
     for (let n = 0; n < steps; n++) {
@@ -11,4 +11,4 @@ function integrarPontoMedio(f, a, b, h) {
     return sum;
 }
 
-module.exports = integrarPontoMedio;
+module.exports = pontoMedio;

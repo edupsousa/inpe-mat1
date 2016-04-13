@@ -1,5 +1,5 @@
-var trapezio = require('./integrar_trapezio');
-var pontoMedio = require('./integrar_ponto_medio');
+var trapezio = require('./integral/trapezio');
+var pontoMedio = require('./integral/ponto_medio');
 var f, a, b, h;
 console.log('\n ** Exemplos de Integração Numérica por Ponto Médio e Trapézio. **\n')
 

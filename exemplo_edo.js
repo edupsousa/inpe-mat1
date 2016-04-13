@@ -1,7 +1,7 @@
 'use strict';
 
-var euler = require('./euler');
-var rk4 = require('./rk4');
+var euler = require('./edo/euler');
+var rk4 = require('./edo/rk4');
 let f, y0, h, a, b;
 
 console.log('\n ** Exemplos de Resolução de Problemas de Valor Inicial. **\n')
