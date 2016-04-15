@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/edupsousa/inpe-mat1/issues"
   },
-  "homepage": "https://github.com/edupsousa/inpe-mat1#readme"
+  "homepage": "https://github.com/edupsousa/inpe-mat1#readme",
+  "dependencies": {
+    "d3": "^3.5.16",
+    "function-plot": "^1.16.4"
+  }
 }
