@@ -1,5 +1,4 @@
 'use strict';
-
 let interpolar = require('../lib/interpolacao/interpolar_meg');
 let d3 = require('d3');
 window.d3 = d3;
@@ -85,4 +84,4 @@ class GraficoInterpolador {
     }
 }
 
-let grafico = new GraficoInterpolador('#grafico', 900, 400, 'tbody#pontos');
+module.exports = GraficoInterpolador;
