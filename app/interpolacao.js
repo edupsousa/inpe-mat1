@@ -7,7 +7,6 @@ let functionPlot = require('function-plot');
 
 class GraficoInterpolador {
     constructor(elemento, largura, altura, elementoTabela) {
-        this.polinomios = [];
         this.pontos = [];
         this.opcoes = this.obterOpcoesIniciais(elemento, largura, altura);
         this.instancia = this.definirInstancia(this.opcoes);
@@ -17,15 +16,18 @@ class GraficoInterpolador {
     registrarEventoClick() {
         let self = this;
         self.instancia.canvas.on('click', function () {
-            let xScale = self.instancia.meta.xScale;
-            let yScale = self.instancia.meta.yScale;
-            let coordenadas = d3.mouse(this);
-            let ponto = [d3.round(xScale.invert(coordenadas[0]), 3), d3.round(yScale.invert(coordenadas[1]), 3)];
-            self.pontos.push(ponto);
-            let polinomio = self.gerarInterpolacao();
-            self.definirInstancia(self.opcoes);
-            self.novoPontoTabela(self.pontos.length, ponto[0], ponto[1], polinomio);
+            let ponto = self.adicionarPonto(d3.mouse(this));
+            let interpolacao = self.gerarInterpolacao();
+            self.adicionarInterpolacao(interpolacao);
+            self.novoPontoTabela(self.pontos.length, ponto[0], ponto[1], interpolacao.p);
         });
+    }
+    adicionarPonto(coordenadas) {
+        let xScale = this.instancia.meta.xScale;
+        let yScale = this.instancia.meta.yScale;
+        let ponto = [d3.round(xScale.invert(coordenadas[0]), 3), d3.round(yScale.invert(coordenadas[1]), 3)];
+        this.pontos.push(ponto);
+        return ponto;
     }
     novoPontoTabela(n, x, y, polinomio) {
         let tr = this.elementoTabela.append('tr');
@@ -34,21 +36,21 @@ class GraficoInterpolador {
         tr.append('td').text(y);
         tr.append('td').text(polinomio);
     }
-    gerarInterpolacao() {
-        let interpolador = interpolar(this.pontos, 5);
-        let polinomioInterpolador = interpolador.p;
-        let funcaoInterpoladora = interpolador.f;
-
+    
+    adicionarInterpolacao(interpolacao) {
         this.opcoes.data.push({
             fnType: 'linear',
             graphType: 'polyline',
             color: 'teal',
             fn: function (p) {
-                return funcaoInterpoladora(p.x);
+                return interpolacao.f(p.x);
             },
             skipTip: true
         });
-        return polinomioInterpolador;
+        this.definirInstancia(this.opcoes);
+    }
+    gerarInterpolacao() {
+        return interpolar(this.pontos);
     }
     definirInstancia(opcoes) {
         return functionPlot(opcoes);
