@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Interpolação Polinomial</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <style>
+        #grafico {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar navbar-inverse">
+        <a class="navbar-brand" href="#">INPE / CAP / MAT1</a>
+        <ul class="nav navbar-nav">
+            <li>
+                <a href="index.html">Home</a>
+            </li>
+            <li class="active">
+                <a href="#">Interpolação Polinomial</a>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1>Interpolação Polinomial por MEG</h1>
+        <p>Clique sobre o gráfico abaixo para adicionar os pontos que devem ser interpolados</p>
+        <div id="grafico">
+            
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>X</th>
+                    <th>Y</th>
+                    <th>Polinômio*</th>
+                </tr>
+            </thead>
+            <tbody id="pontos">
+                
+            </tbody>
+        </table>
+        <span class="text-danger">* Termos arredondados para 3ª casa decimal.</span>
+    </div>
+    <script src="js/interpolacao.js"></script>
+</body>
+</html>
