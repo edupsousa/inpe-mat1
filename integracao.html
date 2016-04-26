@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Integração Numérica</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+        crossorigin="anonymous">
+    <style>
+        #grafico {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse">
+        <a class="navbar-brand" href="#">INPE / CAP / MAT1</a>
+        <ul class="nav navbar-nav">
+            <li>
+                <a href="index.html">Home</a>
+            </li>
+            <li>
+                <a href="interpolacao.html">Interpolação Polinomial</a>
+            </li>
+            <li class="active">
+                <a href="#">Integração Numérica</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>Integração Numérica</h1>
+        <p class="info">Informe os parâmetros para integração.</p>
+
+        <div class="row">
+           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <form action="" method="POST" role="form" class="form-inline">
+                    <div class="form-group">
+                        <label for="">f(x) = </label>
+                        <input type="text" class="form-control" id="expressao" placeholder="x^2">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">a = </label>
+                        <input type="text" class="form-control" id="limiteInferior" placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">b = </label>
+                        <input type="text" class="form-control" id="limiteSuperior" placeholder="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">n = </label>
+                        <input type="text" class="form-control" id="passos" placeholder="4">
+                    </div>
+
+                    <button type="button" class="btn btn-primary" id="integrar">Integrar</button>
+                </form>
+           </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <h3>Resultados</h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Método</th>
+                            <th>Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="resultados">
+                        <tr>
+                            <td>Retângulo (Ponto Médio)</td>
+                            <td id="ponto-medio"></td>
+                        </tr>
+                        <tr>
+                            <td>Trapézio</td>
+                            <td id="trapezio"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                <h3>Gráfico</h3>
+                <div id="grafico">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/integracao.js"></script>
+</body>
+</html>
