@@ -66153,7 +66153,10 @@ class ExemploIntegracao {
         let yMax = Math.max(funcao(limiteInferior), funcao(limiteSuperior));
         let horizontalMargin = Math.abs((limiteSuperior - limiteInferior) * 0.1);
         let verticalMargin = Math.abs((yMax - yMin) * 0.1);
-        console.log(yMin, yMax);
+        if (horizontalMargin === 0) 
+            horizontalMargin = 1;
+        if (verticalMargin === 0)
+            verticalMargin = 1;
         this.graficoInstance = functionPlot({
             target: '#grafico',
             xAxis: { domain: [limiteInferior - horizontalMargin, limiteSuperior + horizontalMargin] },
