@@ -28,6 +28,197 @@ function trapezio(f, a, b, steps) {
 
 module.exports = trapezio;
 },{}],3:[function(require,module,exports){
+/*
+ * built-in-math-eval
+ *
+ * Copyright (c) 2015 Mauricio Poppe
+ * Licensed under the MIT license.
+ */
+
+'use strict'
+
+module.exports = require('./lib/eval')
+
+},{"./lib/eval":5}],4:[function(require,module,exports){
+'use strict'
+module.exports = function () {
+  var math = Object.create(Math)
+
+  math.factory = function (a) {
+    if (typeof a !== 'number') {
+      throw new TypeError('built-in math factory only accepts numbers')
+    }
+    return Number(a)
+  }
+
+  math.add = function (a, b) {
+    return a + b
+  }
+  math.sub = function (a, b) {
+    return a - b
+  }
+  math.mul = function (a, b) {
+    return a * b
+  }
+  math.div = function (a, b) {
+    return a / b
+  }
+  math.mod = function (a, b) {
+    return a % b
+  }
+  math.factorial = function (a) {
+    var res = 1
+    for (var i = 2; i <= a; i += 1) {
+      res *= i
+    }
+    return res
+  }
+
+  // taken from https://github.com/josdejong/mathjs/blob/master/lib/function/arithmetic/nthRoot.js
+  math.nthRoot = function (a, root) {
+    var inv = root < 0
+    if (inv) {
+      root = -root
+    }
+
+    if (root === 0) {
+      throw new Error('Root must be non-zero')
+    }
+    if (a < 0 && (Math.abs(root) % 2 !== 1)) {
+      throw new Error('Root must be odd when a is negative.')
+    }
+
+    // edge cases zero and infinity
+    if (a === 0) {
+      return 0
+    }
+    if (!isFinite(a)) {
+      return inv ? 0 : a
+    }
+
+    var x = Math.pow(Math.abs(a), 1 / root)
+    // If a < 0, we require that root is an odd integer,
+    // so (-1) ^ (1/root) = -1
+    x = a < 0 ? -x : x
+    return inv ? 1 / x : x
+  }
+
+  // logical
+  math.logicalOR = function (a, b) {
+    return a || b
+  }
+  math.logicalXOR = function (a, b) {
+    /* eslint-disable */
+    return a != b
+    /* eslint-enable*/
+  }
+  math.logicalAND = function (a, b) {
+    return a && b
+  }
+
+  // bitwise
+  math.bitwiseOR = function (a, b) {
+    /* eslint-disable */
+    return a | b
+    /* eslint-enable*/
+  }
+  math.bitwiseXOR = function (a, b) {
+    /* eslint-disable */
+    return a ^ b
+    /* eslint-enable*/
+  }
+  math.bitwiseAND = function (a, b) {
+    /* eslint-disable */
+    return a & b
+    /* eslint-enable*/
+  }
+
+  // relational
+  math.lessThan = function (a, b) {
+    return a < b
+  }
+  math.lessEqualThan = function (a, b) {
+    return a <= b
+  }
+  math.greaterThan = function (a, b) {
+    return a > b
+  }
+  math.greaterEqualThan = function (a, b) {
+    return a >= b
+  }
+  math.equal = function (a, b) {
+    /* eslint-disable */
+    return a == b
+  /* eslint-enable*/
+  }
+  math.strictlyEqual = function (a, b) {
+    return a === b
+  }
+  math.notEqual = function (a, b) {
+    /* eslint-disable */
+    return a != b
+  /* eslint-enable*/
+  }
+  math.strictlyNotEqual = function (a, b) {
+    return a !== b
+  }
+
+  // shift
+  math.shiftRight = function (a, b) {
+    return (a >> b)
+  }
+  math.shiftLeft = function (a, b) {
+    return (a << b)
+  }
+  math.unsignedRightShift = function (a, b) {
+    return (a >>> b)
+  }
+
+  // unary
+  math.negative = function (a) {
+    return -a
+  }
+  math.positive = function (a) {
+    return a
+  }
+
+  return math
+}
+
+},{}],5:[function(require,module,exports){
+'use strict'
+
+var CodeGenerator = require('math-codegen')
+var math = require('./adapter')()
+
+function processScope (scope) {
+  Object.keys(scope).forEach(function (k) {
+    var value = scope[k]
+    scope[k] = math.factory(value)
+  })
+}
+
+module.exports = function (expression) {
+  return new CodeGenerator()
+    .setDefs({
+      $$processScope: processScope
+    })
+    .parse(expression)
+    .compile(math)
+}
+
+module.exports.math = math
+
+},{"./adapter":4,"math-codegen":59}],6:[function(require,module,exports){
+module.exports = clamp
+
+function clamp(value, min, max) {
+  return min < max
+    ? (value < min ? min : value > max ? max : value)
+    : (value < max ? max : value > min ? min : value)
+}
+
+},{}],7:[function(require,module,exports){
 /**
  * @license Complex.js v2.0.1 11/02/2016
  *
@@ -1212,7 +1403,7 @@ module.exports = trapezio;
   
 })(this);
 
-},{}],4:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.5.16"
@@ -10767,7 +10958,7 @@ module.exports = trapezio;
   });
   if (typeof define === "function" && define.amd) this.d3 = d3, define(d3); else if (typeof module === "object" && module.exports) module.exports = d3; else this.d3 = d3;
 }();
-},{}],5:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*! decimal.js v5.0.8 https://github.com/MikeMcl/decimal.js/LICENCE */
 ;(function (globalScope) {
   'use strict';
@@ -15790,7 +15981,199 @@ module.exports = trapezio;
   }
 })(this);
 
-},{}],6:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
+(function (Buffer){
+var hasTypedArrays = false
+if(typeof Float64Array !== "undefined") {
+  var DOUBLE_VIEW = new Float64Array(1)
+    , UINT_VIEW   = new Uint32Array(DOUBLE_VIEW.buffer)
+  DOUBLE_VIEW[0] = 1.0
+  hasTypedArrays = true
+  if(UINT_VIEW[1] === 0x3ff00000) {
+    //Use little endian
+    module.exports = function doubleBitsLE(n) {
+      DOUBLE_VIEW[0] = n
+      return [ UINT_VIEW[0], UINT_VIEW[1] ]
+    }
+    function toDoubleLE(lo, hi) {
+      UINT_VIEW[0] = lo
+      UINT_VIEW[1] = hi
+      return DOUBLE_VIEW[0]
+    }
+    module.exports.pack = toDoubleLE
+    function lowUintLE(n) {
+      DOUBLE_VIEW[0] = n
+      return UINT_VIEW[0]
+    }
+    module.exports.lo = lowUintLE
+    function highUintLE(n) {
+      DOUBLE_VIEW[0] = n
+      return UINT_VIEW[1]
+    }
+    module.exports.hi = highUintLE
+  } else if(UINT_VIEW[0] === 0x3ff00000) {
+    //Use big endian
+    module.exports = function doubleBitsBE(n) {
+      DOUBLE_VIEW[0] = n
+      return [ UINT_VIEW[1], UINT_VIEW[0] ]
+    }
+    function toDoubleBE(lo, hi) {
+      UINT_VIEW[1] = lo
+      UINT_VIEW[0] = hi
+      return DOUBLE_VIEW[0]
+    }
+    module.exports.pack = toDoubleBE
+    function lowUintBE(n) {
+      DOUBLE_VIEW[0] = n
+      return UINT_VIEW[1]
+    }
+    module.exports.lo = lowUintBE
+    function highUintBE(n) {
+      DOUBLE_VIEW[0] = n
+      return UINT_VIEW[0]
+    }
+    module.exports.hi = highUintBE
+  } else {
+    hasTypedArrays = false
+  }
+}
+if(!hasTypedArrays) {
+  var buffer = new Buffer(8)
+  module.exports = function doubleBits(n) {
+    buffer.writeDoubleLE(n, 0, true)
+    return [ buffer.readUInt32LE(0, true), buffer.readUInt32LE(4, true) ]
+  }
+  function toDouble(lo, hi) {
+    buffer.writeUInt32LE(lo, 0, true)
+    buffer.writeUInt32LE(hi, 4, true)
+    return buffer.readDoubleLE(0, true)
+  }
+  module.exports.pack = toDouble  
+  function lowUint(n) {
+    buffer.writeDoubleLE(n, 0, true)
+    return buffer.readUInt32LE(0, true)
+  }
+  module.exports.lo = lowUint
+  function highUint(n) {
+    buffer.writeDoubleLE(n, 0, true)
+    return buffer.readUInt32LE(4, true)
+  }
+  module.exports.hi = highUint
+}
+
+module.exports.sign = function(n) {
+  return module.exports.hi(n) >>> 31
+}
+
+module.exports.exponent = function(n) {
+  var b = module.exports.hi(n)
+  return ((b<<1) >>> 21) - 1023
+}
+
+module.exports.fraction = function(n) {
+  var lo = module.exports.lo(n)
+  var hi = module.exports.hi(n)
+  var b = hi & ((1<<20) - 1)
+  if(hi & 0x7ff00000) {
+    b += (1<<20)
+  }
+  return [lo, b]
+}
+
+module.exports.denormalized = function(n) {
+  var hi = module.exports.hi(n)
+  return !(hi & 0x7ff00000)
+}
+}).call(this,require("buffer").Buffer)
+},{"buffer":580}],11:[function(require,module,exports){
+'use strict';
+
+var hasOwn = Object.prototype.hasOwnProperty;
+var toStr = Object.prototype.toString;
+
+var isArray = function isArray(arr) {
+	if (typeof Array.isArray === 'function') {
+		return Array.isArray(arr);
+	}
+
+	return toStr.call(arr) === '[object Array]';
+};
+
+var isPlainObject = function isPlainObject(obj) {
+	if (!obj || toStr.call(obj) !== '[object Object]') {
+		return false;
+	}
+
+	var hasOwnConstructor = hasOwn.call(obj, 'constructor');
+	var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
+	// Not own constructor property must be Object
+	if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+		return false;
+	}
+
+	// Own properties are enumerated firstly, so to speed up,
+	// if last one is own, then all properties are own.
+	var key;
+	for (key in obj) {/**/}
+
+	return typeof key === 'undefined' || hasOwn.call(obj, key);
+};
+
+module.exports = function extend() {
+	var options, name, src, copy, copyIsArray, clone,
+		target = arguments[0],
+		i = 1,
+		length = arguments.length,
+		deep = false;
+
+	// Handle a deep copy situation
+	if (typeof target === 'boolean') {
+		deep = target;
+		target = arguments[1] || {};
+		// skip the boolean and the target
+		i = 2;
+	} else if ((typeof target !== 'object' && typeof target !== 'function') || target == null) {
+		target = {};
+	}
+
+	for (; i < length; ++i) {
+		options = arguments[i];
+		// Only deal with non-null/undefined values
+		if (options != null) {
+			// Extend the base object
+			for (name in options) {
+				src = target[name];
+				copy = options[name];
+
+				// Prevent never-ending loop
+				if (target !== copy) {
+					// Recurse if we're merging plain objects or arrays
+					if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
+						if (copyIsArray) {
+							copyIsArray = false;
+							clone = src && isArray(src) ? src : [];
+						} else {
+							clone = src && isPlainObject(src) ? src : {};
+						}
+
+						// Never move original objects, clone them
+						target[name] = extend(deep, clone, copy);
+
+					// Don't bring in undefined values
+					} else if (typeof copy !== 'undefined') {
+						target[name] = copy;
+					}
+				}
+			}
+		}
+	}
+
+	// Return the modified object
+	return target;
+};
+
+
+},{}],12:[function(require,module,exports){
 /**
  * @license Fraction.js v3.3.1 09/09/2015
  * http://www.xarg.org/2014/03/precise-calculations-in-javascript/
@@ -16571,9 +16954,4084 @@ module.exports = trapezio;
 
 })(this);
 
-},{}],7:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
+var isObject = require('is-object')
+
+module.exports = function (d) {
+  if (!isObject(d)) {
+    throw Error('datum is not an object')
+  }
+
+  // default graphType uses boxes i.e. 2d intervals
+  if (!(d.hasOwnProperty('graphType'))) {
+    d.graphType = 'interval'
+  }
+
+  // if the graphType is not `interval` then the sampler is `builtIn`
+  // because the interval sampler returns a box instead of a point
+  if (!(d.hasOwnProperty('sampler'))) {
+    d.sampler = d.graphType !== 'interval'
+      ? 'builtIn'
+      : 'interval'
+  }
+
+  // TODO: handle default fnType
+  // default `fnType` is linear
+  if (!(d.hasOwnProperty('fnType'))) {
+    d.fnType = 'linear'
+  }
+
+  return d
+}
+
+
+},{"is-object":52}],14:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+var globals = require('./globals')
+var evalTypeFn = {
+  interval: require('./samplers/interval'),
+  builtIn: require('./samplers/builtIn')
+}
+
+/**
+ * Computes the endpoints x_lo, x_hi of the range
+ * from which the sampler will take samples
+ *
+ * @param {Chart} chart
+ * @param {Object} d An item from `data`
+ * @returns {Array}
+ */
+function computeEndpoints (chart, d) {
+  var range = d.range || [-Infinity, Infinity]
+  var scale = chart.meta.xScale
+  var start = Math.max(scale.domain()[0], range[0])
+  var end = Math.min(scale.domain()[1], range[1])
+  return [start, end]
+}
+
+/**
+ * Decides which sampler function to call based on the options
+ * of `data`
+ *
+ * @param {Object} chart Chart instance which is orchestating this sampling operation
+ * @param {Object} d a.k.a a single item from `data`
+ * @returns {Array}
+ */
+function evaluate (chart, d) {
+  var range = computeEndpoints(chart, d)
+  var data
+  var evalFn = evalTypeFn[d.sampler]
+  var nSamples = d.nSamples || Math.min(
+    globals.MAX_ITERATIONS,
+    globals.DEFAULT_ITERATIONS || (chart.meta.width * 2)
+  )
+  data = evalFn(chart, d, range, nSamples)
+  // NOTE: it's impossible to listen for the first eval event
+  // as the event is already fired when a listener is attached
+  chart.emit('eval', data, d.index, d.isHelper)
+  return data
+}
+
+module.exports = evaluate
+
+
+},{"./globals":15,"./samplers/builtIn":30,"./samplers/interval":31}],15:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+
+var d3 = window.d3
+var Globals = {
+  COLORS: [
+    'steelblue',
+    'red',
+    '#05b378',      // green
+    'orange',
+    '#4040e8',      // purple
+    'yellow',
+    'brown',
+    'magenta',
+    'cyan'
+  ].map(function (v) {
+    return d3.hsl(v)
+  }),
+  DEFAULT_WIDTH: 550,
+  DEFAULT_HEIGHT: 350,
+  TIP_X_EPS: 1
+}
+
+Globals.DEFAULT_ITERATIONS = null
+Globals.MAX_ITERATIONS = Globals.DEFAULT_WIDTH * 4
+
+module.exports = Globals
+
+},{}],16:[function(require,module,exports){
+/**
+ * Created by mauricio on 4/5/15.
+ */
+'use strict'
+module.exports = {
+  polyline: require('./polyline'),
+  interval: require('./interval'),
+  scatter: require('./scatter')
+}
+
+},{"./interval":17,"./polyline":18,"./scatter":19}],17:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+var d3 = window.d3
+var evaluate = require('../evaluate')
+var utils = require('../utils')
+
+module.exports = function (chart) {
+  var minWidthHeight
+  var xScale = chart.meta.xScale
+  var yScale = chart.meta.yScale
+
+  function clampRange (vLo, vHi, gLo, gHi) {
+    var hi = Math.min(vHi, gHi)
+    var lo = Math.max(vLo, gLo)
+    if (lo > hi) {
+      // no overlap
+      return [-minWidthHeight, 0]
+    }
+    return [lo, hi]
+  }
+
+  var line = function (points, closed) {
+    var path = ''
+    var minY = yScale.range()[1]
+    var maxY = yScale.range()[0]
+    for (var i = 0, length = points.length; i < length; i += 1) {
+      if (points[i]) {
+        var x = points[i][0]
+        var y = points[i][1]
+        var yLo = y.lo
+        var yHi = y.hi
+        // if options.closed is set to true then one of the bounds must be zero
+        if (closed) {
+          yLo = Math.min(yLo, 0)
+          yHi = Math.max(yHi, 0)
+        }
+        // points.scaledDX is added because of the stroke-width
+        var moveX = xScale(x.lo) + points.scaledDx / 2
+        var viewportY = clampRange(
+          minY, maxY,
+          isFinite(yHi) ? yScale(yHi) : -Infinity,
+          isFinite(yLo) ? yScale(yLo) : Infinity
+        )
+        var vLo = viewportY[0]
+        var vHi = viewportY[1]
+        path += ' M ' + moveX + ' ' + vLo
+        path += ' v ' + Math.max(vHi - vLo, minWidthHeight)
+      }
+    }
+    return path
+  }
+
+  function plotLine (selection) {
+    selection.each(function (d) {
+      var el = plotLine.el = d3.select(this)
+      var index = d.index
+      var closed = d.closed
+      var evaluatedData = evaluate(chart, d)
+      var innerSelection = el.selectAll(':scope > path.line')
+        .data(evaluatedData)
+
+      // the min height/width of the rects drawn by the path generator
+      minWidthHeight = Math.max(evaluatedData[0].scaledDx, 1)
+
+      innerSelection.enter()
+        .append('path')
+        .attr('class', 'line line-' + index)
+        .attr('fill', 'none')
+
+      // enter + update
+      innerSelection
+        .attr('stroke-width', minWidthHeight)
+        .attr('stroke', utils.color(d, index))
+        .attr('opacity', closed ? 0.5 : 1)
+        .attr('d', function (d) {
+          return line(d, closed)
+        })
+        .attr(d.attr)
+
+      innerSelection.exit().remove()
+    })
+  }
+
+  return plotLine
+}
+
+},{"../evaluate":14,"../utils":33}],18:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+var d3 = window.d3
+var evaluate = require('../evaluate')
+var utils = require('../utils')
+
+module.exports = function (chart) {
+  var xScale = chart.meta.xScale
+  var yScale = chart.meta.yScale
+  var line = d3.svg.line()
+    .interpolate('linear')
+    .x(function (d) { return xScale(d[0]) })
+    .y(function (d) { return yScale(d[1]) })
+  var area = d3.svg.area()
+    .x(function (d) { return xScale(d[0]) })
+    .y0(yScale(0))
+    .y1(function (d) { return yScale(d[1]) })
+
+  function plotLine (selection) {
+
+    selection.each(function (d) {
+      var el = plotLine.el = d3.select(this)
+      var index = d.index
+      var evaluatedData = evaluate(chart, d)
+      var color = utils.color(d, index)
+      var innerSelection = el.selectAll(':scope > path.line')
+        .data(evaluatedData)
+
+      innerSelection.enter()
+        .append('path')
+        .attr('class', 'line line-' + index)
+        .attr('stroke-width', 1)
+        .attr('stroke-linecap', 'round')
+
+      // enter + update
+      innerSelection
+        .each(function () {
+          var path = d3.select(this)
+          var pathD
+          if (d.closed) {
+            path.attr('fill', color)
+            path.attr('fill-opacity', 0.3)
+            pathD = area
+          } else {
+            path.attr('fill', 'none')
+            pathD = line
+          }
+          path
+            .attr('stroke', color)
+            .attr('marker-end', function () {
+              // special marker for vectors
+              return d.fnType === 'vector'
+                ? 'url(#' + chart.markerId + ')'
+                : null
+            })
+            .attr('d', pathD)
+        })
+        .attr(d.attr)
+
+      innerSelection.exit().remove()
+    })
+  }
+
+  return plotLine
+}
+
+},{"../evaluate":14,"../utils":33}],19:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+var d3 = window.d3
+var evaluate = require('../evaluate')
+var utils = require('../utils')
+
+module.exports = function (chart) {
+  var xScale = chart.meta.xScale
+  var yScale = chart.meta.yScale
+
+  function scatter (selection) {
+    selection.each(function (d) {
+      var i, j
+      var index = d.index
+      var color = utils.color(d, index)
+      var evaluatedData = evaluate(chart, d)
+
+      // scatter doesn't need groups, therefore each group is
+      // flattened into a single array
+      var joined = []
+      for (i = 0; i < evaluatedData.length; i += 1) {
+        for (j = 0; j < evaluatedData[i].length; j += 1) {
+          joined.push(evaluatedData[i][j])
+        }
+      }
+
+      var innerSelection = d3.select(this).selectAll(':scope > circle')
+        .data(joined)
+
+      innerSelection.enter()
+        .append('circle')
+
+      innerSelection
+        .attr('fill', d3.hsl(color.toString()).brighter(1.5))
+        .attr('stroke', color)
+        .attr('opacity', 0.7)
+        .attr('r', 1)
+        .attr('cx', function (d) { return xScale(d[0]) })
+        .attr('cy', function (d) { return yScale(d[1]) })
+        .attr(d.attr)
+
+      innerSelection.exit().remove()
+    })
+  }
+
+  return scatter
+}
+
+},{"../evaluate":14,"../utils":33}],20:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+var d3 = window.d3
+
+module.exports = function (options) {
+  var annotations
+  var xScale = options.owner.meta.xScale
+  var yScale = options.owner.meta.yScale
+
+  var line = d3.svg.line()
+    .x(function (d) { return d[0] })
+    .y(function (d) { return d[1] })
+
+  annotations = function (parentSelection) {
+    parentSelection.each(function () {
+      // join
+      var current = d3.select(this)
+      var selection = current.selectAll('g.annotations')
+        .data(function (d) { return d.annotations || [] })
+
+      // enter
+      selection.enter()
+        .append('g')
+        .attr('class', 'annotations')
+
+      // enter + update
+      // - path
+      var yRange = yScale.range()
+      var xRange = xScale.range()
+      var path = selection.selectAll('path')
+        .data(function (d) {
+          if (d.hasOwnProperty('x')) {
+            return [ [[0, yRange[0]], [0, yRange[1]]] ]
+          } else {
+            return [ [[xRange[0], 0], [xRange[1], 0]] ]
+          }
+        })
+      path.enter()
+        .append('path')
+        .attr('stroke', '#eee')
+        .attr('d', line)
+      path.exit().remove()
+
+      // enter + update
+      // - text
+      var text = selection.selectAll('text')
+        .data(function (d) {
+          return [{
+            text: d.text || '',
+            hasX: d.hasOwnProperty('x')
+          }]
+        })
+      text.enter()
+        .append('text')
+        .attr('y', function (d) {
+          return d.hasX ? 3 : 0
+        })
+        .attr('x', function (d) {
+          return d.hasX ? 0 : 3
+        })
+        .attr('dy', function (d) {
+          return d.hasX ? 5 : -5
+        })
+        .attr('text-anchor', function (d) {
+          return d.hasX ? 'end' : ''
+        })
+        .attr('transform', function (d) {
+          return d.hasX ? 'rotate(-90)' : ''
+        })
+        .text(function (d) { return d.text })
+      text.exit().remove()
+
+      // enter + update
+      // move group
+      selection
+        .attr('transform', function (d) {
+          if (d.hasOwnProperty('x')) {
+            return 'translate(' + xScale(d.x) + ', 0)'
+          } else {
+            return 'translate(0, ' + yScale(d.y) + ')'
+          }
+        })
+
+      // exit
+      selection.exit()
+        .remove()
+    })
+  }
+
+  return annotations
+}
+
+},{}],21:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+var d3 = window.d3
+var builtInEvaluator = require('./eval').builtIn
+var polyline = require('../graph-types/polyline')
+var datumDefaults = require('../datum-defaults')
+
+module.exports = function (chart) {
+  var derivativeDatum = datumDefaults({
+    skipTip: true,
+    nSamples: 2,
+    graphType: 'polyline'
+  })
+  var derivative
+
+  function computeLine (d) {
+    if (!d.derivative) {
+      return []
+    }
+    var x0 = typeof d.derivative.x0 === 'number' ? d.derivative.x0 : Infinity
+    derivativeDatum.index = d.index
+    derivativeDatum.scope = {
+      m: builtInEvaluator(d.derivative, 'fn', {x: x0}),
+      x0: x0,
+      y0: builtInEvaluator(d, 'fn', {x: x0})
+    }
+    derivativeDatum.fn = 'm * (x - x0) + y0'
+    return [derivativeDatum]
+  }
+
+  function checkAutoUpdate (d) {
+    var self = this
+    if (!d.derivative) {
+      return
+    }
+    if (d.derivative.updateOnMouseMove && !d.derivative.$$mouseListener) {
+      d.derivative.$$mouseListener = function (x0) {
+        // update initial value to be the position of the mouse
+        // scope's x0 will be updated on the next call to `derivative(self)`
+        d.derivative.x0 = x0
+        // trigger update (selection = self)
+        derivative(self)
+      }
+      // if d.derivative is destroyed and recreated, the tip:update event
+      // will be fired on the new d.derivative :)
+      chart.on('tip:update', d.derivative.$$mouseListener)
+    }
+  }
+
+  derivative = function (selection) {
+    selection.each(function (d) {
+      var el = d3.select(this)
+      var data = computeLine.call(selection, d)
+      checkAutoUpdate.call(selection, d)
+      var innerSelection = el.selectAll('g.derivative')
+        .data(data)
+
+      innerSelection.enter()
+        .append('g')
+        .attr('class', 'derivative')
+
+      // enter + update
+      innerSelection
+        .call(polyline(chart))
+
+      // update
+      // change the opacity of the line
+      innerSelection.selectAll('path')
+        .attr('opacity', 0.5)
+
+      innerSelection.exit().remove()
+    })
+  }
+
+  return derivative
+}
+
+},{"../datum-defaults":13,"../graph-types/polyline":18,"./eval":22}],22:[function(require,module,exports){
+'use strict'
+var samplers = {
+  interval: require('interval-arithmetic-eval'),
+  builtIn: require('built-in-math-eval')
+}
+var extend = require('extend')
+
+window.math && (samplers.builtIn = window.math.compile)
+
+function generateEvaluator (samplerName) {
+  function doCompile (expression) {
+    // compiles does the following
+    //
+    // when expression === string
+    //
+    //     gen = new require('math-codegen')
+    //     return gen.parse(expression).compile(Interval|BultInMath)
+    //
+    //     which is an object with the form
+    //
+    //     {
+    //       eval: function (scope) {
+    //         // math-codegen magic
+    //       }
+    //     }
+    //
+    // when expression === function
+    //
+    //    {
+    //      eval: expression
+    //    }
+    //
+    // othewise throw an error
+    if (typeof expression === 'string') {
+      var compile = samplers[samplerName]
+      return compile(expression)
+    } else if (typeof expression === 'function') {
+      return { eval: expression }
+    } else {
+      throw Error('expression must be a string or a function')
+    }
+  }
+
+  function compileIfPossible (meta, property) {
+    // compile the function using interval arithmetic, cache the result
+    // so that multiple calls with the same argument don't trigger the
+    // kinda expensive compilation process
+    var expression = meta[property]
+    var hiddenProperty = samplerName + '_Expression_' + property
+    var hiddenCompiled = samplerName + '_Compiled_' + property
+    if (expression !== meta[hiddenProperty]) {
+      meta[hiddenProperty] = expression
+      meta[hiddenCompiled] = doCompile(expression)
+    }
+  }
+
+  function getCompiledExpression (meta, property) {
+    return meta[samplerName + '_Compiled_' + property]
+  }
+
+  /**
+   * Evaluates meta[property] with `variables`
+   *
+   * - Compiles meta[property] if it wasn't compiled already (also with cache
+   *   check)
+   * - Evaluates the resulting function with the merge of meta.scope and
+   *   `variables`
+   *
+   * @param {Object} meta
+   * @param {String} property
+   * @param {Object} variables
+   * @returns {Number|Array} The builtIn evaluator returns a number, the
+   * interval evaluator an array
+   */
+  function evaluate (meta, property, variables) {
+    // e.g.
+    //
+    //  meta: {
+    //    fn: 'x + 3',
+    //    scope: { y: 3 }
+    //  }
+    //  property: 'fn'
+    //  variables:  { x: 3 }
+    //
+    compileIfPossible(meta, property)
+
+    return getCompiledExpression(meta, property).eval(
+      extend({}, meta.scope || {}, variables)
+    )
+  }
+
+  return evaluate
+}
+
+module.exports.builtIn = generateEvaluator('builtIn')
+module.exports.interval = generateEvaluator('interval')
+
+
+},{"built-in-math-eval":3,"extend":11,"interval-arithmetic-eval":36}],23:[function(require,module,exports){
+/**
+ * Created by mauricio on 4/8/15.
+ */
+'use strict'
+var d3 = window.d3
+var derivative = require('./derivative')
+var secant = require('./secant')
+
+module.exports = function (chart) {
+  function helper (selection) {
+    selection.each(function () {
+      var el = d3.select(this)
+      el.call(derivative(chart))
+      el.call(secant(chart))
+    })
+  }
+
+  return helper
+}
+
+},{"./derivative":21,"./secant":24}],24:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+var d3 = window.d3
+
+var extend = require('extend')
+var builtInEvaluator = require('./eval').builtIn
+var datumDefaults = require('../datum-defaults')
+var polyline = require('../graph-types/polyline')
+
+module.exports = function (chart) {
+  var secantDefaults = datumDefaults({
+    isHelper: true,
+    skipTip: true,
+    nSamples: 2,
+    graphType: 'polyline'
+  })
+  var secant
+
+  function computeSlope (scope) {
+    scope.m = (scope.y1 - scope.y0) / (scope.x1 - scope.x0)
+  }
+
+  function updateLine (d, secant) {
+    if (!secant.hasOwnProperty('x0')) {
+      throw Error('secant must have the property `x0` defined')
+    }
+    secant.scope = secant.scope || {}
+
+    var x0 = secant.x0
+    var x1 = typeof secant.x1 === 'number' ? secant.x1 : Infinity
+    extend(secant.scope, {
+      x0: x0,
+      x1: x1,
+      y0: builtInEvaluator(d, 'fn', {x: x0}),
+      y1: builtInEvaluator(d, 'fn', {x: x1})
+    })
+    computeSlope(secant.scope)
+  }
+
+  function setFn (d, secant) {
+    updateLine(d, secant)
+    secant.fn = 'm * (x - x0) + y0'
+  }
+
+  function setMouseListener (d, secantObject) {
+    var self = this
+    if (secantObject.updateOnMouseMove && !secantObject.$$mouseListener) {
+      secantObject.$$mouseListener = function (x1) {
+        secantObject.x1 = x1
+        updateLine(d, secantObject)
+        secant(self)
+      }
+      chart.on('tip:update', secantObject.$$mouseListener)
+    }
+  }
+
+  function computeLines (d) {
+    var self = this
+    var data = []
+    d.secants = d.secants || []
+    for (var i = 0; i < d.secants.length; i += 1) {
+      var secant = d.secants[i] = extend({}, secantDefaults, d.secants[i])
+      // necessary to make the secant have the same color as d
+      secant.index = d.index
+      if (!secant.fn) {
+        setFn.call(self, d, secant)
+        setMouseListener.call(self, d, secant)
+      }
+      data.push(secant)
+    }
+    return data
+  }
+
+  secant = function (selection) {
+    selection.each(function (d) {
+      var el = d3.select(this)
+      var data = computeLines.call(selection, d)
+      var innerSelection = el.selectAll('g.secant')
+        .data(data)
+
+      innerSelection.enter()
+        .append('g')
+        .attr('class', 'secant')
+
+      // enter + update
+      innerSelection
+        .call(polyline(chart))
+
+      // change the opacity of the secants
+      innerSelection.selectAll('path')
+        .attr('opacity', 0.5)
+
+      // exit
+      innerSelection.exit().remove()
+    })
+  }
+
+  return secant
+}
+
+},{"../datum-defaults":13,"../graph-types/polyline":18,"./eval":22,"extend":11}],25:[function(require,module,exports){
+/*
+ * function-plot
+ *
+ * Copyright (c) 2015 Mauricio Poppe
+ * Licensed under the MIT license.
+ */
+'use strict'
+require('./polyfills')
+
+var d3 = window.d3
+
+var events = require('events')
+var extend = require('extend')
+
+var mousetip = require('./tip')
+var helpers = require('./helpers/')
+var annotations = require('./helpers/annotations')
+var datumDefaults = require('./datum-defaults')
+
+var globals
+var graphTypes
+var cache = []
+
+module.exports = function (options) {
+  options = options || {}
+  options.data = options.data || []
+
+  // globals
+  var width, height
+  var margin
+  var zoomBehavior
+  var xScale, yScale
+  var line = d3.svg.line()
+    .x(function (d) { return xScale(d[0]) })
+    .y(function (d) { return yScale(d[1]) })
+
+  function Chart () {
+    var n = Math.random()
+    var letter = String.fromCharCode(Math.floor(n * 26) + 97)
+    this.id = options.id = letter + n.toString(16).substr(2)
+    this.linkedGraphs = [this]
+    this.options = options
+    cache[this.id] = this
+    this.setUpEventListeners()
+  }
+
+  Chart.prototype = Object.create(events.prototype)
+
+  /**
+   * Rebuilds the entire graph from scratch recomputing
+   *
+   * - the inner width/height
+   * - scales/axes
+   *
+   * After this is done it does a complete redraw of all the datums,
+   * if only the datums need to be redrawn call `instance.draw()` instead
+   *
+   * @returns {Chart}
+   */
+  Chart.prototype.build = function () {
+    this.internalVars()
+    this.drawGraphWrapper()
+    return this
+  }
+
+  Chart.prototype.initializeAxes = function () {
+    var integerFormat = d3.format('s')
+    var format = function (scale) {
+      return function (d) {
+        var decimalFormat = scale.tickFormat(10)
+        var isInteger = d === +d && d === (d | 0)
+        // integers: d3.format('s'), see https://github.com/mbostock/d3/wiki/Formatting
+        // decimals: default d3.scale.linear() formatting see
+        //    https://github.com/mbostock/d3/blob/master/src/svg/axis.js#L29
+        return isInteger ? integerFormat(d) : decimalFormat(d)
+      }
+    }
+
+    function computeYScale (xScale) {
+      // assumes that xScale is a linear scale
+      var xDiff = xScale[1] - xScale[0]
+      return height * xDiff / width
+    }
+
+    options.xAxis = options.xAxis || {}
+    options.xAxis.type = options.xAxis.type || 'linear'
+
+    options.yAxis = options.yAxis || {}
+    options.yAxis.type = options.yAxis.type || 'linear'
+
+    var xDomain = this.meta.xDomain = (function (axis) {
+      if (axis.domain) {
+        return axis.domain
+      }
+      if (axis.type === 'linear') {
+        var xLimit = 12
+        return [-xLimit / 2, xLimit / 2]
+      } else if (axis.type === 'log') {
+        return [1, 10]
+      }
+      throw Error('axis type ' + axis.type + ' unsupported')
+    })(options.xAxis)
+
+    var yDomain = this.meta.yDomain = (function (axis) {
+      if (axis.domain) {
+        return axis.domain
+      }
+      var yLimit = computeYScale(xDomain)
+      if (axis.type === 'linear') {
+        return [-yLimit / 2, yLimit / 2]
+      } else if (axis.type === 'log') {
+        return [1, 10]
+      }
+      throw Error('axis type ' + axis.type + ' unsupported')
+    })(options.yAxis)
+
+    if (xDomain[0] >= xDomain[1]) {
+      throw Error('the pair defining the x-domain is inverted')
+    }
+    if (yDomain[0] >= yDomain[1]) {
+      throw Error('the pair defining the y-domain is inverted')
+    }
+
+    xScale = this.meta.xScale = d3.scale[options.xAxis.type]()
+      .domain(xDomain)
+      .range([0, width])
+    yScale = this.meta.yScale = d3.scale[options.yAxis.type]()
+      .domain(yDomain)
+      .range([height, 0])
+    this.meta.xAxis = d3.svg.axis()
+      .scale(xScale)
+      .tickSize(options.grid ? -height : 0)
+      .tickFormat(format(xScale))
+      .orient('bottom')
+    this.meta.yAxis = d3.svg.axis()
+      .scale(yScale)
+      .tickSize(options.grid ? -width : 0)
+      .tickFormat(format(yScale))
+      .orient('left')
+  }
+
+  Chart.prototype.internalVars = function () {
+    // measurements and other derived data
+    this.meta = {}
+
+    margin = this.meta.margin = {left: 30, right: 30, top: 20, bottom: 20}
+    // margin = this.meta.margin = {left: 0, right: 0, top: 20, bottom: 20}
+    // if there's a title make the top margin bigger
+    if (options.title) {
+      this.meta.margin.top = 40
+    }
+
+    zoomBehavior = this.meta.zoomBehavior = d3.behavior.zoom()
+
+    // inner width/height
+    width = this.meta.width = (options.width || globals.DEFAULT_WIDTH) -
+      margin.left - margin.right
+    height = this.meta.height = (options.height || globals.DEFAULT_HEIGHT) -
+      margin.top - margin.bottom
+
+    this.initializeAxes()
+  }
+
+  Chart.prototype.drawGraphWrapper = function () {
+    var root = this.root = d3.select(options.target).selectAll('svg')
+      .data([options])
+
+    // enter
+    this.root.enter = root.enter()
+      .append('svg')
+      .attr('class', 'function-plot')
+      .attr('font-size', this.getFontSize())
+
+    // merge
+    root
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+
+    this.buildTitle()
+    this.buildLegend()
+    this.buildCanvas()
+    this.buildClip()
+    this.buildAxis()
+    this.buildAxisLabel()
+
+    // draw each datum after the wrapper was set up
+    this.draw()
+
+    // helper to detect the closest fn to the cursor's current abscissa
+    var tip = this.tip = mousetip(extend(options.tip, { owner: this }))
+    this.canvas
+      .call(tip)
+
+    this.buildZoomHelper()
+    this.setUpPlugins()
+  }
+
+  Chart.prototype.buildTitle = function () {
+    // join
+    var selection = this.root.selectAll('text.title')
+      .data(function (d) {
+        return [d.title].filter(Boolean)
+      })
+
+    // enter
+    selection.enter()
+      .append('text')
+      .attr('class', 'title')
+      .attr('y', margin.top / 2)
+      .attr('x', margin.left + width / 2)
+      .attr('font-size', 25)
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'middle')
+      .text(options.title)
+
+    // exit
+    selection.exit().remove()
+  }
+
+  Chart.prototype.buildLegend = function () {
+    // enter
+    this.root.enter
+      .append('text')
+      .attr('class', 'top-right-legend')
+      .attr('text-anchor', 'end')
+
+    // update + enter
+    this.root.select('.top-right-legend')
+      .attr('y', margin.top / 2)
+      .attr('x', width + margin.left)
+  }
+
+  Chart.prototype.buildCanvas = function () {
+    var self = this
+
+    this.meta.zoomBehavior
+      .x(xScale)
+      .y(yScale)
+      .on('zoom', function onZoom () {
+        self.emit('all:zoom', d3.event.translate, d3.event.scale)
+      })
+
+    // enter
+    var canvas = this.canvas = this.root
+      .selectAll('.canvas')
+      .data(function (d) { return [d] })
+
+    this.canvas.enter = canvas.enter()
+      .append('g')
+      .attr('class', 'canvas')
+
+    // enter + update
+  }
+
+  Chart.prototype.buildClip = function () {
+    // (so that the functions don't overflow on zoom or drag)
+    var id = this.id
+    var defs = this.canvas.enter.append('defs')
+    defs.append('clipPath')
+      .attr('id', 'function-plot-clip-' + id)
+      .append('rect')
+      .attr('class', 'clip static-clip')
+
+    // enter + update
+    this.canvas.selectAll('.clip')
+      .attr('width', width)
+      .attr('height', height)
+
+    // marker clip (for vectors)
+    this.markerId = this.id + '-marker'
+    defs.append('clipPath')
+      .append('marker')
+      .attr('id', this.markerId)
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 10)
+      .attr('markerWidth', 5)
+      .attr('markerHeight', 5)
+      .attr('orient', 'auto')
+      .append('svg:path')
+      .attr('d', 'M0,-5L10,0L0,5L0,0')
+      .attr('stroke-width', '0px')
+      .attr('fill-opacity', 1)
+      .attr('fill', '#777')
+  }
+
+  Chart.prototype.buildAxis = function () {
+    // axis creation
+    var canvasEnter = this.canvas.enter
+    canvasEnter.append('g')
+      .attr('class', 'x axis')
+    canvasEnter.append('g')
+      .attr('class', 'y axis')
+
+    // update
+    this.canvas.select('.x.axis')
+      .attr('transform', 'translate(0,' + height + ')')
+      .call(this.meta.xAxis)
+    this.canvas.select('.y.axis')
+      .call(this.meta.yAxis)
+
+  }
+
+  Chart.prototype.buildAxisLabel = function () {
+    // axis labeling
+    var xLabel, yLabel
+    var canvas = this.canvas
+
+    xLabel = canvas.selectAll('text.x.axis-label')
+      .data(function (d) {
+        return [d.xAxis.label].filter(Boolean)
+      })
+    xLabel.enter()
+      .append('text')
+      .attr('class', 'x axis-label')
+      .attr('text-anchor', 'end')
+    xLabel
+      .attr('x', width)
+      .attr('y', height - 6)
+      .text(function (d) { return d })
+    xLabel.exit().remove()
+
+    yLabel = canvas.selectAll('text.y.axis-label')
+      .data(function (d) {
+        return [d.yAxis.label].filter(Boolean)
+      })
+    yLabel.enter()
+      .append('text')
+      .attr('class', 'y axis-label')
+      .attr('y', 6)
+      .attr('dy', '.75em')
+      .attr('text-anchor', 'end')
+      .attr('transform', 'rotate(-90)')
+    yLabel
+      .text(function (d) { return d })
+    yLabel.exit().remove()
+  }
+
+  /**
+   * @private
+   *
+   * Draws each of the datums stored in data.options, to do a full
+   * redraw call `instance.draw()`
+   */
+  Chart.prototype.buildContent = function () {
+    var self = this
+    var canvas = this.canvas
+
+    canvas
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+      .call(zoomBehavior)
+      .each(function () {
+        var el = d3.select(this)
+        // make a copy of all the listeners available to be removed/added later
+        var listeners = ['mousedown', 'mousewheel', 'mouseover', 'DOMMouseScroll', 'dblclick', 'wheel', 'MozMousePixelScroll']
+        listeners = listeners.map(function (l) { return l + '.zoom' })
+        if (!el._hasZoomListeners) {
+          listeners.forEach(function (l) {
+            el['_' + l] = el.on(l)
+          })
+        }
+        function setState (state) {
+          listeners.forEach(function (l) {
+            state ? el.on(l, el['_' + l]) : el.on(l, null)
+          })
+        }
+        setState(!options.disableZoom)
+      })
+
+    var content = this.content = canvas.selectAll(':scope > g.content')
+      .data(function (d) { return [d] })
+
+    // g tag clipped to hold the data
+    content.enter()
+      .append('g')
+      .attr('clip-path', 'url(#function-plot-clip-' + this.id + ')')
+      .attr('class', 'content')
+
+    // helper line, x = 0
+    if (options.xAxis.type === 'linear') {
+      var yOrigin = content.selectAll(':scope > path.y.origin')
+      .data([ [[0, yScale.domain()[0]], [0, yScale.domain()[1]]] ])
+      yOrigin.enter()
+      .append('path')
+      .attr('class', 'y origin')
+      .attr('stroke', 'black')
+      .attr('opacity', 0.2)
+      yOrigin.attr('d', line)
+    }
+
+    // helper line y = 0
+    if (options.yAxis.type === 'linear') {
+      var xOrigin = content.selectAll(':scope > path.x.origin')
+        .data([ [[xScale.domain()[0], 0], [xScale.domain()[1], 0]] ])
+      xOrigin.enter()
+        .append('path')
+        .attr('class', 'x origin')
+        .attr('stroke', 'black')
+        .attr('opacity', 0.2)
+      xOrigin.attr('d', line)
+    }
+
+    // annotations
+    content
+      .call(annotations({ owner: self }))
+
+    // content construction
+    // - join options.data to <g class='graph'> elements
+    // - for each datum determine the sampler to use
+    var graphs = content.selectAll(':scope > g.graph')
+      .data(function (d) {
+        return d.data.map(datumDefaults)
+      })
+
+    // enter
+    graphs
+      .enter()
+      .append('g')
+      .attr('class', 'graph')
+
+    // enter + update
+    graphs
+      .each(function (d, index) {
+        // additional options needed in the graph-types/helpers
+        d.index = index
+
+        d3.select(this)
+          .call(graphTypes[d.graphType](self))
+        d3.select(this)
+          .call(helpers(self))
+      })
+  }
+
+  Chart.prototype.buildZoomHelper = function () {
+    // dummy rect (detects the zoom + drag)
+    var self = this
+
+    // enter
+    this.draggable = this.canvas.enter
+      .append('rect')
+      .attr('class', 'zoom-and-drag')
+      .style('fill', 'none')
+      .style('pointer-events', 'all')
+
+    // update
+    this.canvas.select('.zoom-and-drag')
+      .attr('width', width)
+      .attr('height', height)
+      .on('mouseover', function () {
+        self.emit('all:mouseover')
+      })
+      .on('mouseout', function () {
+        self.emit('all:mouseout')
+      })
+      .on('mousemove', function () {
+        self.emit('all:mousemove')
+      })
+  }
+
+  Chart.prototype.setUpPlugins = function () {
+    var plugins = options.plugins || []
+    var self = this
+    plugins.forEach(function (plugin) {
+      plugin(self)
+    })
+  }
+
+  Chart.prototype.addLink = function () {
+    for (var i = 0; i < arguments.length; i += 1) {
+      this.linkedGraphs.push(arguments[i])
+    }
+  }
+
+  Chart.prototype.updateAxes = function () {
+    var instance = this
+    var canvas = instance.canvas
+    canvas.select('.x.axis').call(instance.meta.xAxis)
+    canvas.select('.y.axis').call(instance.meta.yAxis)
+
+    // updates the style of the axes
+    canvas.selectAll('.axis path, .axis line')
+      .attr('fill', 'none')
+      .attr('stroke', 'black')
+      .attr('shape-rendering', 'crispedges')
+      .attr('opacity', 0.1)
+  }
+
+  Chart.prototype.syncOptions = function () {
+    // update the original options yDomain and xDomain
+    this.options.xAxis.domain = this.meta.xScale.domain()
+    this.options.yAxis.domain = this.meta.yScale.domain()
+  }
+
+  Chart.prototype.programmaticZoom = function (xDomain, yDomain) {
+    var instance = this
+    d3.transition()
+      .duration(750)
+      .tween('zoom', function () {
+        var ix = d3.interpolate(xScale.domain(), xDomain)
+        var iy = d3.interpolate(yScale.domain(), yDomain)
+        return function (t) {
+          zoomBehavior
+            .x(xScale.domain(ix(t)))
+            .y(yScale.domain(iy(t)))
+          instance.draw()
+        }
+      })
+      .each('end', function () {
+        instance.emit('programmatic-zoom')
+      })
+  }
+
+  Chart.prototype.getFontSize = function () {
+    return Math.max(Math.max(width, height) / 50, 8)
+  }
+
+  Chart.prototype.draw = function () {
+    var instance = this
+    instance.emit('before:draw')
+    instance.syncOptions()
+    instance.updateAxes()
+    instance.buildContent()
+    instance.emit('after:draw')
+  }
+
+  Chart.prototype.setUpEventListeners = function () {
+    var instance = this
+
+    var events = {
+      mousemove: function (coordinates) {
+        instance.tip.move(coordinates)
+      },
+
+      mouseover: function () {
+        instance.tip.show()
+      },
+
+      mouseout: function () {
+        instance.tip.hide()
+      },
+
+      zoom: function (translate, scale) {
+        zoomBehavior
+          .translate(translate)
+          .scale(scale)
+      },
+
+      'tip:update': function (x, y, index) {
+        var meta = instance.root.datum().data[index]
+        var title = meta.title || ''
+        var format = meta.renderer || function (x, y) {
+            return x.toFixed(3) + ', ' + y.toFixed(3)
+          }
+
+        var text = []
+        title && text.push(title)
+        text.push(format(x, y))
+
+        instance.root.select('.top-right-legend')
+          .attr('fill', globals.COLORS[index])
+          .text(text.join(' '))
+      }
+
+    }
+
+    var all = {
+      mousemove: function () {
+        var mouse = d3.mouse(instance.root.select('rect.zoom-and-drag').node())
+        var coordinates = {
+          x: xScale.invert(mouse[0]),
+          y: yScale.invert(mouse[1])
+        }
+        instance.linkedGraphs.forEach(function (graph) {
+          graph.emit('before:mousemove', coordinates)
+          graph.emit('mousemove', coordinates)
+        })
+      },
+
+      zoom: function (translate, scale) {
+        instance.linkedGraphs.forEach(function (graph, i) {
+          graph.emit('zoom', translate, scale)
+          graph.draw()
+        })
+
+        // emit the position of the mouse to all the registered graphs
+        instance.emit('all:mousemove')
+      }
+
+    }
+
+    Object.keys(events).forEach(function (e) {
+      instance.on(e, events[e])
+      // create an event for each event existing on `events` in the form 'all:' event
+      // e.g. all:mouseover all:mouseout
+      // the objective is that all the linked graphs receive the same event as the current graph
+      !all[e] && instance.on('all:' + e, function () {
+        var args = Array.prototype.slice.call(arguments)
+        instance.linkedGraphs.forEach(function (graph) {
+          var localArgs = args.slice()
+          localArgs.unshift(e)
+          graph.emit.apply(graph, localArgs)
+        })
+      })
+    })
+
+    Object.keys(all).forEach(function (e) {
+      instance.on('all:' + e, all[e])
+    })
+  }
+
+  var instance = cache[options.id]
+  if (!instance) {
+    instance = new Chart()
+  }
+  return instance.build()
+}
+globals = module.exports.globals = require('./globals')
+graphTypes = module.exports.graphTypes = require('./graph-types/')
+module.exports.plugins = require('./plugins/')
+module.exports.eval = require('./helpers/eval')
+
+},{"./datum-defaults":13,"./globals":15,"./graph-types/":16,"./helpers/":23,"./helpers/annotations":20,"./helpers/eval":22,"./plugins/":27,"./polyfills":29,"./tip":32,"events":582,"extend":11}],26:[function(require,module,exports){
+var d3 = window.d3
+var extend = require('extend')
+var pressed = require('key-pressed')
+var keydown = require('keydown')
+var integrateSimpson = require('integrate-adaptive-simpson')
+module.exports = function (options) {
+  options = extend({
+    key: '<shift>',
+    // true to make the brush mask visible/hidden on keydown
+    // by default the mask will be visible only when the `key`
+    // combination is pressed
+    toggle: false
+  }, options)
+
+  var brush = d3.svg.brush()
+  var kd = keydown(options.key)
+  var visible = false
+  var cachedInstance
+
+  // the integrator module requires a function with a single parameter x
+  function wrapper (datum) {
+    return function (x) {
+      var functionPlot = window.functionPlot
+      return functionPlot.eval.builtIn(datum, 'fn', {x: x})
+    }
+  }
+
+  function setBrushState (visible) {
+    var brushEl = cachedInstance.canvas.selectAll('.definite-integral')
+    brushEl.style('display', visible ? null : 'none')
+  }
+
+  function inner (instance) {
+    cachedInstance = instance
+    // update the brush scale with the instance scale
+    var oldDisableZoom
+    brush
+      .x(instance.meta.xScale)
+      .on('brushstart', function () {
+        if (!d3.event.sourceEvent) return
+        oldDisableZoom = !!instance.options.disableZoom
+        instance.options.disableZoom = true
+        // replot the samples with the option disableZoom set to true
+        instance.emit('draw')
+      })
+      .on('brushend', function () {
+        if (!d3.event.sourceEvent) return
+        instance.options.disableZoom = oldDisableZoom
+
+        if (!brush.empty()) {
+          var a = brush.extent()[0]
+          var b = brush.extent()[1]
+          // iterate the data finding the value of the definite integral
+          // with bounds `a` and `b`
+          instance.options.data.forEach(function (datum, i) {
+            var value = integrateSimpson(wrapper(datum), a, b, options.tol, options.maxdepth)
+            instance.emit('definite-integral', datum, i, value, a, b)
+          })
+        }
+        // replot the samples with the option disableZoom set to whatever it was before
+        instance.draw()
+      })
+    var brushEl = instance.canvas.append('g').attr('class', 'brush definite-integral')
+    brushEl
+      .call(brush)
+      .call(brush.event)
+
+    instance.canvas.selectAll('.brush .extent')
+      .attr('stroke', '#fff')
+      .attr('fill-opacity', 0.125)
+      .attr('shape-rendering', 'crispEdges')
+
+    brushEl.selectAll('rect')
+      .attr('height', instance.meta.height)
+
+    instance.canvas
+      .on('mousemove.definiteIntegral', function () {
+        // options.toggle sets the mask visibility when all the required
+        // are pressed once and it's not disabled on keyup
+        if (!options.toggle) {
+          inner.visible(pressed(options.key))
+        }
+      })
+    kd.on('pressed', function () {
+      inner.visible(options.toggle ? !inner.visible() : true)
+    })
+    inner.visible(false)
+  }
+
+  inner.visible = function (_) {
+    if (!arguments.length) {
+      return visible
+    }
+    visible = _
+    setBrushState(_)
+    return inner
+  }
+
+  return inner
+}
+
+},{"extend":11,"integrate-adaptive-simpson":35,"key-pressed":54,"keydown":55}],27:[function(require,module,exports){
+module.exports = {
+  zoomBox: require('./zoom-box'),
+  definiteIntegral: require('./definite-integral')
+}
+
+},{"./definite-integral":26,"./zoom-box":28}],28:[function(require,module,exports){
+var d3 = window.d3
+var extend = require('extend')
+var pressed = require('key-pressed')
+var keydown = require('keydown')
+module.exports = function (options) {
+  options = extend({
+    key: '<shift>',
+    // true to make the brush mask visible/hidden on keydown
+    // by default the mask will be visible only when the `key`
+    // combination is pressed
+    toggle: false
+  }, options)
+
+  var brush = d3.svg.brush()
+  var kd = keydown(options.key)
+  var cachedInstance
+  var visible = false
+
+  function setBrushState (visible) {
+    var brushEl = cachedInstance.canvas.selectAll('.zoom-box')
+    brushEl.style('display', visible ? null : 'none')
+  }
+
+  function inner (instance) {
+    cachedInstance = instance
+    // update the brush scale with the instance scale
+    var oldDisableZoom
+    brush
+      .x(instance.meta.xScale)
+      .y(instance.meta.yScale)
+      .on('brushstart', function () {
+        if (!d3.event.sourceEvent) return
+        oldDisableZoom = !!instance.options.disableZoom
+        instance.options.disableZoom = true
+        // redrawing the canvas with the option disableZoom set to true
+        instance.draw()
+      })
+      .on('brushend', function () {
+        if (!d3.event.sourceEvent) return
+        instance.options.disableZoom = oldDisableZoom
+
+        if (!brush.empty()) {
+          var lo = brush.extent()[0]
+          var hi = brush.extent()[1]
+          var x = [lo[0], hi[0]]
+          var y = [lo[1], hi[1]]
+          instance.programmaticZoom(x, y)
+        }
+        d3.select(this)
+          .transition()
+          .duration(1)
+          .call(brush.clear())
+          .call(brush.event)
+      })
+    var brushEl = instance.canvas.append('g').attr('class', 'brush zoom-box')
+    brushEl
+      .call(brush)
+      .call(brush.event)
+
+    instance.canvas.selectAll('.brush .extent')
+      .attr('stroke', '#fff')
+      .attr('fill-opacity', 0.125)
+      .attr('shape-rendering', 'crispEdges')
+
+    instance.canvas
+      .on('mousemove.zoombox', function () {
+        // options.toggle sets the mask visibility when all the required
+        // are pressed once and it's not disabled on keyup
+        if (!options.toggle) {
+          inner.visible(pressed(options.key))
+        }
+      })
+    kd.on('pressed', function () {
+      inner.visible(options.toggle ? !inner.visible() : true)
+    })
+    inner.visible(false)
+  }
+
+  inner.visible = function (_) {
+    if (!arguments.length) {
+      return visible
+    }
+    visible = _
+    setBrushState(_)
+    return inner
+  }
+
+  return inner
+}
+
+},{"extend":11,"key-pressed":54,"keydown":55}],29:[function(require,module,exports){
+// issue: https://github.com/maurizzzio/function-plot/issues/6
+// solution: the line type is selecting the derivative line when the content is re-drawn, then when the
+// derivative was redrawn an already selected line (by the line type) was used thus making a single line
+// disappear from the graph, to avoid the selection of the derivative line the selector needs to
+// work only for immediate children which is done with `:scope >`
+// src: http://stackoverflow.com/questions/6481612/queryselector-search-immediate-children
+/*eslint-disable */
+;(function (doc, proto) {
+  try { // check if browser supports :scope natively
+    doc.querySelector(':scope body')
+  } catch (err) { // polyfill native methods if it doesn't
+    ['querySelector', 'querySelectorAll'].forEach(function (method) {
+      var native = proto[method]
+      proto[method] = function (selectors) {
+        if (/(^|,)\s*:scope/.test(selectors)) { // only if selectors contains :scope
+          var id = this.id // remember current element id
+          this.id = 'ID_' + Date.now() // assign new unique id
+          selectors = selectors.replace(/((^|,)\s*):scope/g, '$1#' + this.id); // replace :scope with #ID
+          var result = doc[method](selectors)
+          this.id = id // restore previous id
+          return result
+        } else {
+          return native.call(this, selectors) // use native code for other selectors
+        }
+      }
+    })
+  }
+})(window.document, Element.prototype)
+/*eslint-enable */
+
+},{}],30:[function(require,module,exports){
+'use strict'
+var clamp = require('clamp')
+var linspace = require('linspace')
+
+var utils = require('../utils')
+var evaluate = require('../helpers/eval').builtIn
+
+function checkAsymptote (d0, d1, meta, sign, level) {
+  if (!level) {
+    return {
+      asymptote: true,
+      d0: d0,
+      d1: d1
+    }
+  }
+  var i
+  var n = 10
+  var x0 = d0[0]
+  var x1 = d1[0]
+  var samples = linspace(x0, x1, n)
+  var oldY, oldX
+  for (i = 0; i < n; i += 1) {
+    var x = samples[i]
+    var y = evaluate(meta, 'fn', {x: x})
+
+    if (i) {
+      var deltaY = y - oldY
+      var newSign = utils.sgn(deltaY)
+      if (newSign === sign) {
+        return checkAsymptote([oldX, oldY], [x, y], meta, sign, level - 1)
+      }
+    }
+    oldY = y
+    oldX = x
+  }
+  return {
+    asymptote: false,
+    d0: d0,
+    d1: d1
+  }
+}
+
+/**
+ * Splits the evaluated data into arrays, each array is separated by any asymptote found
+ * through the process of detecting slope/sign brusque changes
+ * @param chart
+ * @param data
+ * @returns {Array[]}
+ */
+function split (chart, meta, data) {
+  var i, oldSign
+  var deltaX
+  var st = []
+  var sets = []
+  var domain = chart.meta.yScale.domain()
+  var zoomScale = chart.meta.zoomBehavior.scale()
+  var yMin = domain[0]
+  var yMax = domain[1]
+
+  if (data[0]) {
+    st.push(data[0])
+    deltaX = data[1][0] - data[0][0]
+    oldSign = utils.sgn(data[1][1] - data[0][1])
+  }
+
+  function updateY (d) {
+    d[1] = Math.min(d[1], yMax)
+    d[1] = Math.max(d[1], yMin)
+    return d
+  }
+
+  i = 1
+  while (i < data.length) {
+    var y0 = data[i - 1][1]
+    var y1 = data[i][1]
+    var deltaY = y1 - y0
+    var newSign = utils.sgn(deltaY)
+    // make a new set if:
+    if (// utils.sgn(y1) * utils.sgn(y0) < 0 && // there's a change in the evaluated values sign
+      // there's a change in the slope sign
+      oldSign !== newSign &&
+      // the slope is bigger to some value (according to the current zoom scale)
+      Math.abs(deltaY / deltaX) > 1 / zoomScale) {
+      // retest this section again and determine if it's an asymptote
+      var check = checkAsymptote(data[i - 1], data[i], meta, newSign, 3)
+      if (check.asymptote) {
+        st.push(updateY(check.d0))
+        sets.push(st)
+        st = [updateY(check.d1)]
+      }
+    }
+    oldSign = newSign
+    st.push(data[i])
+    ++i
+  }
+
+  if (st.length) {
+    sets.push(st)
+  }
+
+  return sets
+}
+
+function linear (chart, meta, range, n) {
+  var allX = utils.space(chart, range, n)
+  var yDomain = chart.meta.yScale.domain()
+  var yDomainMargin = (yDomain[1] - yDomain[0])
+  var yMin = yDomain[0] - yDomainMargin * 1e5
+  var yMax = yDomain[1] + yDomainMargin * 1e5
+  var data = []
+  var i
+  for (i = 0; i < allX.length; i += 1) {
+    var x = allX[i]
+    var y = evaluate(meta, 'fn', {x: x})
+    if (utils.isValidNumber(x) && utils.isValidNumber(y)) {
+      data.push([x, clamp(y, yMin, yMax)])
+    }
+  }
+  data = split(chart, meta, data)
+  return data
+}
+
+function parametric (chart, meta, range, nSamples) {
+  // range is mapped to canvas coordinates from the input
+  // for parametric plots the range will tell the start/end points of the `t` param
+  var parametricRange = meta.range || [0, 2 * Math.PI]
+  var tCoords = utils.space(chart, parametricRange, nSamples)
+  var samples = []
+  for (var i = 0; i < tCoords.length; i += 1) {
+    var t = tCoords[i]
+    var x = evaluate(meta, 'x', {t: t})
+    var y = evaluate(meta, 'y', {t: t})
+    samples.push([x, y])
+  }
+  return [samples]
+}
+
+function polar (chart, meta, range, nSamples) {
+  // range is mapped to canvas coordinates from the input
+  // for polar plots the range will tell the start/end points of the `theta` param
+  var polarRange = meta.range || [-Math.PI, Math.PI]
+  var thetaSamples = utils.space(chart, polarRange, nSamples)
+  var samples = []
+  for (var i = 0; i < thetaSamples.length; i += 1) {
+    var theta = thetaSamples[i]
+    var r = evaluate(meta, 'r', {theta: theta})
+    var x = r * Math.cos(theta)
+    var y = r * Math.sin(theta)
+    samples.push([x, y])
+  }
+  return [samples]
+}
+
+function points (chart, meta, range, nSamples) {
+  return [meta.points]
+}
+
+function vector (chart, meta, range, nSamples) {
+  meta.offset = meta.offset || [0, 0]
+  return [[
+    meta.offset,
+    [meta.vector[0] + meta.offset[0], meta.vector[1] + meta.offset[1]]
+  ]]
+}
+
+var sampler = function (chart, d, range, nSamples) {
+  var fnTypes = {
+    parametric: parametric,
+    polar: polar,
+    points: points,
+    vector: vector,
+    linear: linear
+  }
+  if (!(d.fnType in fnTypes)) {
+    throw Error(d.fnType + ' is not supported in the `builtIn` sampler')
+  }
+  return fnTypes[d.fnType].apply(null, arguments)
+}
+
+module.exports = sampler
+
+},{"../helpers/eval":22,"../utils":33,"clamp":6,"linspace":56}],31:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/14/15.
+ */
+'use strict'
+var intervalArithmeticEval = require('interval-arithmetic-eval')
+var Interval = intervalArithmeticEval.Interval
+
+var evaluate = require('../helpers/eval').interval
+var utils = require('../utils')
+
+// disable the use of typed arrays in interval-arithmetic to improve the performance
+intervalArithmeticEval.policies.disableRounding()
+
+function interval1d (chart, meta, range, nSamples) {
+  var xCoords = utils.space(chart, range, nSamples)
+  var xScale = chart.meta.xScale
+  var yScale = chart.meta.yScale
+  var yMin = yScale.domain()[0]
+  var yMax = yScale.domain()[1]
+  var samples = []
+  var i
+  for (i = 0; i < xCoords.length - 1; i += 1) {
+    var x = {lo: xCoords[i], hi: xCoords[i + 1]}
+    var y = evaluate(meta, 'fn', {x: x})
+    if (!Interval.isEmpty(y) && !Interval.isWhole(y)) {
+      samples.push([x, y])
+    }
+    if (Interval.isWhole(y)) {
+      // means that the next and prev intervals need to be fixed
+      samples.push(null)
+    }
+  }
+
+  // asymptote determination
+  for (i = 1; i < samples.length - 1; i += 1) {
+    if (!samples[i]) {
+      var prev = samples[i - 1]
+      var next = samples[i + 1]
+      if (prev && next && !Interval.intervalsOverlap(prev[1], next[1])) {
+        // case:
+        //
+        //   |
+        //
+        //     |
+        //
+        //   p n
+        if (prev[1].lo > next[1].hi) {
+          prev[1].hi = Math.max(yMax, prev[1].hi)
+          next[1].lo = Math.min(yMin, next[1].lo)
+        }
+        // case:
+        //
+        //     |
+        //
+        //   |
+        //
+        //   p n
+        if (prev[1].hi < next[1].lo) {
+          prev[1].lo = Math.min(yMin, prev[1].lo)
+          next[1].hi = Math.max(yMax, next[1].hi)
+        }
+      }
+    }
+  }
+
+  samples.scaledDx = xScale(xCoords[1]) - xScale(xCoords[0])
+  return [samples]
+}
+
+var rectEps
+function smallRect (x, y) {
+  return Interval.width(x) < rectEps
+}
+
+function quadTree (x, y, meta) {
+  var sample = evaluate(meta, 'fn', {
+    x: x,
+    y: y
+  })
+  var fulfills = Interval.zeroIn(sample)
+  if (!fulfills) { return this }
+  if (smallRect(x, y)) {
+    this.push([x, y])
+    return this
+  }
+  var midX = x.lo + (x.hi - x.lo) / 2
+  var midY = y.lo + (y.hi - y.lo) / 2
+  var east = {lo: midX, hi: x.hi}
+  var west = {lo: x.lo, hi: midX}
+  var north = {lo: midY, hi: y.hi}
+  var south = {lo: y.lo, hi: midY}
+
+  quadTree.call(this, east, north, meta)
+  quadTree.call(this, east, south, meta)
+  quadTree.call(this, west, north, meta)
+  quadTree.call(this, west, south, meta)
+}
+
+function interval2d (chart, meta) {
+  var xScale = chart.meta.xScale
+  var xDomain = chart.meta.xScale.domain()
+  var yDomain = chart.meta.yScale.domain()
+  var x = {lo: xDomain[0], hi: xDomain[1]}
+  var y = {lo: yDomain[0], hi: yDomain[1]}
+  var samples = []
+  // 1 px
+  rectEps = xScale.invert(1) - xScale.invert(0)
+  quadTree.call(samples, x, y, meta)
+  samples.scaledDx = 1
+  return [samples]
+}
+
+var sampler = function (chart, d, range, nSamples) {
+  var fnTypes = {
+    implicit: interval2d,
+    linear: interval1d
+  }
+  if (!(fnTypes.hasOwnProperty(d.fnType))) {
+    throw Error(d.fnType + ' is not supported in the `interval` sampler')
+  }
+  return fnTypes[d.fnType].apply(null, arguments)
+}
+
+module.exports = sampler
+
+},{"../helpers/eval":22,"../utils":33,"interval-arithmetic-eval":36}],32:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+var d3 = window.d3
+var extend = require('extend')
+var utils = require('./utils')
+var clamp = require('clamp')
+var globals = require('./globals')
+var builtInEvaluator = require('./helpers/eval').builtIn
+
+module.exports = function (config) {
+  config = extend({
+    xLine: false,
+    yLine: false,
+    renderer: function (x, y) {
+      return '(' + x.toFixed(3) + ', ' + y.toFixed(3) + ')'
+    },
+    owner: null
+  }, config)
+
+  var MARGIN = 20
+
+  var line = d3.svg.line()
+    .x(function (d) { return d[0] })
+    .y(function (d) { return d[1] })
+
+  function lineGenerator (el, data) {
+    return el.append('path')
+      .datum(data)
+      .attr('stroke', 'grey')
+      .attr('stroke-dasharray', '5,5')
+      .attr('opacity', 0.5)
+      .attr('d', line)
+  }
+
+  function tip (selection) {
+    var innerSelection = selection.selectAll('g.tip')
+      .data(function (d) { return [d] })
+
+    // enter
+    innerSelection
+      .enter().append('g')
+      .attr('class', 'tip')
+      .attr('clip-path', 'url(#function-plot-clip-' + config.owner.id + ')')
+
+    // enter + update = enter inner tip
+    tip.el = innerSelection.selectAll('g.inner-tip')
+      .data(function (d) {
+        // debugger
+        return [d]
+      })
+
+    tip.el.enter()
+      .append('g')
+      .attr('class', 'inner-tip')
+      .style('display', 'none')
+      .each(function () {
+        var el = d3.select(this)
+        lineGenerator(el, [[0, -config.owner.meta.height - MARGIN], [0, config.owner.meta.height + MARGIN]])
+          .attr('class', 'tip-x-line')
+          .style('display', 'none')
+        lineGenerator(el, [[-config.owner.meta.width - MARGIN, 0], [config.owner.meta.width + MARGIN, 0]])
+          .attr('class', 'tip-y-line')
+          .style('display', 'none')
+        el.append('circle').attr('r', 3)
+        el.append('text').attr('transform', 'translate(5,-5)')
+      })
+
+    // enter + update
+    selection.selectAll('.tip-x-line').style('display', config.xLine ? null : 'none')
+    selection.selectAll('.tip-y-line').style('display', config.yLine ? null : 'none')
+  }
+
+  tip.move = function (coordinates) {
+    var i
+    var minDist = Infinity
+    var closestIndex = -1
+    var x, y
+
+    var el = tip.el
+    var inf = 1e8
+    var meta = config.owner.meta
+    var data = el.data()[0].data
+    var xScale = meta.xScale
+    var yScale = meta.yScale
+    var width = meta.width
+    var height = meta.height
+
+    var x0 = coordinates.x
+    var y0 = coordinates.y
+
+    for (i = 0; i < data.length; i += 1) {
+      // skipTip=true skips the evaluation in the datum
+      // implicit equations cannot be evaluated with a single point
+      // parametric equations cannot be evaluated with a single point
+      // polar equations cannot be evaluated with a single point
+      if (data[i].skipTip || data[i].fnType !== 'linear') {
+        continue
+      }
+
+      var range = data[i].range || [-inf, inf]
+      if (x0 > range[0] - globals.TIP_X_EPS && x0 < range[1] + globals.TIP_X_EPS) {
+        try {
+          var candidateY = builtInEvaluator(data[i], 'fn', {x: x0})
+        } catch (e) { }
+        if (utils.isValidNumber(candidateY)) {
+          var tDist = Math.abs(candidateY - y0)
+          if (tDist < minDist) {
+            minDist = tDist
+            closestIndex = i
+          }
+        }
+      }
+    }
+
+    if (closestIndex !== -1) {
+      x = x0
+      if (data[closestIndex].range) {
+        x = Math.max(x, data[closestIndex].range[0])
+        x = Math.min(x, data[closestIndex].range[1])
+      }
+      y = builtInEvaluator(data[closestIndex], 'fn', {x: x})
+
+      tip.show()
+      config.owner.emit('tip:update', x, y, closestIndex)
+      var clampX = clamp(x, xScale.invert(-MARGIN), xScale.invert(width + MARGIN))
+      var clampY = clamp(y, yScale.invert(height + MARGIN), yScale.invert(-MARGIN))
+      var color = utils.color(data[closestIndex], closestIndex)
+      el.attr('transform', 'translate(' + xScale(clampX) + ',' + yScale(clampY) + ')')
+      el.select('circle')
+        .attr('fill', color)
+      el.select('text')
+        .attr('fill', color)
+        .text(config.renderer(x, y))
+    } else {
+      tip.hide()
+    }
+  }
+
+  tip.show = function () {
+    this.el.style('display', null)
+  }
+
+  tip.hide = function () {
+    this.el.style('display', 'none')
+  }
+  // generations of getters/setters
+  Object.keys(config).forEach(function (option) {
+    utils.getterSetter.call(tip, config, option)
+  })
+
+  return tip
+}
+
+},{"./globals":15,"./helpers/eval":22,"./utils":33,"clamp":6,"extend":11}],33:[function(require,module,exports){
+/**
+ * Created by mauricio on 3/29/15.
+ */
+'use strict'
+var linspace = require('linspace')
+var logspace = require('logspace')
+var log10 = require('log10')
+
+var globals = require('./globals')
+
+module.exports = {
+  isValidNumber: function (v) {
+    return typeof v === 'number' && !isNaN(v)
+  },
+
+  space: function (chart, range, n) {
+    var lo = range[0]
+    var hi = range[1]
+    if (chart.options.xAxis.type === 'log') {
+      return logspace(log10(lo), log10(hi), n)
+    }
+    // default is linear
+    return linspace(lo, hi, n)
+  },
+
+  getterSetter: function (config, option) {
+    var me = this
+    this[option] = function (value) {
+      if (!arguments.length) {
+        return config[option]
+      }
+      config[option] = value
+      return me
+    }
+  },
+
+  sgn: function (v) {
+    if (v < 0) { return -1 }
+    if (v > 0) { return 1 }
+    return 0
+  },
+
+  color: function (data, index) {
+    return data.color || globals.COLORS[index]
+  }
+}
+
+},{"./globals":15,"linspace":56,"log10":57,"logspace":58}],34:[function(require,module,exports){
+module.exports = function () {
+  var from = 0,
+      to = 0,
+      every = 1,
+      output = [];
+
+  switch(arguments.length) {
+    case 1:
+      to = arguments[0];
+      break;
+
+    case 3:
+      every = arguments[2];
+    case 2:
+      from = arguments[0];
+      to = arguments[1];
+      break;
+  }
+
+  for (i=from; i < to; i+=every) {
+    output.push(i);
+  }
+
+  return output;
+}
+
+},{}],35:[function(require,module,exports){
+'use strict';
+
+module.exports = Integrator;
+
+// This algorithm adapted from pseudocode in:
+// http://www.math.utk.edu/~ccollins/refs/Handouts/rich.pdf
+function adsimp (f, a, b, fa, fm, fb, V0, tol, maxdepth, depth, state) {
+  if (state.nanEncountered) {
+    return NaN;
+  }
+
+  var h, f1, f2, sl, sr, s2, m, V1, V2, err;
+
+  h = b - a;
+  f1 = f(a + h * 0.25);
+  f2 = f(b - h * 0.25);
+
+  // Simple check for NaN:
+  if (isNaN(f1)) {
+    state.nanEncountered = true;
+    return;
+  }
+
+  // Simple check for NaN:
+  if (isNaN(f2)) {
+    state.nanEncountered = true;
+    return;
+  }
+
+  sl = h * (fa + 4 * f1 + fm) / 12;
+  sr = h * (fm + 4 * f2 + fb) / 12;
+  s2 = sl + sr;
+  err = (s2 - V0) / 15;
+
+  if (depth > maxdepth) {
+    state.maxDepthCount++;
+    return s2 + err;
+  } else if (Math.abs(err) < tol) {
+    return s2 + err;
+  } else {
+    m = a + h * 0.5;
+
+    V1 = adsimp(f, a, m, fa, f1, fm, sl, tol * 0.5, maxdepth, depth + 1, state);
+
+    if (isNaN(V1)) {
+      state.nanEncountered = true;
+      return NaN;
+    }
+
+    V2 = adsimp(f, m, b, fm, f2, fb, sr, tol * 0.5, maxdepth, depth + 1, state);
+
+    if (isNaN(V2)) {
+      state.nanEncountered = true;
+      return NaN;
+    }
+
+    return V1 + V2;
+  }
+}
+
+function Integrator (f, a, b, tol, maxdepth) {
+  var state = {
+    maxDepthCount: 0,
+    nanEncountered: false
+  };
+
+  if (tol === undefined) {
+    tol = 1e-8;
+  }
+  if (maxdepth === undefined) {
+    maxdepth = 20;
+  }
+
+  var fa = f(a);
+  var fm = f(0.5 * (a + b));
+  var fb = f(b);
+
+  var V0 = (fa + 4 * fm + fb) * (b - a) / 6;
+
+  var result = adsimp(f, a, b, fa, fm, fb, V0, tol, maxdepth, 1, state);
+
+  if (state.maxDepthCount > 0 && console && console.warn) {
+    console.warn('integrate-adaptive-simpson: Warning: maximum recursion depth (' + maxdepth + ') reached ' + state.maxDepthCount + ' times');
+  }
+
+  if (state.nanEncountered && console && console.warn) {
+    console.warn('integrate-adaptive-simpson: Warning: NaN encountered. Halting early.');
+  }
+
+  return result;
+}
+
+},{}],36:[function(require,module,exports){
+/*
+ * interval-arithmetic-eval
+ *
+ * Copyright (c) 2015 Mauricio Poppe
+ * Licensed under the MIT license.
+ */
+'use strict'
+module.exports = require('./lib/eval')
+
+},{"./lib/eval":38}],37:[function(require,module,exports){
+'use strict'
+module.exports = function (ns) {
+  // mod
+  ns.mod = ns.fmod
+
+  // relational
+  ns.lessThan = ns.lt
+  ns.lessEqualThan = ns.leq
+  ns.greaterThan = ns.gt
+  ns.greaterEqualThan = ns.geq
+
+  ns.strictlyEqual = ns.equal
+  ns.strictlyNotEqual = ns.notEqual
+
+  ns.logicalAND = function (a, b) {
+    return a && b
+  }
+  ns.logicalXOR = function (a, b) {
+    return a ^ b
+  }
+  ns.logicalOR = function (a, b) {
+    return a || b
+  }
+}
+
+},{}],38:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/12/15.
+ */
+'use strict'
+
+var CodeGenerator = require('math-codegen')
+var Interval = require('interval-arithmetic')
+require('./adapter')(Interval)
+
+function processScope (scope) {
+  Object.keys(scope).forEach(function (k) {
+    var value = scope[k]
+    if (typeof value === 'number' || Array.isArray(value)) {
+      scope[k] = Interval.factory(value)
+    } else if (typeof value === 'object' && 'lo' in value && 'hi' in value) {
+      scope[k] = Interval.factory(value.lo, value.hi)
+    }
+  })
+}
+
+module.exports = function (expression) {
+  return new CodeGenerator()
+    .setDefs({
+      $$processScope: processScope
+    })
+    .parse(expression)
+    .compile(Interval)
+}
+
+module.exports.policies = require('./policies')(Interval)
+module.exports.Interval = Interval
+
+},{"./adapter":37,"./policies":39,"interval-arithmetic":40,"math-codegen":59}],39:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/12/15.
+ */
+'use strict'
+module.exports = function (Interval) {
+  return {
+    disableRounding: function () {
+      Interval.rmath.disable()
+    },
+
+    enableRounding: function () {
+      Interval.rmath.enable()
+    }
+  }
+}
+
+},{}],40:[function(require,module,exports){
+/*
+ * interval-arithmetic
+ *
+ * Copyright (c) 2015 Mauricio Poppe
+ * Licensed under the MIT license.
+ */
+
+'use strict'
+var extend = require('xtend/mutable')
+
+require('./lib/polyfill')
+module.exports = require('./lib/interval')
+module.exports.rmath = require('./lib/round-math')
+
+extend(
+  module.exports,
+  require('./lib/constants'),
+  require('./lib/operations/relational'),
+  require('./lib/operations/arithmetic'),
+  require('./lib/operations/algebra'),
+  require('./lib/operations/trigonometric'),
+  require('./lib/operations/misc'),
+  require('./lib/operations/utils')
+)
+
+},{"./lib/constants":41,"./lib/interval":42,"./lib/operations/algebra":43,"./lib/operations/arithmetic":44,"./lib/operations/misc":46,"./lib/operations/relational":47,"./lib/operations/trigonometric":48,"./lib/operations/utils":49,"./lib/polyfill":50,"./lib/round-math":51,"xtend/mutable":577}],41:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/11/15.
+ */
+'use strict'
+var Interval = require('./interval')
+
+var piLow = (3373259426.0 + 273688.0 / (1 << 21)) / (1 << 30)
+var piHigh = (3373259426.0 + 273689.0 / (1 << 21)) / (1 << 30)
+
+var constants = {}
+
+constants.PI_LOW = piLow
+constants.PI_HIGH = piHigh
+constants.PI_HALF_LOW = piLow / 2
+constants.PI_HALF_HIGH = piHigh / 2
+constants.PI_TWICE_LOW = piLow * 2
+constants.PI_TWICE_HIGH = piHigh * 2
+
+function getter (property, fn) {
+  Object.defineProperty(constants, property, {
+    get: function () {
+      return fn()
+    },
+    enumerable: true
+  })
+}
+
+// intervals
+getter('PI', function () {
+  return Interval(piLow, piHigh)
+})
+getter('PI_HALF', function () {
+  return Interval(constants.PI_HALF_LOW, constants.PI_HALF_HIGH)
+})
+getter('PI_TWICE', function () {
+  return Interval(constants.PI_TWICE_LOW, constants.PI_TWICE_HIGH)
+})
+getter('ZERO', function () {
+  return Interval(0)
+})
+getter('ONE', function () {
+  return Interval(1)
+})
+getter('WHOLE', function () {
+  return Interval().setWhole()
+})
+getter('EMPTY', function () {
+  return Interval().setEmpty()
+})
+
+module.exports = constants
+
+},{"./interval":42}],42:[function(require,module,exports){
+/**
+ * Created by mauricio on 4/27/15.
+ */
+'use strict'
+var utils = require('./operations/utils')
+var rmath = require('./round-math')
+
+module.exports = Interval
+
+function Interval (lo, hi) {
+  if (!(this instanceof Interval)) {
+    return new Interval(lo, hi)
+  }
+
+  if (typeof lo !== 'undefined' && typeof hi !== 'undefined') {
+    // possible cases:
+    // - Interval(1, 2)
+    // - Interval(Interval(1, 1), Interval(2, 2))     // singletons are required
+    if (utils.isInterval(lo)) {
+      if (!utils.isSingleton(lo)) {
+        throw new TypeError('Interval: interval `lo` must be a singleton')
+      }
+      lo = lo.lo
+    }
+    if (utils.isInterval(hi)) {
+      if (!utils.isSingleton(hi)) {
+        throw TypeError('Interval: interval `hi` must be a singleton')
+      }
+      hi = hi.hi
+    }
+  } else if (typeof lo !== 'undefined') {
+    // possible cases:
+    // - Interval(1)
+    // - Interval([1, 2])
+    // - Interval([Interval(1, 1), Interval(2, 2)])
+    if (Array.isArray(lo)) {
+      return Interval(lo[0], lo[1])
+    }
+    return Interval(lo, lo)
+  } else {
+    // possible cases:
+    // - Interval()
+    lo = hi = 0
+  }
+
+  this.assign(lo, hi)
+}
+
+Interval.factory = Interval
+
+Interval.prototype.singleton = function (v) {
+  return this.set(v, v)
+}
+
+Interval.prototype.bounded = function (lo, hi) {
+  return this.set(rmath.prev(lo), rmath.next(hi))
+}
+
+Interval.prototype.boundedSingleton = function (v) {
+  return this.bounded(v, v)
+}
+
+Interval.prototype.set = function (lo, hi) {
+  this.lo = lo
+  this.hi = hi
+  return this
+}
+
+Interval.prototype.assign = function (lo, hi) {
+  if (typeof lo !== 'number' || typeof hi !== 'number') {
+    throw TypeError('Interval#assign: arguments must be numbers')
+  }
+  if (isNaN(lo) || isNaN(hi) || lo > hi) {
+    return this.setEmpty()
+  }
+  return this.set(lo, hi)
+}
+
+Interval.prototype.setEmpty = function () {
+  return this.set(Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY)
+}
+
+Interval.prototype.setWhole = function () {
+  return this.set(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY)
+}
+
+Interval.prototype.toArray = function () {
+  return [this.lo, this.hi]
+}
+
+Interval.prototype.clone = function () {
+  return Interval(this.lo, this.hi)
+}
+
+},{"./operations/utils":49,"./round-math":51}],43:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/11/15.
+ */
+'use strict'
+
+var isSafeInteger = require('is-safe-integer')
+
+var Interval = require('../interval')
+var rmath = require('../round-math')
+var utils = require('./utils')
+var arithmetic = require('./arithmetic')
+var constants = require('../constants')
+
+var algebra = {}
+
+/**
+ * Computes x mod y
+ * @param x
+ * @param y
+ */
+algebra.fmod = function (x, y) {
+  if (utils.isEmpty(x) || utils.isEmpty(y)) {
+    return constants.EMPTY
+  }
+  var yb = x.lo < 0 ? y.lo : y.hi
+  var n = rmath.intLo(rmath.divLo(x.lo, yb))
+  // x mod y = x - n * y
+  return arithmetic.sub(x, arithmetic.mul(y, Interval(n, n)))
+}
+
+/**
+ * Computes 1 / x
+ * @param {Interval} x
+ * @returns {Interval}
+ */
+algebra.multiplicativeInverse = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  if (utils.zeroIn(x)) {
+    if (x.lo !== 0) {
+      if (x.hi !== 0) {
+        return constants.WHOLE
+      } else {
+        return Interval(
+          Number.NEGATIVE_INFINITY,
+          rmath.divHi(1, x.lo)
+        )
+      }
+    } else {
+      if (x.hi !== 0) {
+        return Interval(
+          rmath.divLo(1, x.hi),
+          Number.POSITIVE_INFINITY
+        )
+      } else {
+        return constants.EMPTY
+      }
+    }
+  } else {
+    return Interval(
+      rmath.divLo(1, x.hi),
+      rmath.divHi(1, x.lo)
+    )
+  }
+}
+
+/**
+ * Computes x^power given that power is an integer
+ *
+ * If `power` is an Interval it must be a singletonInterval i.e. x^x is not
+ * supported yet
+ *
+ * @param {Interval} x
+ * @param {number|Interval} power
+ * @returns {Interval}
+ */
+algebra.pow = function (x, power) {
+  if (utils.isEmpty(x)) {
+    return constants.EMPTY
+  }
+  if (typeof power === 'object') {
+    if (!utils.isSingleton(power)) {
+      return constants.EMPTY
+    }
+    power = power.lo
+  }
+
+  if (power === 0) {
+    if (x.lo === 0 && x.hi === 0) {
+      // 0^0
+      return constants.EMPTY
+    } else {
+      // x^0
+      return constants.ONE
+    }
+  } else if (power < 0) {
+    // compute 1 / x^-power if power is negative
+    return algebra.multiplicativeInverse(algebra.pow(x, -power))
+  }
+
+  // power > 0
+  if (isSafeInteger(power)) {
+    // power is integer
+    if (x.hi < 0) {
+      // [negative, negative]
+      // assume that power is even so the operation will yield a positive interval
+      // if not then just switch the sign and order of the interval bounds
+      var yl = rmath.powLo(-x.hi, power)
+      var yh = rmath.powHi(-x.lo, power)
+      if (power & 1) {
+        // odd power
+        return Interval(-yh, -yl)
+      } else {
+        // even power
+        return Interval(yl, yh)
+      }
+    } else if (x.lo < 0) {
+      // [negative, positive]
+      if (power & 1) {
+        return Interval(
+          -rmath.powLo(-x.lo, power),
+          rmath.powHi(x.hi, power)
+        )
+      } else {
+        // even power means that any negative number will be zero (min value = 0)
+        // and the max value will be the max of x.lo^power, x.hi^power
+        return Interval(
+          0,
+          rmath.powHi(Math.max(-x.lo, x.hi), power)
+        )
+      }
+    } else {
+      // [positive, positive]
+      return Interval(
+        rmath.powLo(x.lo, power),
+        rmath.powHi(x.hi, power)
+      )
+    }
+  } else {
+    console.warn('power is not an integer, you should use nth-root instead, returning an empty interval')
+    return constants.EMPTY
+  }
+}
+
+/**
+ * Computes sqrt(x)
+ * @param {Interval} x
+ * @returns {Interval}
+ */
+algebra.sqrt = function (x) {
+  return algebra.nthRoot(x, 2)
+}
+
+/**
+ * Computes x^(1/n)
+ *
+ * @param {Interval} x
+ * @param {number} n - An integer which is the nth root of x
+ * @return {Interval}
+ */
+algebra.nthRoot = function (x, n) {
+  if (utils.isEmpty(x) || n < 0) {
+    // compute 1 / x^-power if power is negative
+    return constants.EMPTY
+  }
+
+  // singleton interval check
+  if (typeof n === 'object') {
+    if (!utils.isSingleton(n)) {
+      return constants.EMPTY
+    }
+    n = n.lo
+  }
+
+  var power = 1 / n
+  if (x.hi < 0) {
+    // [negative, negative]
+    if (isSafeInteger(n) & (n & 1)) {
+      // when n is odd we can always take the nth root
+      var yl = rmath.powHi(-x.lo, power)
+      var yh = rmath.powLo(-x.hi, power)
+      return Interval(-yl, -yh)
+    }
+    // n is not odd therefore there's no nth root
+    return Interval.EMPTY
+  } else if (x.lo < 0) {
+    // [negative, positive]
+    var yp = rmath.powHi(x.hi, power)
+    if (isSafeInteger(n) & (n & 1)) {
+      // nth root of x.lo is possible (n is odd)
+      var yn = rmath.powHi(-x.lo, power)
+      return Interval(0, Math.max(yn, yp))
+    }
+    return Interval(0, yp)
+  } else {
+    // [positive, positive]
+    return Interval(
+      rmath.powLo(x.lo, power),
+      rmath.powHi(x.hi, power)
+    )
+  }
+}
+
+module.exports = algebra
+
+},{"../constants":41,"../interval":42,"../round-math":51,"./arithmetic":44,"./utils":49,"is-safe-integer":53}],44:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/10/15.
+ */
+'use strict'
+var Interval = require('../interval')
+var rmath = require('../round-math')
+var utils = require('./utils')
+var constants = require('../constants')
+var division = require('./division')
+
+var arithmetic = {}
+
+// BINARY
+arithmetic.add = function (a, b) {
+  return Interval(
+    rmath.addLo(a.lo, b.lo),
+    rmath.addHi(a.hi, b.hi)
+  )
+}
+
+arithmetic.sub = function (a, b) {
+  return Interval(
+    rmath.subLo(a.lo, b.hi),
+    rmath.subHi(a.hi, b.lo)
+  )
+}
+
+arithmetic.mul = function (a, b) {
+  if (utils.isEmpty(a) || utils.isEmpty(b)) {
+    return constants.EMPTY
+  }
+  var al = a.lo
+  var ah = a.hi
+  var bl = b.lo
+  var bh = b.hi
+  var out = Interval()
+  if (al < 0) {
+    if (ah > 0) {
+      if (bl < 0) {
+        if (bh > 0) {
+          // mixed * mixed
+          out.lo = Math.min(rmath.mulLo(al, bh), rmath.mulLo(ah, bl))
+          out.hi = Math.max(rmath.mulHi(al, bl), rmath.mulHi(ah, bh))
+        } else {
+          // mixed * negative
+          out.lo = rmath.mulLo(ah, bl)
+          out.hi = rmath.mulHi(al, bl)
+        }
+      } else {
+        if (bh > 0) {
+          // mixed * positive
+          out.lo = rmath.mulLo(al, bh)
+          out.hi = rmath.mulHi(ah, bh)
+        } else {
+          // mixed * zero
+          out.lo = 0
+          out.hi = 0
+        }
+      }
+    } else {
+      if (bl < 0) {
+        if (bh > 0) {
+          // negative * mixed
+          out.lo = rmath.mulLo(al, bh)
+          out.hi = rmath.mulHi(al, bl)
+        } else {
+          // negative * negative
+          out.lo = rmath.mulLo(ah, bh)
+          out.hi = rmath.mulHi(al, bl)
+        }
+      } else {
+        if (bh > 0) {
+          // negative * positive
+          out.lo = rmath.mulLo(al, bh)
+          out.hi = rmath.mulHi(ah, bl)
+        } else {
+          // negative * zero
+          out.lo = 0
+          out.hi = 0
+        }
+      }
+    }
+  } else {
+    if (ah > 0) {
+      if (bl < 0) {
+        if (bh > 0) {
+          // positive * mixed
+          out.lo = rmath.mulLo(ah, bl)
+          out.hi = rmath.mulHi(ah, bh)
+        } else {
+          // positive * negative
+          out.lo = rmath.mulLo(ah, bl)
+          out.hi = rmath.mulHi(al, bh)
+        }
+      } else {
+        if (bh > 0) {
+          // positive * positive
+          out.lo = rmath.mulLo(al, bl)
+          out.hi = rmath.mulHi(ah, bh)
+        } else {
+          // positive * zero
+          out.lo = 0
+          out.hi = 0
+        }
+      }
+    } else {
+      // zero * any other value
+      out.lo = 0
+      out.hi = 0
+    }
+  }
+  return out
+}
+
+arithmetic.div = function (a, b) {
+  if (utils.isEmpty(a) || utils.isEmpty(b)) {
+    return constants.EMPTY
+  }
+  if (utils.zeroIn(b)) {
+    if (b.lo !== 0) {
+      if (b.hi !== 0) {
+        return division.zero(a)
+      } else {
+        return division.negative(a, b.lo)
+      }
+    } else {
+      if (b.hi !== 0) {
+        return division.positive(a, b.hi)
+      } else {
+        return constants.EMPTY
+      }
+    }
+  } else {
+    return division.nonZero(a, b)
+  }
+}
+
+// UNARY
+arithmetic.positive = function (a) {
+  return Interval(a.lo, a.hi)
+}
+
+arithmetic.negative = function (a) {
+  return Interval(-a.hi, -a.lo)
+}
+
+module.exports = arithmetic
+
+},{"../constants":41,"../interval":42,"../round-math":51,"./division":45,"./utils":49}],45:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/10/15.
+ */
+'use strict'
+var Interval = require('../interval')
+var rmath = require('../round-math')
+var utils = require('./utils')
+var constants = require('../constants')
+
+var division = {
+  /**
+   * Division between intervals when `y` doesn't contain zero
+   * @param {Interval} x
+   * @param {Interval} y
+   * @returns {Interval}
+   */
+  nonZero: function (x, y) {
+    var xl = x.lo
+    var xh = x.hi
+    var yl = y.lo
+    var yh = y.hi
+    var out = Interval()
+    if (xh < 0) {
+      if (yh < 0) {
+        out.lo = rmath.divLo(xh, yl)
+        out.hi = rmath.divHi(xl, yh)
+      } else {
+        out.lo = rmath.divLo(xl, yl)
+        out.hi = rmath.divHi(xh, yh)
+      }
+    } else if (xl < 0) {
+      if (yh < 0) {
+        out.lo = rmath.divLo(xh, yh)
+        out.hi = rmath.divHi(xl, yh)
+      } else {
+        out.lo = rmath.divLo(xl, yl)
+        out.hi = rmath.divHi(xh, yl)
+      }
+    } else {
+      if (yh < 0) {
+        out.lo = rmath.divLo(xh, yh)
+        out.hi = rmath.divHi(xl, yl)
+      } else {
+        out.lo = rmath.divLo(xl, yh)
+        out.hi = rmath.divHi(xh, yl)
+      }
+    }
+    return out
+  },
+
+  /**
+   * Division between an interval and a positive constant
+   * @param {Interval} x
+   * @param {number} v
+   * @returns {Interval}
+   */
+  positive: function (x, v) {
+    if (x.lo === 0 && x.hi === 0) {
+      return x
+    }
+
+    if (utils.zeroIn(x)) {
+      // mixed considering zero in both ends
+      return constants.WHOLE
+    }
+
+    if (x.hi < 0) {
+      // negative / v
+      return Interval(
+        Number.NEGATIVE_INFINITY,
+        rmath.divHi(x.hi, v)
+      )
+    } else {
+      // positive / v
+      return Interval(
+        rmath.divLo(x.lo, v),
+        Number.POSITIVE_INFINITY
+      )
+    }
+  },
+
+  /**
+   * Division between an interval and a negative constant
+   * @param {Interval} x
+   * @param {number} v
+   * @returns {Interval}
+   */
+  negative: function (x, v) {
+    if (x.lo === 0 && x.hi === 0) {
+      return x
+    }
+
+    if (utils.zeroIn(x)) {
+      // mixed considering zero in both ends
+      return constants.WHOLE
+    }
+
+    if (x.hi < 0) {
+      // negative / v
+      return Interval(
+        rmath.divLo(x.hi, v),
+        Number.POSITIVE_INFINITY
+      )
+    } else {
+      // positive / v
+      return Interval(
+        Number.NEGATIVE_INFINITY,
+        rmath.divHi(x.lo, v)
+      )
+    }
+  },
+
+  /**
+   * Division between an interval and zero
+   * @param {Interval} x
+   * @returns {Interval}
+   */
+  zero: function (x) {
+    if (x.lo === 0 && x.hi === 0) {
+      return x
+    }
+    return constants.WHOLE
+  }
+}
+
+module.exports = division
+
+},{"../constants":41,"../interval":42,"../round-math":51,"./utils":49}],46:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/11/15.
+ */
+'use strict'
+var constants = require('../constants')
+var Interval = require('../interval')
+var rmath = require('../round-math')
+var utils = require('./utils')
+var arithmetic = require('./arithmetic')
+
+var misc = {}
+
+misc.exp = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  return Interval(
+    rmath.expLo(x.lo),
+    rmath.expHi(x.hi)
+  )
+}
+
+misc.log = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  var l = x.lo <= 0 ? Number.NEGATIVE_INFINITY : rmath.logLo(x.lo)
+  return Interval(l, rmath.logHi(x.hi))
+}
+
+misc.ln = misc.log
+
+misc.LOG_EXP_10 = misc.log(Interval(10, 10))
+
+misc.log10 = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  return arithmetic.div(misc.log(x), misc.LOG_EXP_10)
+}
+
+misc.LOG_EXP_2 = misc.log(Interval(2, 2))
+
+misc.log2 = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  return arithmetic.div(misc.log(x), misc.LOG_EXP_2)
+}
+
+misc.hull = function (x, y) {
+  var badX = utils.isEmpty(x)
+  var badY = utils.isEmpty(y)
+  if (badX) {
+    if (badY) {
+      return constants.EMPTY
+    } else {
+      return y.clone()
+    }
+  } else {
+    if (badY) {
+      return x.clone()
+    } else {
+      return Interval(
+        Math.min(x.lo, y.lo),
+        Math.max(x.hi, y.hi)
+      )
+    }
+  }
+}
+
+misc.intersection = function (x, y) {
+  if (utils.isEmpty(x) || utils.isEmpty(y)) { return constants.EMPTY }
+  var lo = Math.max(x.lo, y.lo)
+  var hi = Math.min(x.hi, y.hi)
+  if (lo <= hi) {
+    return Interval(lo, hi)
+  }
+  return constants.EMPTY
+}
+
+misc.union = function (x, y) {
+  if (!utils.intervalsOverlap(x, y)) {
+    throw TypeError('Interval.union: intervals do not overlap')
+  }
+  return Interval(
+    Math.min(x.lo, y.lo),
+    Math.max(x.hi, y.hi)
+  )
+}
+
+misc.difference = function (x, y) {
+  if (utils.isEmpty(x) || utils.isWhole(y)) {
+    return constants.EMPTY
+  }
+  if (utils.intervalsOverlap(x, y)) {
+    if (x.lo < y.lo && y.hi < x.hi) {
+      // difference creates multiple subsets
+      throw TypeError('Interval.difference: difference creates multiple intervals')
+    }
+
+    // handle corner cases first
+    if ((y.lo <= x.lo && y.hi === Infinity) ||
+        (y.hi >= x.hi && y.lo === -Infinity)) {
+      return constants.EMPTY
+    }
+
+    // NOTE: empty interval is handled automatically
+    // e.g.
+    //
+    //    n = difference([0,1], [0,1]) // n = Interval(next(1), 1) = EMPTY
+    //    isEmpty(n) === true
+    //
+    if (y.lo <= x.lo) {
+      return Interval(rmath.next(y.hi), x.hi)
+    }
+
+    // y.hi >= x.hi
+    return Interval(x.lo, rmath.prev(y.lo))
+  }
+  return Interval.clone(x)
+}
+
+/**
+ * Computes the distance of the bounds of an interval
+ * @param {Interval} x
+ * @returns {number}
+ */
+misc.width = function (x) {
+  if (utils.isEmpty(x)) { return 0 }
+  return rmath.subHi(x.hi, x.lo)
+}
+
+misc.abs = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  if (x.lo >= 0) { return Interval.clone(x) }
+  if (x.hi <= 0) { return arithmetic.negative(x) }
+  return Interval(0, Math.max(-x.lo, x.hi))
+}
+
+misc.max = function (x, y) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  return Interval(
+    Math.max(x.lo, y.lo),
+    Math.max(x.hi, y.hi)
+  )
+}
+
+misc.min = function (x, y) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  return Interval(
+    Math.min(x.lo, y.lo),
+    Math.min(x.hi, y.hi)
+  )
+}
+
+misc.clone = function (x) {
+  // no bound checking
+  return Interval().set(x.lo, x.hi)
+}
+
+module.exports = misc
+
+},{"../constants":41,"../interval":42,"../round-math":51,"./arithmetic":44,"./utils":49}],47:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/14/15.
+ */
+'use strict'
+var utils = require('./utils')
+
+// boost/numeric/interval_lib/compare/certain
+// certain package in boost
+var relational = {}
+
+/**
+ * Checks if the intervals `x`, `y` are equal
+ * @param {Interval} x
+ * @param {Interval} y
+ * @returns {boolean}
+ */
+relational.equal = function (x, y) {
+  if (utils.isEmpty(x)) {
+    return utils.isEmpty(y)
+  }
+  return !utils.isEmpty(y) && x.lo === y.lo && x.hi === y.hi
+}
+
+// <debug>
+relational.almostEqual = function (x, y) {
+  var EPS = 1e-7
+  function assert (a, message) {
+    /* istanbul ignore next */
+    if (!a) {
+      throw new Error(message || 'assertion failed')
+    }
+  }
+
+  function assertEps (a, b) {
+    assert(Math.abs(a - b) < EPS, 'expected ' + a + ' to be close to ' + b)
+  }
+
+  x = Array.isArray(x) ? x : x.toArray()
+  y = Array.isArray(y) ? y : y.toArray()
+  assertEps(x[0], y[0])
+  assertEps(x[1], y[1])
+  assert(x[0] <= x[1], 'interval must not be empty')
+}
+// </debug>
+
+/**
+ * Checks if the intervals `x`, `y` are not equal
+ * @param {Interval} x
+ * @param {Interval} y
+ * @returns {boolean}
+ */
+relational.notEqual = function (x, y) {
+  if (utils.isEmpty(x)) {
+    return !utils.isEmpty(y)
+  }
+  return utils.isEmpty(y) || x.hi < y.lo || x.lo > y.hi
+}
+
+/**
+ * Checks if the interval x is less than y
+ * @param {Interval} x
+ * @param {Interval} y
+ * @return {boolean}
+ */
+relational.lt = function (x, y) {
+  if (utils.isEmpty(x) || utils.isEmpty(y)) {
+    return false
+  }
+  return x.hi < y.lo
+}
+
+/**
+ * Checks if the interval x is greater than y
+ * @param {Interval} x
+ * @param {Interval} y
+ * @return {boolean}
+ */
+relational.gt = function (x, y) {
+  if (utils.isEmpty(x) || utils.isEmpty(y)) {
+    return false
+  }
+  return x.lo > y.hi
+}
+
+/**
+ * Checks if the interval x is less or equal than y
+ * @param {Interval} x
+ * @param {Interval} y
+ * @return {boolean}
+ */
+relational.leq = function (x, y) {
+  if (utils.isEmpty(x) || utils.isEmpty(y)) {
+    return false
+  }
+  return x.hi <= y.lo
+}
+
+/**
+ * Checks if the interval x is greater or equal than y
+ * @param {Interval} x
+ * @param {Interval} y
+ * @return {boolean}
+ */
+relational.geq = function (x, y) {
+  if (utils.isEmpty(x) || utils.isEmpty(y)) {
+    return false
+  }
+  return x.lo >= y.hi
+}
+
+module.exports = relational
+
+},{"./utils":49}],48:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/10/15.
+ */
+'use strict'
+var constants = require('../constants')
+var Interval = require('../interval')
+var rmath = require('../round-math')
+var utils = require('./utils')
+var misc = require('./misc')
+var algebra = require('./algebra')
+var arithmetic = require('./arithmetic')
+
+var trigonometric = {}
+
+trigonometric.cos = function (x) {
+  var rlo, rhi
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+
+  // cos works with positive intervals only
+  if (x.lo < 0) {
+    var mult = 1e7
+    x.lo += 2 * Math.PI * mult
+    x.hi += 2 * Math.PI * mult
+  }
+
+  var pi2 = constants.PI_TWICE
+  var t = algebra.fmod(x, pi2)
+  if (misc.width(t) >= pi2.lo) {
+    return Interval(-1, 1)
+  }
+
+  // when t.lo > pi it's the same as
+  // -cos(t - pi)
+  if (t.lo >= constants.PI_HIGH) {
+    var cos = trigonometric.cos(
+      arithmetic.sub(t, constants.PI)
+    )
+    return arithmetic.negative(cos)
+  }
+
+  var lo = t.lo
+  var hi = t.hi
+  rlo = rmath.cosLo(hi)
+  rhi = rmath.cosHi(lo)
+  // it's ensured that t.lo < pi and that t.lo >= 0
+  if (hi <= constants.PI_LOW) {
+    // when t.hi < pi
+    // [cos(t.lo), cos(t.hi)]
+    return Interval(rlo, rhi)
+  } else if (hi <= pi2.lo) {
+    // when t.hi < 2pi
+    // [-1, max(cos(t.lo), cos(t.hi))]
+    return Interval(-1, Math.max(rlo, rhi))
+  } else {
+    // t.lo < pi and t.hi > 2pi
+    return Interval(-1, 1)
+  }
+}
+
+trigonometric.sin = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  return trigonometric.cos(
+    arithmetic.sub(x, constants.PI_HALF)
+  )
+}
+
+trigonometric.tan = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+
+  // // tan works with positive intervals only
+  if (x.lo < 0) {
+    var mult = 1e7
+    x.lo += 2 * Math.PI * mult
+    x.hi += 2 * Math.PI * mult
+  }
+
+  var pi = constants.PI
+  var t = algebra.fmod(x, pi)
+  if (t.lo >= constants.PI_HALF_LOW) {
+    t = arithmetic.sub(t, pi)
+  }
+  if (t.lo <= -constants.PI_HALF_LOW || t.hi >= constants.PI_HALF_LOW) {
+    return constants.WHOLE
+  }
+  return Interval(
+    rmath.tanLo(t.lo),
+    rmath.tanHi(t.hi)
+  )
+}
+
+trigonometric.asin = function (x) {
+  if (utils.isEmpty(x) || x.hi < -1 || x.lo > 1) {
+    return constants.EMPTY
+  }
+  var lo = x.lo <= -1 ? -constants.PI_HALF_HIGH : rmath.asinLo(x.lo)
+  var hi = x.hi >= 1 ? constants.PI_HALF_HIGH : rmath.asinHi(x.hi)
+  return Interval(lo, hi)
+}
+
+trigonometric.acos = function (x) {
+  if (utils.isEmpty(x) || x.hi < -1 || x.lo > 1) {
+    return constants.EMPTY
+  }
+  var lo = x.hi >= 1 ? 0 : rmath.acosLo(x.hi)
+  var hi = x.lo <= -1 ? constants.PI_HIGH : rmath.acosHi(x.lo)
+  return Interval(lo, hi)
+}
+
+trigonometric.atan = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  return Interval(rmath.atanLo(x.lo), rmath.atanHi(x.hi))
+}
+
+trigonometric.sinh = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  return Interval(rmath.sinhLo(x.lo), rmath.sinhHi(x.hi))
+}
+
+trigonometric.cosh = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  if (x.hi < 0) {
+    return Interval(
+      rmath.coshLo(x.hi),
+      rmath.coshHi(x.lo)
+    )
+  } else if (x.lo >= 0) {
+    return Interval(
+      rmath.coshLo(x.lo),
+      rmath.coshHi(x.hi)
+    )
+  } else {
+    return Interval(
+      1,
+      rmath.coshHi(-x.lo > x.hi ? x.lo : x.hi)
+    )
+  }
+}
+
+trigonometric.tanh = function (x) {
+  if (utils.isEmpty(x)) { return constants.EMPTY }
+  return Interval(rmath.tanhLo(x.lo), rmath.tanhHi(x.hi))
+}
+
+// TODO: inverse hyperbolic functions (asinh, acosh, atanh)
+
+module.exports = trigonometric
+
+},{"../constants":41,"../interval":42,"../round-math":51,"./algebra":43,"./arithmetic":44,"./misc":46,"./utils":49}],49:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/10/15.
+ */
+'use strict'
+var utils = {}
+
+/**
+ * Checks if the given parameter is an interval
+ * @param  {*}  x An object that must have the properties `lo` and `hi` properties
+ * to be an interval
+ * @return {Boolean} true if `x` is an interval
+ */
+utils.isInterval = function (x) {
+  return typeof x === 'object' && typeof x.lo === 'number' && typeof x.hi === 'number'
+}
+
+/**
+ * Checks if an interval is empty, it's empty whenever
+ * the `lo` property has a higher value than the `hi` property
+ * @param {Interval} a
+ * @returns {boolean}
+ */
+utils.isEmpty = function (a) {
+  return a.lo > a.hi
+}
+
+/**
+ * Checks if an interval is a whole interval, that is it covers all
+ * the real numbers
+ * @param {Interval} a
+ * @returns {boolean}
+ */
+utils.isWhole = function (a) {
+  return a.lo === -Infinity && a.hi === Infinity
+}
+
+/**
+/**
+ * Checks if the intervals `x` is a singleton (an interval representing a single value)
+ * @param {Interval} x
+ * @returns {boolean}
+ */
+utils.isSingleton = function (x) {
+  return !utils.isEmpty(x) && x.lo === x.hi
+}
+
+/*
+ * True if zero is included in the interval `a`
+ * @param {Interval} a
+ * @returns {boolean}
+ */
+utils.zeroIn = function (a) {
+  return utils.hasValue(a, 0)
+}
+
+/**
+ * True if `v` is included in the interval `a`
+ * @param {Interval} a
+ * @param {number} v
+ * @returns {boolean}
+ */
+utils.hasValue = function (a, v) {
+  if (utils.isEmpty(a)) { return false }
+  return a.lo <= v && v <= a.hi
+}
+
+/**
+ * Checks if `a` is a subset of `b`
+ * @param {Interval} a
+ * @param {Interval} b
+ * @returns {boolean}
+ */
+utils.hasInterval = function (a, b) {
+  if (utils.isEmpty(a)) { return true }
+  return !utils.isEmpty(b) && b.lo <= a.lo && a.hi <= b.hi
+}
+
+/**
+ * Checks if the intervals `a`, `b` overlap
+ * @param {Interval} a
+ * @param {Interval} b
+ * @returns {boolean}
+ */
+utils.intervalsOverlap = function (a, b) {
+  if (utils.isEmpty(a) || utils.isEmpty(b)) { return false }
+  return (a.lo <= b.lo && b.lo <= a.hi) ||
+  (b.lo <= a.lo && a.lo <= b.hi)
+}
+
+module.exports = utils
+
+},{}],50:[function(require,module,exports){
+/**
+ * Created by mauricio on 5/11/15.
+ */
+'use strict'
+
+// hyperbolic functions only present on es6
+Math.sinh = Math.sinh || function (x) {
+  var y = Math.exp(x)
+  return (y - 1 / y) / 2
+}
+
+Math.cosh = Math.cosh || function (x) {
+  var y = Math.exp(x)
+  return (y + 1 / y) / 2
+}
+
+Math.tanh = Math.tanh || function (x) {
+  if (x === Number.POSITIVE_INFINITY) {
+    return 1
+  } else if (x === Number.NEGATIVE_INFINITY) {
+    return -1
+  } else {
+    var y = Math.exp(2 * x)
+    return (y - 1) / (y + 1)
+  }
+}
+
+},{}],51:[function(require,module,exports){
+/**
+ * Created by mauricio on 4/27/15.
+ */
+'use strict'
+var nextafter = require('nextafter')
+
+function identity (v) { return v }
+function prev (v) {
+  if (v === Infinity) {
+    return v
+  }
+  return nextafter(v, -Infinity)
+}
+function next (v) {
+  if (v === -Infinity) {
+    return v
+  }
+  return nextafter(v, Infinity)
+}
+
+var round = {
+  prev: prev,
+  next: next
+}
+
+round.addLo = function (x, y) { return this.prev(x + y) }
+round.addHi = function (x, y) { return this.next(x + y) }
+
+round.subLo = function (x, y) { return this.prev(x - y) }
+round.subHi = function (x, y) { return this.next(x - y) }
+
+round.mulLo = function (x, y) { return this.prev(x * y) }
+round.mulHi = function (x, y) { return this.next(x * y) }
+
+round.divLo = function (x, y) { return this.prev(x / y) }
+round.divHi = function (x, y) { return this.next(x / y) }
+
+function toInteger (x) {
+  return x < 0 ? Math.ceil(x) : Math.floor(x)
+}
+
+round.intLo = function (x) { return toInteger(this.prev(x)) }
+round.intHi = function (x) { return toInteger(this.next(x)) }
+
+round.logLo = function (x) { return this.prev(Math.log(x)) }
+round.logHi = function (x) { return this.next(Math.log(x)) }
+
+round.expLo = function (x) { return this.prev(Math.exp(x)) }
+round.expHi = function (x) { return this.next(Math.exp(x)) }
+
+round.sinLo = function (x) { return this.prev(Math.sin(x)) }
+round.sinHi = function (x) { return this.next(Math.sin(x)) }
+
+round.cosLo = function (x) { return this.prev(Math.cos(x)) }
+round.cosHi = function (x) { return this.next(Math.cos(x)) }
+
+round.tanLo = function (x) { return this.prev(Math.tan(x)) }
+round.tanHi = function (x) { return this.next(Math.tan(x)) }
+
+round.asinLo = function (x) { return this.prev(Math.asin(x)) }
+round.asinHi = function (x) { return this.next(Math.asin(x)) }
+
+round.acosLo = function (x) { return this.prev(Math.acos(x)) }
+round.acosHi = function (x) { return this.next(Math.acos(x)) }
+
+round.atanLo = function (x) { return this.prev(Math.atan(x)) }
+round.atanHi = function (x) { return this.next(Math.atan(x)) }
+
+// polyfill required for hyperbolic functions
+round.sinhLo = function (x) { return this.prev(Math.sinh(x)) }
+round.sinhHi = function (x) { return this.next(Math.sinh(x)) }
+
+round.coshLo = function (x) { return this.prev(Math.cosh(x)) }
+round.coshHi = function (x) { return this.next(Math.cosh(x)) }
+
+round.tanhLo = function (x) { return this.prev(Math.tanh(x)) }
+round.tanhHi = function (x) { return this.next(Math.tanh(x)) }
+
+/**
+ * ln(power) exponentiation of x
+ * @param {number} x
+ * @param {number} power
+ * @returns {number}
+ */
+round.powLo = function (x, power) {
+  if (power % 1 !== 0) {
+    // power has decimals
+    return this.prev(Math.pow(x, power))
+  }
+
+  var y = (power & 1) ? x : 1
+  power >>= 1
+  while (power > 0) {
+    x = round.mulLo(x, x)
+    if (power & 1) {
+      y = round.mulLo(x, y)
+    }
+    power >>= 1
+  }
+  return y
+}
+
+/**
+ * ln(power) exponentiation of x
+ * @param {number} x
+ * @param {number} power
+ * @returns {number}
+ */
+round.powHi = function (x, power) {
+  if (power % 1 !== 0) {
+    // power has decimals
+    return this.next(Math.pow(x, power))
+  }
+
+  var y = (power & 1) ? x : 1
+  power >>= 1
+  while (power > 0) {
+    x = round.mulHi(x, x)
+    if (power & 1) {
+      y = round.mulHi(x, y)
+    }
+    power >>= 1
+  }
+  return y
+}
+
+round.sqrtLo = function (x) { return this.prev(Math.sqrt(x)) }
+round.sqrtHi = function (x) { return this.next(Math.sqrt(x)) }
+
+round.disable = function () {
+  this.next = this.prev = identity
+}
+
+round.enable = function () {
+  this.next = next
+  this.prev = prev
+}
+
+module.exports = round
+
+},{"nextafter":573}],52:[function(require,module,exports){
+"use strict";
+
+module.exports = function isObject(x) {
+	return typeof x === "object" && x !== null;
+};
+
+},{}],53:[function(require,module,exports){
+'use strict';
+var MAX_SAFE_INTEGER = require('max-safe-integer');
+
+module.exports = Number.isSafeInteger || function (val) {
+	return typeof val === 'number' && val === val && val !== Infinity && val !== -Infinity && parseInt(val, 10) === val && Math.abs(val) <= MAX_SAFE_INTEGER;
+};
+
+},{"max-safe-integer":557}],54:[function(require,module,exports){
+(function (process){
+var keys = require('vkey')
+var list = Object.keys(keys)
+var down = {}
+
+reset()
+
+module.exports = pressed
+
+if (process.browser) {
+  window.addEventListener('keydown', keydown, false)
+  window.addEventListener('keyup', keyup, false)
+  window.addEventListener('blur', reset, false)
+}
+
+function pressed(key) {
+  return key
+    ? down[key]
+    : down
+}
+
+function reset() {
+  list.forEach(function(code) {
+    down[keys[code]] = false
+  })
+}
+
+function keyup(e) {
+  down[keys[e.keyCode]] = false
+}
+
+function keydown(e) {
+  down[keys[e.keyCode]] = true
+}
+
+}).call(this,require('_process'))
+},{"_process":584,"vkey":576}],55:[function(require,module,exports){
+var Emitter = require('events').EventEmitter
+var vkey = require('vkey')
+
+module.exports = function(keys, el) {
+  if (typeof keys === 'string') keys = [keys]
+  if (!el) el = window
+
+  var emitter = new Emitter()
+  emitter.pressed = {}
+  
+  el.addEventListener('blur', clearPressed)
+  el.addEventListener('focus', clearPressed)
+  
+  el.addEventListener('keydown', function(ev) {
+    var key = vkey[ev.keyCode]
+    emitter.pressed[key] = true
+    var allPressed = true
+    keys.forEach(function(k) {
+      if (!emitter.pressed[k]) allPressed = false
+    })
+    if (allPressed) {
+      emitter.emit('pressed', emitter.pressed)
+
+      // this seems to be necessary as keyup doesn't always fire during combos :/
+      clearPressed()
+    }
+  })
+
+  el.addEventListener('keyup', function(ev) {
+    delete emitter.pressed[vkey[ev.keyCode]]
+  })
+  
+  function clearPressed() {
+    emitter.pressed = {}
+  }
+  
+  return emitter
+}
+
+},{"events":582,"vkey":576}],56:[function(require,module,exports){
+var integers = require('integers');
+
+module.exports = function linspace(a,b,n) {
+  var every = (b-a)/(n-1),
+      ranged = integers(a,b,every);
+
+  return ranged.length == n ? ranged : ranged.concat(b);
+}
+
+},{"integers":34}],57:[function(require,module,exports){
+'use strict';
+module.exports = Math.log10 || function (x) {
+	return Math.log(x) * Math.LOG10E;
+};
+
+},{}],58:[function(require,module,exports){
+var linspace = require('linspace');
+
+module.exports = function logspace(a,b,n) {
+  return linspace(a,b,n).map(function(x) { return Math.pow(10,x); });
+}
+
+},{"linspace":56}],59:[function(require,module,exports){
+/*
+ * math-codegen
+ *
+ * Copyright (c) 2015 Mauricio Poppe
+ * Licensed under the MIT license.
+ */
+'use strict'
+module.exports = require('./lib/CodeGenerator')
+
+},{"./lib/CodeGenerator":60}],60:[function(require,module,exports){
+'use strict'
+
+var Parser = require('mr-parser').Parser
+var Interpreter = require('./Interpreter')
+var extend = require('extend')
+
+function CodeGenerator (options, defs) {
+  this.statements = []
+  this.defs = defs || {}
+  this.interpreter = new Interpreter(this, options)
+}
+
+CodeGenerator.prototype.setDefs = function (defs) {
+  this.defs = extend(this.defs, defs)
+  return this
+}
+
+CodeGenerator.prototype.compile = function (namespace) {
+  if (!namespace || !(typeof namespace === 'object' || typeof namespace === 'function')) {
+    throw TypeError('namespace must be an object')
+  }
+  if (typeof namespace.factory !== 'function') {
+    throw TypeError('namespace.factory must be a function')
+  }
+
+  // definitions available in the function
+  // each property under this.defs is mapped to local variables
+  // e.g
+  //
+  //  function (defs) {
+  //    var ns = defs['ns']
+  //    // code generated for the expression
+  //  }
+  this.defs.ns = namespace
+  this.defs.$$mathCodegen = {
+    getProperty: function (symbol, scope, ns) {
+      if (symbol in scope) {
+        return scope[symbol]
+      }
+      if (symbol in ns) {
+        return ns[symbol]
+      }
+      throw SyntaxError('symbol "' + symbol + '" is undefined')
+    },
+    functionProxy: function (fn, name) {
+      if (typeof fn !== 'function') {
+        throw SyntaxError('symbol "' + name + '" must be a function')
+      }
+      return fn
+    }
+  }
+  this.defs.$$processScope = this.defs.$$processScope || function () {}
+
+  var defsCode = Object.keys(this.defs).map(function (name) {
+    return 'var ' + name + ' = defs["' + name + '"]'
+  })
+
+  // statement join
+  if (!this.statements.length) {
+    throw Error('there are no statements saved in this generator, make sure you parse an expression before compiling it')
+  }
+
+  // last statement is always a return statement
+  this.statements[this.statements.length - 1] = 'return ' + this.statements[this.statements.length - 1]
+
+  var code = this.statements.join(';')
+  var factoryCode = defsCode.join('\n') + '\n' + [
+    'return {',
+    '  eval: function (scope) {',
+    '    scope = scope || {}',
+    '    $$processScope(scope)',
+    '    ' + code,
+    '  },',
+    "  code: '" + code + "'",
+    '}'
+  ].join('\n')
+
+  /* eslint-disable */
+  var factory = new Function('defs', factoryCode)
+  return factory(this.defs)
+  /* eslint-enable */
+}
+
+CodeGenerator.prototype.parse = function (code) {
+  var self = this
+  var program = new Parser().parse(code)
+  this.statements = program.blocks.map(function (statement) {
+    return self.interpreter.next(statement)
+  })
+  return this
+}
+
+module.exports = CodeGenerator
+
+},{"./Interpreter":61,"extend":11,"mr-parser":558}],61:[function(require,module,exports){
+'use strict'
+var extend = require('extend')
+
+var types = {
+  ArrayNode: require('./node/ArrayNode'),
+  AssignmentNode: require('./node/AssignmentNode'),
+  ConditionalNode: require('./node/ConditionalNode'),
+  ConstantNode: require('./node/ConstantNode'),
+  FunctionNode: require('./node/FunctionNode'),
+  OperatorNode: require('./node/OperatorNode'),
+  SymbolNode: require('./node/SymbolNode'),
+  UnaryNode: require('./node/UnaryNode')
+}
+
+var Interpreter = function (owner, options) {
+  this.owner = owner
+  this.options = extend({
+    factory: 'ns.factory',
+    raw: false,
+    rawArrayExpressionElements: true,
+    rawCallExpressionElements: false
+  }, options)
+}
+
+extend(Interpreter.prototype, types)
+
+// main method which decides which expression to call
+Interpreter.prototype.next = function (node) {
+  if (!(node.type in this)) {
+    throw new TypeError('the node type ' + node.type + ' is not implemented')
+  }
+  return this[node.type](node)
+}
+
+Interpreter.prototype.rawify = function (test, fn) {
+  var oldRaw = this.options.raw
+  if (test) {
+    this.options.raw = true
+  }
+  fn()
+  if (test) {
+    this.options.raw = oldRaw
+  }
+}
+
+module.exports = Interpreter
+
+},{"./node/ArrayNode":64,"./node/AssignmentNode":65,"./node/ConditionalNode":66,"./node/ConstantNode":67,"./node/FunctionNode":68,"./node/OperatorNode":69,"./node/SymbolNode":70,"./node/UnaryNode":71,"extend":11}],62:[function(require,module,exports){
+'use strict'
+
+module.exports = {
+  // arithmetic
+  '+': 'add',
+  '-': 'sub',
+  '*': 'mul',
+  '/': 'div',
+  '^': 'pow',
+  '%': 'mod',
+  '!': 'factorial',
+
+  // misc operators
+  '|': 'bitwiseOR',       // bitwise or
+  '^|': 'bitwiseXOR',     // bitwise xor
+  '&': 'bitwiseAND',      // bitwise and
+
+  '||': 'logicalOR',      // logical or
+  'xor': 'logicalXOR',    // logical xor
+  '&&': 'logicalAND',     // logical and
+
+  // comparison
+  '<': 'lessThan',
+  '>': 'greaterThan',
+  '<=': 'lessEqualThan',
+  '>=': 'greaterEqualThan',
+  '===': 'strictlyEqual',
+  '==': 'equal',
+  '!==': 'strictlyNotEqual',
+  '!=': 'notEqual',
+
+  // shift
+  '>>': 'shiftRight',
+  '<<': 'shiftLeft',
+  '>>>': 'unsignedRightShift'
+}
+
+},{}],63:[function(require,module,exports){
+'use strict'
+
+module.exports = {
+  '+': 'positive',
+  '-': 'negative',
+  '~': 'oneComplement'
+}
+
+},{}],64:[function(require,module,exports){
+'use strict'
+module.exports = function (node) {
+  var self = this
+  var arr = []
+  this.rawify(this.options.rawArrayExpressionElements, function () {
+    arr = node.nodes.map(function (el) {
+      return self.next(el)
+    })
+  })
+  var arrString = '[' + arr.join(',') + ']'
+
+  if (this.options.raw) {
+    return arrString
+  }
+  return this.options.factory + '(' + arrString + ')'
+}
+
+},{}],65:[function(require,module,exports){
+'use strict'
+
+module.exports = function (node) {
+  return 'scope["' + node.name + '"] = ' + this.next(node.expr)
+}
+
+},{}],66:[function(require,module,exports){
+'use strict'
+
+module.exports = function (node) {
+  var condition = '!!(' + this.next(node.condition) + ')'
+  var trueExpr = this.next(node.trueExpr)
+  var falseExpr = this.next(node.falseExpr)
+  return '(' + condition + ' ? (' + trueExpr + ') : (' + falseExpr + ') )'
+}
+
+},{}],67:[function(require,module,exports){
+'use strict'
+module.exports = function (node) {
+  if (this.options.raw) {
+    return node.value
+  }
+  return this.options.factory + '(' + node.value + ')'
+}
+
+},{}],68:[function(require,module,exports){
+'use strict'
+var SymbolNode = require('mr-parser').nodeTypes.SymbolNode
+
+var functionProxy = function (node) {
+  return '$$mathCodegen.functionProxy(' + this.next(new SymbolNode(node.name)) + ', "' + node.name + '")'
+}
+
+module.exports = function (node) {
+  var self = this
+  // wrap in a helper function to detect the type of symbol it must be a function
+  // NOTE: if successful the wrapper returns the function itself
+  // NOTE: node.name should be a symbol so that it's correctly represented as a string in SymbolNode
+  var method = functionProxy.call(this, node)
+  var args = []
+  this.rawify(this.options.rawCallExpressionElements, function () {
+    args = node.args.map(function (arg) {
+      return self.next(arg)
+    })
+  })
+  return method + '(' + args.join(', ') + ')'
+}
+
+module.exports.functionProxy = functionProxy
+
+},{"mr-parser":558}],69:[function(require,module,exports){
+'use strict'
+
+var Operators = require('../misc/Operators')
+
+module.exports = function (node) {
+  if (this.options.raw) {
+    return ['(' + this.next(node.args[0]), node.op, this.next(node.args[1]) + ')'].join(' ')
+  }
+
+  var namedOperator = Operators[node.op]
+
+  if (!namedOperator) {
+    throw TypeError('unidentified operator')
+  }
+
+  /* eslint-disable new-cap */
+  return this.FunctionNode({
+    name: namedOperator,
+    args: node.args
+  })
+  /* eslint-enable new-cap */
+}
+
+},{"../misc/Operators":62}],70:[function(require,module,exports){
+'use strict'
+
+module.exports = function (node) {
+  var id = node.name
+  return '$$mathCodegen.getProperty("' + id + '", scope, ns)'
+}
+
+},{}],71:[function(require,module,exports){
+'use strict'
+
+var UnaryOperators = require('../misc/UnaryOperators')
+
+module.exports = function (node) {
+  if (this.options.raw) {
+    return node.op + this.next(node.argument)
+  }
+
+  if (!(node.op in UnaryOperators)) {
+    throw new SyntaxError(node.op + ' not implemented')
+  }
+
+  var namedOperator = UnaryOperators[node.op]
+  /* eslint-disable new-cap */
+  return this.FunctionNode({
+    name: namedOperator,
+    args: [node.argument]
+  })
+  /* eslint-enable new-cap */
+}
+
+},{"../misc/UnaryOperators":63}],72:[function(require,module,exports){
 module.exports = require('./lib/core/core');
-},{"./lib/core/core":10}],8:[function(require,module,exports){
+},{"./lib/core/core":75}],73:[function(require,module,exports){
 var core = require('./core');
 
 /**
@@ -16613,7 +21071,7 @@ function create (config) {
 // return a new instance of math.js
 module.exports = create();
 
-},{"./core":7,"./lib":413}],9:[function(require,module,exports){
+},{"./core":72,"./lib":478}],74:[function(require,module,exports){
 'use strict';
 
 var object = require('./utils/object');
@@ -16682,7 +21140,7 @@ function factory (type, config, load, typed, math) {
 exports.factory = factory;
 exports.lazy = false;  // no lazy loading of constants, the constants themselves are lazy when needed
 exports.math = true;   // request access to the math namespace
-},{"./utils/array":465,"./utils/bignumber/constants":471,"./utils/object":488,"./version":491}],10:[function(require,module,exports){
+},{"./utils/array":530,"./utils/bignumber/constants":536,"./utils/object":553,"./version":556}],75:[function(require,module,exports){
 var isFactory = require('./../utils/object').isFactory;
 var deepExtend = require('./../utils/object').deepExtend;
 var typedFactory = require('./typed');
@@ -16808,7 +21266,7 @@ exports.create = function create (options) {
   return math;
 };
 
-},{"./../utils/emitter":483,"./../utils/object":488,"./function/config":11,"./function/import":12,"./typed":13}],11:[function(require,module,exports){
+},{"./../utils/emitter":548,"./../utils/object":553,"./function/config":76,"./function/import":77,"./typed":78}],76:[function(require,module,exports){
 'use strict';
 
 var object = require('../../utils/object');
@@ -16929,7 +21387,7 @@ exports.name = 'config';
 exports.math = true; // request the math namespace as fifth argument
 exports.factory = factory;
 
-},{"../../utils/object":488}],12:[function(require,module,exports){
+},{"../../utils/object":553}],77:[function(require,module,exports){
 'use strict';
 
 var lazy = require('../../utils/object').lazy;
@@ -17193,7 +21651,7 @@ exports.name = 'import';
 exports.factory = factory;
 exports.lazy = true;
 
-},{"../../error/ArgumentsError":14,"../../utils/object":488}],13:[function(require,module,exports){
+},{"../../error/ArgumentsError":79,"../../utils/object":553}],78:[function(require,module,exports){
 var typedFunction = require('typed-function');
 var digits = require('./../utils/number').digits;
 
@@ -17377,7 +21835,7 @@ exports.create = function create(type) {
   return typed;
 };
 
-},{"./../utils/number":487,"typed-function":493}],14:[function(require,module,exports){
+},{"./../utils/number":552,"typed-function":575}],79:[function(require,module,exports){
 'use strict';
 
 /**
@@ -17413,7 +21871,7 @@ ArgumentsError.prototype.isArgumentsError = true;
 
 module.exports = ArgumentsError;
 
-},{}],15:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 'use strict';
 
 /**
@@ -17450,7 +21908,7 @@ DimensionError.prototype.isDimensionError = true;
 
 module.exports = DimensionError;
 
-},{}],16:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 'use strict';
 
 /**
@@ -17498,7 +21956,7 @@ IndexError.prototype.isIndexError = true;
 
 module.exports = IndexError;
 
-},{}],17:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 'use strict';
 
 var ArgumentsError = require('./ArgumentsError');
@@ -17530,7 +21988,7 @@ module.exports = [
 
 // TODO: implement an InvalidValueError?
 
-},{"./ArgumentsError":14,"./DimensionError":15,"./IndexError":16}],18:[function(require,module,exports){
+},{"./ArgumentsError":79,"./DimensionError":80,"./IndexError":81}],83:[function(require,module,exports){
 'use strict';
 
 var object = require('../utils/object');
@@ -17649,7 +22107,7 @@ exports.name = 'Help';
 exports.path = 'type';
 exports.factory = factory;
 
-},{"../utils/object":488,"../utils/string":489,"./function/parser":197}],19:[function(require,module,exports){
+},{"../utils/object":553,"../utils/string":554,"./function/parser":262}],84:[function(require,module,exports){
 'use strict';
 
 var extend = require('../utils/object').extend;
@@ -17812,7 +22270,7 @@ exports.path = 'expression';
 exports.factory = factory;
 exports.math = true; // requires the math namespace as 5th argument
 
-},{"../utils/object":488,"./parse":220}],20:[function(require,module,exports){
+},{"../utils/object":553,"./parse":285}],85:[function(require,module,exports){
 module.exports = {
   'name': 'Infinity',
   'category': 'Constants',
@@ -17827,7 +22285,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],21:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 module.exports = {
   'name': 'LN10',
   'category': 'Constants',
@@ -17842,7 +22300,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],22:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 module.exports = {
   'name': 'LN2',
   'category': 'Constants',
@@ -17857,7 +22315,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],23:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 module.exports = {
   'name': 'LOG10E',
   'category': 'Constants',
@@ -17872,7 +22330,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],24:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 module.exports = {
   'name': 'LOG2E',
   'category': 'Constants',
@@ -17887,7 +22345,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],25:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 module.exports = {
   'name': 'NaN',
   'category': 'Constants',
@@ -17902,7 +22360,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],26:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 module.exports = {
   'name': 'SQRT1_2',
   'category': 'Constants',
@@ -17917,7 +22375,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],27:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 module.exports = {
   'name': 'SQRT2',
   'category': 'Constants',
@@ -17932,7 +22390,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],28:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 module.exports = {
   'name': 'e',
   'category': 'Constants',
@@ -17949,7 +22407,7 @@ module.exports = {
   'seealso': ['exp']
 };
 
-},{}],29:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 module.exports = {
   'name': 'false',
   'category': 'Constants',
@@ -17963,7 +22421,7 @@ module.exports = {
   'seealso': ['true']
 };
 
-},{}],30:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 module.exports = {
   'name': 'i',
   'category': 'Constants',
@@ -17979,7 +22437,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],31:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 module.exports = {
   'name': 'null',
   'category': 'Constants',
@@ -17993,7 +22451,7 @@ module.exports = {
   'seealso': ['true', 'false']
 };
 
-},{}],32:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 module.exports = {
   'name': 'phi',
   'category': 'Constants',
@@ -18007,7 +22465,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],33:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 module.exports = {
   'name': 'pi',
   'category': 'Constants',
@@ -18022,7 +22480,7 @@ module.exports = {
   'seealso': ['tau']
 };
 
-},{}],34:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 module.exports = {
   'name': 'tau',
   'category': 'Constants',
@@ -18037,7 +22495,7 @@ module.exports = {
   'seealso': ['pi']
 };
 
-},{}],35:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 module.exports = {
   'name': 'true',
   'category': 'Constants',
@@ -18051,7 +22509,7 @@ module.exports = {
   'seealso': ['false']
 };
 
-},{}],36:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 module.exports = {
   'name': 'version',
   'category': 'Constants',
@@ -18065,7 +22523,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],37:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 module.exports = {
   'name': 'bignumber',
   'category': 'Construction',
@@ -18086,7 +22544,7 @@ module.exports = {
   ]
 };
 
-},{}],38:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 module.exports = {
   'name': 'boolean',
   'category': 'Construction',
@@ -18109,7 +22567,7 @@ module.exports = {
   ]
 };
 
-},{}],39:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 module.exports = {
   'name': 'complex',
   'category': 'Construction',
@@ -18130,7 +22588,7 @@ module.exports = {
   ]
 };
 
-},{}],40:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 module.exports = {
   'name': 'fraction',
   'category': 'Construction',
@@ -18149,7 +22607,7 @@ module.exports = {
   ]
 };
 
-},{}],41:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 module.exports = {
   'name': 'index',
   'category': 'Construction',
@@ -18176,7 +22634,7 @@ module.exports = {
   ]
 };
 
-},{}],42:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 module.exports = {
   'name': 'matrix',
   'category': 'Construction',
@@ -18203,7 +22661,7 @@ module.exports = {
   ]
 };
 
-},{}],43:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 module.exports = {
   'name': 'number',
   'category': 'Construction',
@@ -18228,7 +22686,7 @@ module.exports = {
   ]
 };
 
-},{}],44:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 module.exports = {
   'name': 'sparse',
   'category': 'Construction',
@@ -18249,7 +22707,7 @@ module.exports = {
   ]
 };
 
-},{}],45:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 module.exports = {
   'name': 'string',
   'category': 'Construction',
@@ -18269,7 +22727,7 @@ module.exports = {
   ]
 };
 
-},{}],46:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 module.exports = {
   'name': 'unit',
   'category': 'Construction',
@@ -18291,7 +22749,7 @@ module.exports = {
   ]
 };
 
-},{}],47:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 module.exports = {
   'name': 'config',
   'category': 'Core',
@@ -18309,7 +22767,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],48:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 module.exports = {
   'name': 'import',
   'category': 'Core',
@@ -18326,7 +22784,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],49:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 module.exports = {
   'name': 'typed',
   'category': 'Core',
@@ -18343,7 +22801,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],50:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 module.exports = {
   'name': 'lsolve',
   'category': 'Algebra',
@@ -18362,7 +22820,7 @@ module.exports = {
   ]
 };
 
-},{}],51:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 module.exports = {
   'name': 'lup',
   'category': 'Algebra',
@@ -18381,7 +22839,7 @@ module.exports = {
   ]
 };
 
-},{}],52:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 module.exports = {
   'name': 'lusolve',
   'category': 'Algebra',
@@ -18400,7 +22858,7 @@ module.exports = {
   ]
 };
 
-},{}],53:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 module.exports = {
   'name': 'slu',
   'category': 'Algebra',
@@ -18416,7 +22874,7 @@ module.exports = {
   ]
 };
 
-},{}],54:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 module.exports = {
   'name': 'usolve',
   'category': 'Algebra',
@@ -18433,7 +22891,7 @@ module.exports = {
   ]
 };
 
-},{}],55:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 module.exports = {
   'name': 'abs',
   'category': 'Arithmetic',
@@ -18448,7 +22906,7 @@ module.exports = {
   'seealso': ['sign']
 };
 
-},{}],56:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 module.exports = {
   'name': 'add',
   'category': 'Operators',
@@ -18469,7 +22927,7 @@ module.exports = {
   ]
 };
 
-},{}],57:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 module.exports = {
   'name': 'cbrt',
   'category': 'Arithmetic',
@@ -18496,7 +22954,7 @@ module.exports = {
   ]
 };
 
-},{}],58:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 module.exports = {
   'name': 'ceil',
   'category': 'Arithmetic',
@@ -18513,7 +22971,7 @@ module.exports = {
   'seealso': ['floor', 'fix', 'round']
 };
 
-},{}],59:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 module.exports = {
   'name': 'cube',
   'category': 'Arithmetic',
@@ -18533,7 +22991,7 @@ module.exports = {
   ]
 };
 
-},{}],60:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 module.exports = {
   'name': 'divide',
   'category': 'Operators',
@@ -18555,7 +23013,7 @@ module.exports = {
   ]
 };
 
-},{}],61:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 module.exports = {
   'name': 'dotDivide',
   'category': 'Operators',
@@ -18576,7 +23034,7 @@ module.exports = {
   ]
 };
 
-},{}],62:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 module.exports = {
   'name': 'dotMultiply',
   'category': 'Operators',
@@ -18597,7 +23055,7 @@ module.exports = {
   ]
 };
 
-},{}],63:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 module.exports = {
   'name': 'dotpow',
   'category': 'Operators',
@@ -18616,7 +23074,7 @@ module.exports = {
   ]
 };
 
-},{}],64:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 module.exports = {
   'name': 'exp',
   'category': 'Arithmetic',
@@ -18637,7 +23095,7 @@ module.exports = {
   ]
 };
 
-},{}],65:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 module.exports = {
   'name': 'fix',
   'category': 'Arithmetic',
@@ -18655,7 +23113,7 @@ module.exports = {
   'seealso': ['ceil', 'floor', 'round']
 };
 
-},{}],66:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 module.exports = {
   'name': 'floor',
   'category': 'Arithmetic',
@@ -18672,7 +23130,7 @@ module.exports = {
   'seealso': ['ceil', 'fix', 'round']
 };
 
-},{}],67:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 module.exports = {
   'name': 'gcd',
   'category': 'Arithmetic',
@@ -18689,7 +23147,7 @@ module.exports = {
   'seealso': [ 'lcm', 'xgcd' ]
 };
 
-},{}],68:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 module.exports = {
   'name': 'hypot',
   'category': 'Arithmetic',
@@ -18707,7 +23165,7 @@ module.exports = {
   'seealso': [ 'abs', 'norm' ]
 };
 
-},{}],69:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 module.exports = {
   'name': 'lcm',
   'category': 'Arithmetic',
@@ -18723,7 +23181,7 @@ module.exports = {
   'seealso': [ 'gcd' ]
 };
 
-},{}],70:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 module.exports = {
   'name': 'log',
   'category': 'Arithmetic',
@@ -18747,7 +23205,7 @@ module.exports = {
     'log10'
   ]
 };
-},{}],71:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 module.exports = {
   'name': 'log10',
   'category': 'Arithmetic',
@@ -18768,7 +23226,7 @@ module.exports = {
   ]
 };
 
-},{}],72:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 module.exports = {
   'name': 'mod',
   'category': 'Operators',
@@ -18790,7 +23248,7 @@ module.exports = {
   'seealso': ['divide']
 };
 
-},{}],73:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 module.exports = {
   'name': 'multiply',
   'category': 'Operators',
@@ -18811,7 +23269,7 @@ module.exports = {
   ]
 };
 
-},{}],74:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 module.exports = {
   'name': 'norm',
   'category': 'Arithmetic',
@@ -18833,7 +23291,7 @@ module.exports = {
   ]
 };
 
-},{}],75:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 module.exports = {
   'name': 'nthRoot',
   'category': 'Arithmetic',
@@ -18855,7 +23313,7 @@ module.exports = {
     'pow'
   ]
 };
-},{}],76:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 module.exports = {
   'name': 'pow',
   'category': 'Operators',
@@ -18873,7 +23331,7 @@ module.exports = {
   'seealso': [ 'multiply' ]
 };
 
-},{}],77:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 module.exports = {
   'name': 'round',
   'category': 'Arithmetic',
@@ -18894,7 +23352,7 @@ module.exports = {
   'seealso': ['ceil', 'floor', 'fix']
 };
 
-},{}],78:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 module.exports = {
   'name': 'sign',
   'category': 'Arithmetic',
@@ -18913,7 +23371,7 @@ module.exports = {
   ]
 };
 
-},{}],79:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 module.exports = {
   'name': 'sqrt',
   'category': 'Arithmetic',
@@ -18933,7 +23391,7 @@ module.exports = {
   ]
 };
 
-},{}],80:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 module.exports = {
   'name': 'square',
   'category': 'Arithmetic',
@@ -18956,7 +23414,7 @@ module.exports = {
   ]
 };
 
-},{}],81:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 module.exports = {
   'name': 'subtract',
   'category': 'Operators',
@@ -18977,7 +23435,7 @@ module.exports = {
   ]
 };
 
-},{}],82:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 module.exports = {
   'name': 'unaryMinus',
   'category': 'Operators',
@@ -18997,7 +23455,7 @@ module.exports = {
   ]
 };
 
-},{}],83:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 module.exports = {
   'name': 'unaryPlus',
   'category': 'Operators',
@@ -19016,7 +23474,7 @@ module.exports = {
   ]
 };
 
-},{}],84:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 module.exports = {
   'name': 'xgcd',
   'category': 'Arithmetic',
@@ -19032,7 +23490,7 @@ module.exports = {
   'seealso': [ 'gcd', 'lcm' ]
 };
 
-},{}],85:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 module.exports = {
   'name': 'bitAnd',
   'category': 'Bitwise',
@@ -19051,7 +23509,7 @@ module.exports = {
   ]
 };
 
-},{}],86:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 module.exports = {
   'name': 'bitNot',
   'category': 'Bitwise',
@@ -19070,7 +23528,7 @@ module.exports = {
   ]
 };
 
-},{}],87:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 module.exports = {
   'name': 'bitOr',
   'category': 'Bitwise',
@@ -19088,7 +23546,7 @@ module.exports = {
   ]
 };
 
-},{}],88:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 module.exports = {
   'name': 'bitXor',
   'category': 'Bitwise',
@@ -19105,7 +23563,7 @@ module.exports = {
   ]
 };
 
-},{}],89:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 module.exports = {
   'name': 'leftShift',
   'category': 'Bitwise',
@@ -19123,7 +23581,7 @@ module.exports = {
   ]
 };
 
-},{}],90:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 module.exports = {
   'name': 'rightArithShift',
   'category': 'Bitwise',
@@ -19142,7 +23600,7 @@ module.exports = {
   ]
 };
 
-},{}],91:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 module.exports = {
   'name': 'rightLogShift',
   'category': 'Bitwise',
@@ -19161,7 +23619,7 @@ module.exports = {
   ]
 };
 
-},{}],92:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 module.exports = {
   'name': 'bellNumbers',
   'category': 'Combinatorics',
@@ -19175,7 +23633,7 @@ module.exports = {
   ],
   'seealso': ['stirlingS2']
 };
-},{}],93:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 module.exports = {
   'name': 'catalan',
   'category': 'Combinatorics',
@@ -19189,7 +23647,7 @@ module.exports = {
   ],
   'seealso': ['bellNumbers']
 };
-},{}],94:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 module.exports = {
   'name': 'composition',
   'category': 'Combinatorics',
@@ -19202,7 +23660,7 @@ module.exports = {
   ],
   'seealso': ['combinations']
 };
-},{}],95:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 module.exports = {
   'name': 'stirlingS2',
   'category': 'Combinatorics',
@@ -19216,7 +23674,7 @@ module.exports = {
   'seealso': ['bellNumbers']
 };
 
-},{}],96:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 module.exports = {
   'name': 'arg',
   'category': 'Complex',
@@ -19238,7 +23696,7 @@ module.exports = {
   ]
 };
 
-},{}],97:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 module.exports = {
   'name': 'conj',
   'category': 'Complex',
@@ -19260,7 +23718,7 @@ module.exports = {
   ]
 };
 
-},{}],98:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 module.exports = {
   'name': 'im',
   'category': 'Complex',
@@ -19282,7 +23740,7 @@ module.exports = {
   ]
 };
 
-},{}],99:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 module.exports = {
   'name': 're',
   'category': 'Complex',
@@ -19304,7 +23762,7 @@ module.exports = {
   ]
 };
 
-},{}],100:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 module.exports = {
   'name': 'eval',
   'category': 'Expression',
@@ -19320,7 +23778,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],101:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 module.exports = {
   'name': 'help',
   'category': 'Expression',
@@ -19336,7 +23794,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],102:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 module.exports = {
   'name': 'distance',
   'category': 'Geometry',
@@ -19352,7 +23810,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],103:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 module.exports = {
   'name': 'intersect',
   'category': 'Geometry',
@@ -19368,7 +23826,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],104:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 module.exports = {
   'name': 'and',
   'category': 'Logical',
@@ -19387,7 +23845,7 @@ module.exports = {
   ]
 };
 
-},{}],105:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 module.exports = {
   'name': 'not',
   'category': 'Logical',
@@ -19407,7 +23865,7 @@ module.exports = {
   ]
 };
 
-},{}],106:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 module.exports = {
   'name': 'or',
   'category': 'Logical',
@@ -19426,7 +23884,7 @@ module.exports = {
   ]
 };
 
-},{}],107:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 module.exports = {
   'name': 'xor',
   'category': 'Logical',
@@ -19446,7 +23904,7 @@ module.exports = {
   ]
 };
 
-},{}],108:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 module.exports = {
   'name': 'concat',
   'category': 'Matrix',
@@ -19467,7 +23925,7 @@ module.exports = {
   ]
 };
 
-},{}],109:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 module.exports = {
   'name': 'cross',
   'category': 'Matrix',
@@ -19486,7 +23944,7 @@ module.exports = {
   ]
 };
 
-},{}],110:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 module.exports = {
   'name': 'det',
   'category': 'Matrix',
@@ -19503,7 +23961,7 @@ module.exports = {
   ]
 };
 
-},{}],111:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 module.exports = {
   'name': 'diag',
   'category': 'Matrix',
@@ -19523,7 +23981,7 @@ module.exports = {
   ]
 };
 
-},{}],112:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 module.exports = {
   'name': 'dot',
   'category': 'Matrix',
@@ -19543,7 +24001,7 @@ module.exports = {
   ]
 };
 
-},{}],113:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 module.exports = {
   'name': 'eye',
   'category': 'Matrix',
@@ -19565,7 +24023,7 @@ module.exports = {
   ]
 };
 
-},{}],114:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 module.exports = {
   'name': 'filter',
   'category': 'Matrix',
@@ -19581,7 +24039,7 @@ module.exports = {
   'seealso': ['sort', 'map', 'forEach']
 };
 
-},{}],115:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 module.exports = {
   'name': 'flatten',
   'category': 'Matrix',
@@ -19600,7 +24058,7 @@ module.exports = {
   ]
 };
 
-},{}],116:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 module.exports = {
   'name': 'forEach',
   'category': 'Matrix',
@@ -19614,7 +24072,7 @@ module.exports = {
   'seealso': ['map', 'sort', 'filter']
 };
 
-},{}],117:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 module.exports = {
   'name': 'inv',
   'category': 'Matrix',
@@ -19632,7 +24090,7 @@ module.exports = {
   ]
 };
 
-},{}],118:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 module.exports = {
   'name': 'map',
   'category': 'Matrix',
@@ -19646,7 +24104,7 @@ module.exports = {
   'seealso': ['filter', 'forEach']
 };
 
-},{}],119:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 module.exports = {
   'name': 'ones',
   'category': 'Matrix',
@@ -19672,7 +24130,7 @@ module.exports = {
   ]
 };
 
-},{}],120:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 module.exports = {
   'name': 'partitionSelect',
   'category': 'Matrix',
@@ -19688,7 +24146,7 @@ module.exports = {
   'seealso': ['sort']
 };
 
-},{}],121:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 module.exports = {
   'name': 'range',
   'category': 'Type',
@@ -19715,7 +24173,7 @@ module.exports = {
   ]
 };
 
-},{}],122:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 module.exports = {
   'name': 'resize',
   'category': 'Matrix',
@@ -19736,7 +24194,7 @@ module.exports = {
   ]
 };
 
-},{}],123:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 module.exports = {
   'name': 'size',
   'category': 'Matrix',
@@ -19756,7 +24214,7 @@ module.exports = {
   ]
 };
 
-},{}],124:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 module.exports = {
   'name': 'sort',
   'category': 'Matrix',
@@ -19774,7 +24232,7 @@ module.exports = {
   'seealso': ['map', 'filter', 'forEach']
 };
 
-},{}],125:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 module.exports = {
   'name': 'squeeze',
   'category': 'Matrix',
@@ -19793,7 +24251,7 @@ module.exports = {
   ]
 };
 
-},{}],126:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 module.exports = {
   'name': 'subset',
   'category': 'Matrix',
@@ -19820,7 +24278,7 @@ module.exports = {
   ]
 };
 
-},{}],127:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 module.exports = {
   'name': 'trace',
   'category': 'Matrix',
@@ -19837,7 +24295,7 @@ module.exports = {
   ]
 };
 
-},{}],128:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 module.exports = {
   'name': 'transpose',
   'category': 'Matrix',
@@ -19856,7 +24314,7 @@ module.exports = {
   ]
 };
 
-},{}],129:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 module.exports = {
   'name': 'zeros',
   'category': 'Matrix',
@@ -19881,7 +24339,7 @@ module.exports = {
   ]
 };
 
-},{}],130:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 module.exports = {
   'name': 'combinations',
   'category': 'Probability',
@@ -19895,7 +24353,7 @@ module.exports = {
   'seealso': ['permutations', 'factorial']
 };
 
-},{}],131:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 module.exports = {
   'name': 'factorial',
   'category': 'Probability',
@@ -19911,7 +24369,7 @@ module.exports = {
   'seealso': ['combinations', 'permutations', 'gamma']
 };
 
-},{}],132:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 module.exports = {
   'name': 'gamma',
   'category': 'Probability',
@@ -19928,7 +24386,7 @@ module.exports = {
   'seealso': ['factorial']
 };
 
-},{}],133:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 module.exports = {
   'name': 'kldivergence',
   'category': 'Probability',
@@ -19943,7 +24401,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],134:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 module.exports = {
   'name': 'multinomial',
   'category': 'Probability',
@@ -19956,7 +24414,7 @@ module.exports = {
   ],
   'seealso': ['combinations', 'factorial']
 };
-},{}],135:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 module.exports = {
   'name': 'permutations',
   'category': 'Probability',
@@ -19972,7 +24430,7 @@ module.exports = {
   'seealso': ['combinations', 'factorial']
 };
 
-},{}],136:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 module.exports = {
   'name': 'pickRandom',
   'category': 'Probability',
@@ -19988,7 +24446,7 @@ module.exports = {
   'seealso': ['random', 'randomInt']
 };
 
-},{}],137:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 module.exports = {
   'name': 'random',
   'category': 'Probability',
@@ -20010,7 +24468,7 @@ module.exports = {
   'seealso': ['pickRandom', 'randomInt']
 };
 
-},{}],138:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 module.exports = {
   'name': 'randInt',
   'category': 'Probability',
@@ -20029,7 +24487,7 @@ module.exports = {
   ],
   'seealso': ['pickRandom', 'random']
 };
-},{}],139:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 module.exports = {
   'name': 'compare',
   'category': 'Relational',
@@ -20050,7 +24508,7 @@ module.exports = {
   ]
 };
 
-},{}],140:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 module.exports = {
   'name': 'deepEqual',
   'category': 'Relational',
@@ -20068,7 +24526,7 @@ module.exports = {
   ]
 };
 
-},{}],141:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 module.exports = {
   'name': 'equal',
   'category': 'Relational',
@@ -20091,7 +24549,7 @@ module.exports = {
   ]
 };
 
-},{}],142:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 module.exports = {
   'name': 'larger',
   'category': 'Relational',
@@ -20115,7 +24573,7 @@ module.exports = {
   ]
 };
 
-},{}],143:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 module.exports = {
   'name': 'largerEq',
   'category': 'Relational',
@@ -20137,7 +24595,7 @@ module.exports = {
   ]
 };
 
-},{}],144:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 module.exports = {
   'name': 'smaller',
   'category': 'Relational',
@@ -20160,7 +24618,7 @@ module.exports = {
   ]
 };
 
-},{}],145:[function(require,module,exports){
+},{}],210:[function(require,module,exports){
 module.exports = {
   'name': 'smallerEq',
   'category': 'Relational',
@@ -20182,7 +24640,7 @@ module.exports = {
   ]
 };
 
-},{}],146:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 module.exports = {
   'name': 'unequal',
   'category': 'Relational',
@@ -20206,7 +24664,7 @@ module.exports = {
   ]
 };
 
-},{}],147:[function(require,module,exports){
+},{}],212:[function(require,module,exports){
 module.exports = {
   'name': 'max',
   'category': 'Statistics',
@@ -20236,7 +24694,7 @@ module.exports = {
   ]
 };
 
-},{}],148:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 module.exports = {
   'name': 'mean',
   'category': 'Statistics',
@@ -20265,7 +24723,7 @@ module.exports = {
   ]
 };
 
-},{}],149:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 module.exports = {
   'name': 'median',
   'category': 'Statistics',
@@ -20289,7 +24747,7 @@ module.exports = {
   ]
 };
 
-},{}],150:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 module.exports = {
   'name': 'min',
   'category': 'Statistics',
@@ -20319,7 +24777,7 @@ module.exports = {
   ]
 };
 
-},{}],151:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 module.exports = {
   'name': 'mode',
   'category': 'Statistics',
@@ -20345,7 +24803,7 @@ module.exports = {
   ]
 };
 
-},{}],152:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 module.exports = {
   'name': 'prod',
   'category': 'Statistics',
@@ -20371,7 +24829,7 @@ module.exports = {
   ]
 };
 
-},{}],153:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 module.exports = {
   'name': 'quantileSeq',
   'category': 'Statistics',
@@ -20398,7 +24856,7 @@ module.exports = {
     'var'
   ]
 };
-},{}],154:[function(require,module,exports){
+},{}],219:[function(require,module,exports){
 module.exports = {
   'name': 'std',
   'category': 'Statistics',
@@ -20427,7 +24885,7 @@ module.exports = {
   ]
 };
 
-},{}],155:[function(require,module,exports){
+},{}],220:[function(require,module,exports){
 module.exports = {
   'name': 'sum',
   'category': 'Statistics',
@@ -20453,7 +24911,7 @@ module.exports = {
   ]
 };
 
-},{}],156:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 module.exports = {
   'name': 'var',
   'category': 'Statistics',
@@ -20482,7 +24940,7 @@ module.exports = {
   ]
 };
 
-},{}],157:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 module.exports = {
   'name': 'acos',
   'category': 'Trigonometry',
@@ -20501,7 +24959,7 @@ module.exports = {
   ]
 };
 
-},{}],158:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 module.exports = {
   'name': 'acosh',
   'category': 'Trigonometry',
@@ -20518,7 +24976,7 @@ module.exports = {
     'atanh'
   ]
 };
-},{}],159:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 module.exports = {
   'name': 'acot',
   'category': 'Trigonometry',
@@ -20537,7 +24995,7 @@ module.exports = {
   ]
 };
 
-},{}],160:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 module.exports = {
   'name': 'acoth',
   'category': 'Trigonometry',
@@ -20553,7 +25011,7 @@ module.exports = {
     'asech'
   ]
 };
-},{}],161:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 module.exports = {
   'name': 'acsc',
   'category': 'Trigonometry',
@@ -20573,7 +25031,7 @@ module.exports = {
   ]
 };
 
-},{}],162:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 module.exports = {
   'name': 'acsch',
   'category': 'Trigonometry',
@@ -20590,7 +25048,7 @@ module.exports = {
   ]
 };
 
-},{}],163:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 module.exports = {
   'name': 'asec',
   'category': 'Trigonometry',
@@ -20610,7 +25068,7 @@ module.exports = {
   ]
 };
 
-},{}],164:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 module.exports = {
   'name': 'asech',
   'category': 'Trigonometry',
@@ -20627,7 +25085,7 @@ module.exports = {
   ]
 };
 
-},{}],165:[function(require,module,exports){
+},{}],230:[function(require,module,exports){
 module.exports = {
   'name': 'asin',
   'category': 'Trigonometry',
@@ -20646,7 +25104,7 @@ module.exports = {
   ]
 };
 
-},{}],166:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 module.exports = {
   'name': 'asinh',
   'category': 'Trigonometry',
@@ -20663,7 +25121,7 @@ module.exports = {
   ]
 };
 
-},{}],167:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 module.exports = {
   'name': 'atan',
   'category': 'Trigonometry',
@@ -20682,7 +25140,7 @@ module.exports = {
   ]
 };
 
-},{}],168:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 module.exports = {
   'name': 'atan2',
   'category': 'Trigonometry',
@@ -20705,7 +25163,7 @@ module.exports = {
   ]
 };
 
-},{}],169:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 module.exports = {
   'name': 'atanh',
   'category': 'Trigonometry',
@@ -20722,7 +25180,7 @@ module.exports = {
   ]
 };
 
-},{}],170:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 module.exports = {
   'name': 'cos',
   'category': 'Trigonometry',
@@ -20744,7 +25202,7 @@ module.exports = {
   ]
 };
 
-},{}],171:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 module.exports = {
   'name': 'cosh',
   'category': 'Trigonometry',
@@ -20762,7 +25220,7 @@ module.exports = {
   ]
 };
 
-},{}],172:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 module.exports = {
   'name': 'cot',
   'category': 'Trigonometry',
@@ -20781,7 +25239,7 @@ module.exports = {
   ]
 };
 
-},{}],173:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 module.exports = {
   'name': 'coth',
   'category': 'Trigonometry',
@@ -20800,7 +25258,7 @@ module.exports = {
   ]
 };
 
-},{}],174:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 module.exports = {
   'name': 'csc',
   'category': 'Trigonometry',
@@ -20819,7 +25277,7 @@ module.exports = {
   ]
 };
 
-},{}],175:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 module.exports = {
   'name': 'csch',
   'category': 'Trigonometry',
@@ -20838,7 +25296,7 @@ module.exports = {
   ]
 };
 
-},{}],176:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 module.exports = {
   'name': 'sec',
   'category': 'Trigonometry',
@@ -20857,7 +25315,7 @@ module.exports = {
   ]
 };
 
-},{}],177:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 module.exports = {
   'name': 'sech',
   'category': 'Trigonometry',
@@ -20876,7 +25334,7 @@ module.exports = {
   ]
 };
 
-},{}],178:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 module.exports = {
   'name': 'sin',
   'category': 'Trigonometry',
@@ -20898,7 +25356,7 @@ module.exports = {
   ]
 };
 
-},{}],179:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 module.exports = {
   'name': 'sinh',
   'category': 'Trigonometry',
@@ -20915,7 +25373,7 @@ module.exports = {
   ]
 };
 
-},{}],180:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 module.exports = {
   'name': 'tan',
   'category': 'Trigonometry',
@@ -20936,7 +25394,7 @@ module.exports = {
   ]
 };
 
-},{}],181:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 module.exports = {
   'name': 'tanh',
   'category': 'Trigonometry',
@@ -20954,7 +25412,7 @@ module.exports = {
   ]
 };
 
-},{}],182:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 module.exports = {
   'name': 'to',
   'category': 'Units',
@@ -20971,7 +25429,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],183:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 module.exports = {
   'name': 'clone',
   'category': 'Utils',
@@ -20989,7 +25447,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],184:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 module.exports = {
   'name': 'format',
   'category': 'Utils',
@@ -21007,7 +25465,7 @@ module.exports = {
   'seealso': ['print']
 };
 
-},{}],185:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 module.exports = {
   'name': 'isInteger',
   'category': 'Utils',
@@ -21023,7 +25481,7 @@ module.exports = {
   'seealso': ['isNegative', 'isNumeric', 'isPositive', 'isZero']
 };
 
-},{}],186:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 module.exports = {
   'name': 'isNegative',
   'category': 'Utils',
@@ -21040,7 +25498,7 @@ module.exports = {
   'seealso': ['isInteger', 'isNumeric', 'isPositive', 'isZero']
 };
 
-},{}],187:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 module.exports = {
   'name': 'isNumeric',
   'category': 'Utils',
@@ -21061,7 +25519,7 @@ module.exports = {
   'seealso': ['isInteger', 'isZero', 'isNegative', 'isPositive']
 };
 
-},{}],188:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 module.exports = {
   'name': 'isPositive',
   'category': 'Utils',
@@ -21078,7 +25536,7 @@ module.exports = {
   'seealso': ['isInteger', 'isNumeric', 'isNegative', 'isZero']
 };
 
-},{}],189:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 module.exports = {
   'name': 'isZero',
   'category': 'Utils',
@@ -21095,7 +25553,7 @@ module.exports = {
   'seealso': ['isInteger', 'isNumeric', 'isNegative', 'isPositive']
 };
 
-},{}],190:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 module.exports = {
   'name': 'typeof',
   'category': 'Utils',
@@ -21112,7 +25570,7 @@ module.exports = {
   'seealso': []
 };
 
-},{}],191:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 function factory (construction, config, load, typed) {
   var docs = {};
 
@@ -21395,7 +25853,7 @@ exports.name = 'docs';
 exports.path = 'expression';
 exports.factory = factory;
 
-},{"./constants/Infinity":20,"./constants/LN10":21,"./constants/LN2":22,"./constants/LOG10E":23,"./constants/LOG2E":24,"./constants/NaN":25,"./constants/SQRT1_2":26,"./constants/SQRT2":27,"./constants/e":28,"./constants/false":29,"./constants/i":30,"./constants/null":31,"./constants/phi":32,"./constants/pi":33,"./constants/tau":34,"./constants/true":35,"./constants/version":36,"./construction/bignumber":37,"./construction/boolean":38,"./construction/complex":39,"./construction/fraction":40,"./construction/index":41,"./construction/matrix":42,"./construction/number":43,"./construction/sparse":44,"./construction/string":45,"./construction/unit":46,"./core/config":47,"./core/import":48,"./core/typed":49,"./function/algebra/lsolve":50,"./function/algebra/lup":51,"./function/algebra/lusolve":52,"./function/algebra/slu":53,"./function/algebra/usolve":54,"./function/arithmetic/abs":55,"./function/arithmetic/add":56,"./function/arithmetic/cbrt":57,"./function/arithmetic/ceil":58,"./function/arithmetic/cube":59,"./function/arithmetic/divide":60,"./function/arithmetic/dotDivide":61,"./function/arithmetic/dotMultiply":62,"./function/arithmetic/dotPow":63,"./function/arithmetic/exp":64,"./function/arithmetic/fix":65,"./function/arithmetic/floor":66,"./function/arithmetic/gcd":67,"./function/arithmetic/hypot":68,"./function/arithmetic/lcm":69,"./function/arithmetic/log":70,"./function/arithmetic/log10":71,"./function/arithmetic/mod":72,"./function/arithmetic/multiply":73,"./function/arithmetic/norm":74,"./function/arithmetic/nthRoot":75,"./function/arithmetic/pow":76,"./function/arithmetic/round":77,"./function/arithmetic/sign":78,"./function/arithmetic/sqrt":79,"./function/arithmetic/square":80,"./function/arithmetic/subtract":81,"./function/arithmetic/unaryMinus":82,"./function/arithmetic/unaryPlus":83,"./function/arithmetic/xgcd":84,"./function/bitwise/bitAnd":85,"./function/bitwise/bitNot":86,"./function/bitwise/bitOr":87,"./function/bitwise/bitXor":88,"./function/bitwise/leftShift":89,"./function/bitwise/rightArithShift":90,"./function/bitwise/rightLogShift":91,"./function/combinatorics/bellNumbers":92,"./function/combinatorics/catalan":93,"./function/combinatorics/composition":94,"./function/combinatorics/stirlingS2":95,"./function/complex/arg":96,"./function/complex/conj":97,"./function/complex/im":98,"./function/complex/re":99,"./function/expression/eval":100,"./function/expression/help":101,"./function/geometry/distance":102,"./function/geometry/intersect":103,"./function/logical/and":104,"./function/logical/not":105,"./function/logical/or":106,"./function/logical/xor":107,"./function/matrix/concat":108,"./function/matrix/cross":109,"./function/matrix/det":110,"./function/matrix/diag":111,"./function/matrix/dot":112,"./function/matrix/eye":113,"./function/matrix/filter":114,"./function/matrix/flatten":115,"./function/matrix/forEach":116,"./function/matrix/inv":117,"./function/matrix/map":118,"./function/matrix/ones":119,"./function/matrix/partitionSelect":120,"./function/matrix/range":121,"./function/matrix/resize":122,"./function/matrix/size":123,"./function/matrix/sort":124,"./function/matrix/squeeze":125,"./function/matrix/subset":126,"./function/matrix/trace":127,"./function/matrix/transpose":128,"./function/matrix/zeros":129,"./function/probability/combinations":130,"./function/probability/factorial":131,"./function/probability/gamma":132,"./function/probability/kldivergence":133,"./function/probability/multinomial":134,"./function/probability/permutations":135,"./function/probability/pickRandom":136,"./function/probability/random":137,"./function/probability/randomInt":138,"./function/relational/compare":139,"./function/relational/deepEqual":140,"./function/relational/equal":141,"./function/relational/larger":142,"./function/relational/largerEq":143,"./function/relational/smaller":144,"./function/relational/smallerEq":145,"./function/relational/unequal":146,"./function/statistics/max":147,"./function/statistics/mean":148,"./function/statistics/median":149,"./function/statistics/min":150,"./function/statistics/mode":151,"./function/statistics/prod":152,"./function/statistics/quantileSeq":153,"./function/statistics/std":154,"./function/statistics/sum":155,"./function/statistics/var":156,"./function/trigonometry/acos":157,"./function/trigonometry/acosh":158,"./function/trigonometry/acot":159,"./function/trigonometry/acoth":160,"./function/trigonometry/acsc":161,"./function/trigonometry/acsch":162,"./function/trigonometry/asec":163,"./function/trigonometry/asech":164,"./function/trigonometry/asin":165,"./function/trigonometry/asinh":166,"./function/trigonometry/atan":167,"./function/trigonometry/atan2":168,"./function/trigonometry/atanh":169,"./function/trigonometry/cos":170,"./function/trigonometry/cosh":171,"./function/trigonometry/cot":172,"./function/trigonometry/coth":173,"./function/trigonometry/csc":174,"./function/trigonometry/csch":175,"./function/trigonometry/sec":176,"./function/trigonometry/sech":177,"./function/trigonometry/sin":178,"./function/trigonometry/sinh":179,"./function/trigonometry/tan":180,"./function/trigonometry/tanh":181,"./function/units/to":182,"./function/utils/clone":183,"./function/utils/format":184,"./function/utils/isInteger":185,"./function/utils/isNegative":186,"./function/utils/isNumeric":187,"./function/utils/isPositive":188,"./function/utils/isZero":189,"./function/utils/typeof":190}],192:[function(require,module,exports){
+},{"./constants/Infinity":85,"./constants/LN10":86,"./constants/LN2":87,"./constants/LOG10E":88,"./constants/LOG2E":89,"./constants/NaN":90,"./constants/SQRT1_2":91,"./constants/SQRT2":92,"./constants/e":93,"./constants/false":94,"./constants/i":95,"./constants/null":96,"./constants/phi":97,"./constants/pi":98,"./constants/tau":99,"./constants/true":100,"./constants/version":101,"./construction/bignumber":102,"./construction/boolean":103,"./construction/complex":104,"./construction/fraction":105,"./construction/index":106,"./construction/matrix":107,"./construction/number":108,"./construction/sparse":109,"./construction/string":110,"./construction/unit":111,"./core/config":112,"./core/import":113,"./core/typed":114,"./function/algebra/lsolve":115,"./function/algebra/lup":116,"./function/algebra/lusolve":117,"./function/algebra/slu":118,"./function/algebra/usolve":119,"./function/arithmetic/abs":120,"./function/arithmetic/add":121,"./function/arithmetic/cbrt":122,"./function/arithmetic/ceil":123,"./function/arithmetic/cube":124,"./function/arithmetic/divide":125,"./function/arithmetic/dotDivide":126,"./function/arithmetic/dotMultiply":127,"./function/arithmetic/dotPow":128,"./function/arithmetic/exp":129,"./function/arithmetic/fix":130,"./function/arithmetic/floor":131,"./function/arithmetic/gcd":132,"./function/arithmetic/hypot":133,"./function/arithmetic/lcm":134,"./function/arithmetic/log":135,"./function/arithmetic/log10":136,"./function/arithmetic/mod":137,"./function/arithmetic/multiply":138,"./function/arithmetic/norm":139,"./function/arithmetic/nthRoot":140,"./function/arithmetic/pow":141,"./function/arithmetic/round":142,"./function/arithmetic/sign":143,"./function/arithmetic/sqrt":144,"./function/arithmetic/square":145,"./function/arithmetic/subtract":146,"./function/arithmetic/unaryMinus":147,"./function/arithmetic/unaryPlus":148,"./function/arithmetic/xgcd":149,"./function/bitwise/bitAnd":150,"./function/bitwise/bitNot":151,"./function/bitwise/bitOr":152,"./function/bitwise/bitXor":153,"./function/bitwise/leftShift":154,"./function/bitwise/rightArithShift":155,"./function/bitwise/rightLogShift":156,"./function/combinatorics/bellNumbers":157,"./function/combinatorics/catalan":158,"./function/combinatorics/composition":159,"./function/combinatorics/stirlingS2":160,"./function/complex/arg":161,"./function/complex/conj":162,"./function/complex/im":163,"./function/complex/re":164,"./function/expression/eval":165,"./function/expression/help":166,"./function/geometry/distance":167,"./function/geometry/intersect":168,"./function/logical/and":169,"./function/logical/not":170,"./function/logical/or":171,"./function/logical/xor":172,"./function/matrix/concat":173,"./function/matrix/cross":174,"./function/matrix/det":175,"./function/matrix/diag":176,"./function/matrix/dot":177,"./function/matrix/eye":178,"./function/matrix/filter":179,"./function/matrix/flatten":180,"./function/matrix/forEach":181,"./function/matrix/inv":182,"./function/matrix/map":183,"./function/matrix/ones":184,"./function/matrix/partitionSelect":185,"./function/matrix/range":186,"./function/matrix/resize":187,"./function/matrix/size":188,"./function/matrix/sort":189,"./function/matrix/squeeze":190,"./function/matrix/subset":191,"./function/matrix/trace":192,"./function/matrix/transpose":193,"./function/matrix/zeros":194,"./function/probability/combinations":195,"./function/probability/factorial":196,"./function/probability/gamma":197,"./function/probability/kldivergence":198,"./function/probability/multinomial":199,"./function/probability/permutations":200,"./function/probability/pickRandom":201,"./function/probability/random":202,"./function/probability/randomInt":203,"./function/relational/compare":204,"./function/relational/deepEqual":205,"./function/relational/equal":206,"./function/relational/larger":207,"./function/relational/largerEq":208,"./function/relational/smaller":209,"./function/relational/smallerEq":210,"./function/relational/unequal":211,"./function/statistics/max":212,"./function/statistics/mean":213,"./function/statistics/median":214,"./function/statistics/min":215,"./function/statistics/mode":216,"./function/statistics/prod":217,"./function/statistics/quantileSeq":218,"./function/statistics/std":219,"./function/statistics/sum":220,"./function/statistics/var":221,"./function/trigonometry/acos":222,"./function/trigonometry/acosh":223,"./function/trigonometry/acot":224,"./function/trigonometry/acoth":225,"./function/trigonometry/acsc":226,"./function/trigonometry/acsch":227,"./function/trigonometry/asec":228,"./function/trigonometry/asech":229,"./function/trigonometry/asin":230,"./function/trigonometry/asinh":231,"./function/trigonometry/atan":232,"./function/trigonometry/atan2":233,"./function/trigonometry/atanh":234,"./function/trigonometry/cos":235,"./function/trigonometry/cosh":236,"./function/trigonometry/cot":237,"./function/trigonometry/coth":238,"./function/trigonometry/csc":239,"./function/trigonometry/csch":240,"./function/trigonometry/sec":241,"./function/trigonometry/sech":242,"./function/trigonometry/sin":243,"./function/trigonometry/sinh":244,"./function/trigonometry/tan":245,"./function/trigonometry/tanh":246,"./function/units/to":247,"./function/utils/clone":248,"./function/utils/format":249,"./function/utils/isInteger":250,"./function/utils/isNegative":251,"./function/utils/isNumeric":252,"./function/utils/isPositive":253,"./function/utils/isZero":254,"./function/utils/typeof":255}],257:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -21453,7 +25911,7 @@ function factory (type, config, load, typed) {
 exports.name = 'compile';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../parse":220}],193:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../parse":285}],258:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -21517,7 +25975,7 @@ function factory (type, config, load, typed) {
 
 exports.name = 'eval';
 exports.factory = factory;
-},{"../../utils/collection/deepMap":479,"../parse":220}],194:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../parse":285}],259:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed, math) {
@@ -21583,7 +26041,7 @@ exports.math = true; // request access to the math namespace as 5th argument of 
 exports.name = 'help';
 exports.factory = factory;
 
-},{"../docs":191}],195:[function(require,module,exports){
+},{"../docs":256}],260:[function(require,module,exports){
 module.exports = [
   require('./compile'),
   require('./eval'),
@@ -21592,7 +26050,7 @@ module.exports = [
   require('./parser')
 ];
 
-},{"./compile":192,"./eval":193,"./help":194,"./parse":196,"./parser":197}],196:[function(require,module,exports){
+},{"./compile":257,"./eval":258,"./help":259,"./parse":261,"./parser":262}],261:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -21643,7 +26101,7 @@ function factory (type, config, load, typed) {
 exports.name = 'parse';
 exports.factory = factory;
 
-},{"../parse":220}],197:[function(require,module,exports){
+},{"../parse":285}],262:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed, math) {
@@ -21703,7 +26161,7 @@ exports.name = 'parser';
 exports.factory = factory;
 exports.math = true; // requires the math namespace as 5th argument
 
-},{"../Parser":19}],198:[function(require,module,exports){
+},{"../Parser":84}],263:[function(require,module,exports){
 module.exports = [
   require('./docs'),
   require('./function'),
@@ -21715,7 +26173,7 @@ module.exports = [
   require('./Parser')
 ];
 
-},{"./Help":18,"./Parser":19,"./docs":191,"./function":195,"./node":216,"./parse":220,"./transform":225}],199:[function(require,module,exports){
+},{"./Help":83,"./Parser":84,"./docs":256,"./function":260,"./node":281,"./parse":285,"./transform":290}],264:[function(require,module,exports){
 'use strict';
 
 // Reserved keywords not allowed to use in the parser
@@ -21723,7 +26181,7 @@ module.exports = {
   end: true
 };
 
-},{}],200:[function(require,module,exports){
+},{}],265:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -21888,7 +26346,7 @@ exports.name = 'AccessorNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"./Node":209,"./utils/access":217}],201:[function(require,module,exports){
+},{"./Node":274,"./utils/access":282}],266:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -22027,7 +26485,7 @@ exports.name = 'ArrayNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"./Node":209}],202:[function(require,module,exports){
+},{"./Node":274}],267:[function(require,module,exports){
 'use strict';
 
 var latex = require('../../utils/latex');
@@ -22292,7 +26750,7 @@ exports.name = 'AssignmentNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/latex":486,"../keywords":199,"../operators":219,"./ArrayNode":201,"./Node":209,"./utils/access":217,"./utils/assign":218}],203:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/latex":551,"../keywords":264,"../operators":284,"./ArrayNode":266,"./Node":274,"./utils/access":282,"./utils/assign":283}],268:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -22440,7 +26898,7 @@ exports.name = 'BlockNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"../../type/resultset/ResultSet":457,"./Node":209}],204:[function(require,module,exports){
+},{"../../type/resultset/ResultSet":522,"./Node":274}],269:[function(require,module,exports){
 'use strict';
 
 var latex = require('../../utils/latex');
@@ -22622,7 +27080,7 @@ exports.name = 'ConditionalNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"../../utils/latex":486,"../operators":219,"./Node":209}],205:[function(require,module,exports){
+},{"../../utils/latex":551,"../operators":284,"./Node":274}],270:[function(require,module,exports){
 'use strict';
 
 var getType = require('../../utils/types').type;
@@ -22823,7 +27281,7 @@ exports.name = 'ConstantNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"../../utils/types":490,"./Node":209}],206:[function(require,module,exports){
+},{"../../utils/types":555,"./Node":274}],271:[function(require,module,exports){
 'use strict';
 
 var keywords = require('../keywords');
@@ -22984,7 +27442,7 @@ exports.name = 'FunctionAssignmentNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"../../utils/latex":486,"../keywords":199,"../operators":219,"./Node":209}],207:[function(require,module,exports){
+},{"../../utils/latex":551,"../keywords":264,"../operators":284,"./Node":274}],272:[function(require,module,exports){
 'use strict';
 
 var latex = require('../../utils/latex');
@@ -23372,7 +27830,7 @@ exports.path = 'expression.node';
 exports.math = true; // request access to the math namespace as 5th argument of the factory function
 exports.factory = factory;
 
-},{"../../utils/latex":486,"./Node":209,"./SymbolNode":214}],208:[function(require,module,exports){
+},{"../../utils/latex":551,"./Node":274,"./SymbolNode":279}],273:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -23604,7 +28062,7 @@ exports.name = 'IndexNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"../../type/matrix/Range":435,"./Node":209,"./RangeNode":213,"./SymbolNode":214}],209:[function(require,module,exports){
+},{"../../type/matrix/Range":500,"./Node":274,"./RangeNode":278,"./SymbolNode":279}],274:[function(require,module,exports){
 'use strict';
 
 var keywords = require('../keywords');
@@ -23964,7 +28422,7 @@ exports.path = 'expression.node';
 exports.math = true; // request access to the math namespace as 5th argument of the factory function
 exports.factory = factory;
 
-},{"../../utils/object":488,"../keywords":199}],210:[function(require,module,exports){
+},{"../../utils/object":553,"../keywords":264}],275:[function(require,module,exports){
 'use strict';
 
 var string = require('../../utils/string');
@@ -24103,7 +28561,7 @@ exports.name = 'ObjectNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"../../utils/string":489,"./Node":209}],211:[function(require,module,exports){
+},{"../../utils/string":554,"./Node":274}],276:[function(require,module,exports){
 'use strict';
 
 var latex = require('../../utils/latex');
@@ -24532,7 +28990,7 @@ exports.path = 'expression.node';
 exports.math = true; // request access to the math namespace as 5th argument of the factory function
 exports.factory = factory;
 
-},{"../../utils/latex":486,"../operators":219,"./ConstantNode":205,"./FunctionNode":207,"./Node":209,"./SymbolNode":214}],212:[function(require,module,exports){
+},{"../../utils/latex":551,"../operators":284,"./ConstantNode":270,"./FunctionNode":272,"./Node":274,"./SymbolNode":279}],277:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -24649,7 +29107,7 @@ exports.name = 'ParenthesisNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"./Node":209}],213:[function(require,module,exports){
+},{"./Node":274}],278:[function(require,module,exports){
 'use strict';
 
 var operators = require('../operators');
@@ -24863,7 +29321,7 @@ exports.name = 'RangeNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{"../operators":219,"./Node":209}],214:[function(require,module,exports){
+},{"../operators":284,"./Node":274}],279:[function(require,module,exports){
 'use strict';
 
 var latex = require('../../utils/latex');
@@ -25004,7 +29462,7 @@ exports.path = 'expression.node';
 exports.math = true; // request access to the math namespace as 5th argument of the factory function
 exports.factory = factory;
 
-},{"../../type/unit/Unit":460,"../../utils/latex":486,"./Node":209}],215:[function(require,module,exports){
+},{"../../type/unit/Unit":525,"../../utils/latex":551,"./Node":274}],280:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -25023,7 +29481,7 @@ exports.name = 'UpdateNode';
 exports.path = 'expression.node';
 exports.factory = factory;
 
-},{}],216:[function(require,module,exports){
+},{}],281:[function(require,module,exports){
 module.exports = [
   require('./AccessorNode'),
   require('./ArrayNode'),
@@ -25043,7 +29501,7 @@ module.exports = [
   require('./UpdateNode')
 ];
 
-},{"./AccessorNode":200,"./ArrayNode":201,"./AssignmentNode":202,"./BlockNode":203,"./ConditionalNode":204,"./ConstantNode":205,"./FunctionAssignmentNode":206,"./FunctionNode":207,"./IndexNode":208,"./Node":209,"./ObjectNode":210,"./OperatorNode":211,"./ParenthesisNode":212,"./RangeNode":213,"./SymbolNode":214,"./UpdateNode":215}],217:[function(require,module,exports){
+},{"./AccessorNode":265,"./ArrayNode":266,"./AssignmentNode":267,"./BlockNode":268,"./ConditionalNode":269,"./ConstantNode":270,"./FunctionAssignmentNode":271,"./FunctionNode":272,"./IndexNode":273,"./Node":274,"./ObjectNode":275,"./OperatorNode":276,"./ParenthesisNode":277,"./RangeNode":278,"./SymbolNode":279,"./UpdateNode":280}],282:[function(require,module,exports){
 'use strict';
 
 var errorTransform = require('../../transform/error.transform').transform;
@@ -25093,7 +29551,7 @@ function factory (type, config, load, typed) {
 
 exports.factory = factory;
 
-},{"../../../function/matrix/subset":338,"../../../type/matrix/function/matrix":439,"../../transform/error.transform":222}],218:[function(require,module,exports){
+},{"../../../function/matrix/subset":403,"../../../type/matrix/function/matrix":504,"../../transform/error.transform":287}],283:[function(require,module,exports){
 'use strict';
 
 var errorTransform = require('../../transform/error.transform').transform;
@@ -25146,7 +29604,7 @@ function factory (type, config, load, typed) {
 
 exports.factory = factory;
 
-},{"../../../function/matrix/subset":338,"../../../type/matrix/function/matrix":439,"../../transform/error.transform":222}],219:[function(require,module,exports){
+},{"../../../function/matrix/subset":403,"../../../type/matrix/function/matrix":504,"../../transform/error.transform":287}],284:[function(require,module,exports){
 'use strict'
 
 //list of identifiers of nodes in order of their precedence
@@ -25464,7 +29922,7 @@ module.exports.getPrecedence = getPrecedence;
 module.exports.getAssociativity = getAssociativity;
 module.exports.isAssociativeWith = isAssociativeWith;
 
-},{}],220:[function(require,module,exports){
+},{}],285:[function(require,module,exports){
 'use strict';
 
 var ArgumentsError = require('../error/ArgumentsError');
@@ -26964,7 +31422,7 @@ exports.name = 'parse';
 exports.path = 'expression';
 exports.factory = factory;
 
-},{"../error/ArgumentsError":14,"../utils/collection/deepMap":479,"./node/AccessorNode":200,"./node/ArrayNode":201,"./node/AssignmentNode":202,"./node/BlockNode":203,"./node/ConditionalNode":204,"./node/ConstantNode":205,"./node/FunctionAssignmentNode":206,"./node/FunctionNode":207,"./node/IndexNode":208,"./node/ObjectNode":210,"./node/OperatorNode":211,"./node/ParenthesisNode":212,"./node/RangeNode":213,"./node/SymbolNode":214}],221:[function(require,module,exports){
+},{"../error/ArgumentsError":79,"../utils/collection/deepMap":544,"./node/AccessorNode":265,"./node/ArrayNode":266,"./node/AssignmentNode":267,"./node/BlockNode":268,"./node/ConditionalNode":269,"./node/ConstantNode":270,"./node/FunctionAssignmentNode":271,"./node/FunctionNode":272,"./node/IndexNode":273,"./node/ObjectNode":275,"./node/OperatorNode":276,"./node/ParenthesisNode":277,"./node/RangeNode":278,"./node/SymbolNode":279}],286:[function(require,module,exports){
 'use strict';
 
 var errorTransform = require('./error.transform').transform;
@@ -27006,7 +31464,7 @@ exports.name = 'concat';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../function/matrix/concat":319,"./error.transform":222}],222:[function(require,module,exports){
+},{"../../function/matrix/concat":384,"./error.transform":287}],287:[function(require,module,exports){
 var IndexError = require('../../error/IndexError');
 
 /**
@@ -27025,7 +31483,7 @@ exports.transform = function (err) {
   return err;
 };
 
-},{"../../error/IndexError":16}],223:[function(require,module,exports){
+},{"../../error/IndexError":81}],288:[function(require,module,exports){
 'use strict';
 
 /**
@@ -27091,7 +31549,7 @@ exports.name = 'filter';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../function/matrix/filter":325,"../node/SymbolNode":214}],224:[function(require,module,exports){
+},{"../../function/matrix/filter":390,"../node/SymbolNode":279}],289:[function(require,module,exports){
 'use strict';
 
 /**
@@ -27125,7 +31583,7 @@ exports.name = 'forEach';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../function/matrix/forEach":327}],225:[function(require,module,exports){
+},{"../../function/matrix/forEach":392}],290:[function(require,module,exports){
 module.exports = [
   require('./concat.transform'),
   require('./filter.transform'),
@@ -27139,7 +31597,7 @@ module.exports = [
   require('./subset.transform')
 ];
 
-},{"./concat.transform":221,"./filter.transform":223,"./forEach.transform":224,"./index.transform":226,"./map.transform":227,"./max.transform":228,"./mean.transform":229,"./min.transform":230,"./range.transform":231,"./subset.transform":232}],226:[function(require,module,exports){
+},{"./concat.transform":286,"./filter.transform":288,"./forEach.transform":289,"./index.transform":291,"./map.transform":292,"./max.transform":293,"./mean.transform":294,"./min.transform":295,"./range.transform":296,"./subset.transform":297}],291:[function(require,module,exports){
 'use strict';
 
 var isArray = Array.isArray;
@@ -27195,7 +31653,7 @@ exports.name = 'index';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../type/matrix/function/index":438}],227:[function(require,module,exports){
+},{"../../type/matrix/function/index":503}],292:[function(require,module,exports){
 'use strict';
 
 /**
@@ -27247,7 +31705,7 @@ exports.name = 'map';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../function/matrix/map":330,"../../type/matrix/function/matrix":439}],228:[function(require,module,exports){
+},{"../../function/matrix/map":395,"../../type/matrix/function/matrix":504}],293:[function(require,module,exports){
 'use strict';
 
 var errorTransform = require('./error.transform').transform;
@@ -27290,7 +31748,7 @@ exports.name = 'max';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../function/statistics/max":364,"../../utils/collection/isCollection":480,"./error.transform":222}],229:[function(require,module,exports){
+},{"../../function/statistics/max":429,"../../utils/collection/isCollection":545,"./error.transform":287}],294:[function(require,module,exports){
 'use strict';
 
 var errorTransform = require('./error.transform').transform;
@@ -27333,7 +31791,7 @@ exports.name = 'mean';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../function/statistics/mean":365,"../../utils/collection/isCollection":480,"./error.transform":222}],230:[function(require,module,exports){
+},{"../../function/statistics/mean":430,"../../utils/collection/isCollection":545,"./error.transform":287}],295:[function(require,module,exports){
 'use strict';
 
 var errorTransform = require('./error.transform').transform;
@@ -27376,7 +31834,7 @@ exports.name = 'min';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../function/statistics/min":367,"../../utils/collection/isCollection":480,"./error.transform":222}],231:[function(require,module,exports){
+},{"../../function/statistics/min":432,"../../utils/collection/isCollection":545,"./error.transform":287}],296:[function(require,module,exports){
 'use strict';
 
 /**
@@ -27406,7 +31864,7 @@ exports.name = 'range';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../function/matrix/range":333}],232:[function(require,module,exports){
+},{"../../function/matrix/range":398}],297:[function(require,module,exports){
 'use strict';
 
 var errorTransform = require('./error.transform').transform;
@@ -27436,7 +31894,7 @@ exports.name = 'subset';
 exports.path = 'expression.transform';
 exports.factory = factory;
 
-},{"../../function/matrix/subset":338,"./error.transform":222}],233:[function(require,module,exports){
+},{"../../function/matrix/subset":403,"./error.transform":287}],298:[function(require,module,exports){
 'use strict';
 
 var util = require('../../../utils/index');
@@ -27825,7 +32283,7 @@ function factory (type, config, load, typed) {
 exports.name = 'lup';
 exports.factory = factory;
 
-},{"../../../type/matrix/function/matrix":439,"../../../utils/index":485,"../../arithmetic/abs":258,"../../arithmetic/addScalar":260,"../../arithmetic/divideScalar":265,"../../arithmetic/multiplyScalar":280,"../../arithmetic/subtract":288,"../../arithmetic/unaryMinus":289,"../../relational/equalScalar":356,"../../relational/larger":358}],234:[function(require,module,exports){
+},{"../../../type/matrix/function/matrix":504,"../../../utils/index":550,"../../arithmetic/abs":323,"../../arithmetic/addScalar":325,"../../arithmetic/divideScalar":330,"../../arithmetic/multiplyScalar":345,"../../arithmetic/subtract":353,"../../arithmetic/unaryMinus":354,"../../relational/equalScalar":421,"../../relational/larger":423}],299:[function(require,module,exports){
 'use strict';
 
 var util = require('../../../utils/index');
@@ -27899,7 +32357,7 @@ function factory (type, config, load, typed) {
 exports.name = 'slu';
 exports.factory = factory;
 
-},{"../../../utils/index":485,"../../algebra/sparse/cs_lu":248,"../../algebra/sparse/cs_sqr":255}],235:[function(require,module,exports){
+},{"../../../utils/index":550,"../../algebra/sparse/cs_lu":313,"../../algebra/sparse/cs_sqr":320}],300:[function(require,module,exports){
 module.exports = [
   // decomposition
   require('./decomposition/lup'),
@@ -27911,7 +32369,7 @@ module.exports = [
   require('./solver/usolve')
 ];
 
-},{"./decomposition/lup":233,"./decomposition/slu":234,"./solver/lsolve":236,"./solver/lusolve":237,"./solver/usolve":238}],236:[function(require,module,exports){
+},{"./decomposition/lup":298,"./decomposition/slu":299,"./solver/lsolve":301,"./solver/lusolve":302,"./solver/usolve":303}],301:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -28100,7 +32558,7 @@ function factory (type, config, load, typed) {
 exports.name = 'lsolve';
 exports.factory = factory;
 
-},{"../../../type/matrix/function/matrix":439,"../../arithmetic/divideScalar":265,"../../arithmetic/multiplyScalar":280,"../../arithmetic/subtract":288,"../../relational/equalScalar":356,"./utils/solveValidation":239}],237:[function(require,module,exports){
+},{"../../../type/matrix/function/matrix":504,"../../arithmetic/divideScalar":330,"../../arithmetic/multiplyScalar":345,"../../arithmetic/subtract":353,"../../relational/equalScalar":421,"./utils/solveValidation":304}],302:[function(require,module,exports){
 'use strict';
 
 var isArray = Array.isArray;
@@ -28227,7 +32685,7 @@ function factory (type, config, load, typed) {
 exports.name = 'lusolve';
 exports.factory = factory;
 
-},{"../../../type/matrix/function/matrix":439,"../decomposition/lup":233,"../decomposition/slu":234,"../sparse/cs_ipvec":246,"./lsolve":236,"./usolve":238,"./utils/solveValidation":239}],238:[function(require,module,exports){
+},{"../../../type/matrix/function/matrix":504,"../decomposition/lup":298,"../decomposition/slu":299,"../sparse/cs_ipvec":311,"./lsolve":301,"./usolve":303,"./utils/solveValidation":304}],303:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -28417,7 +32875,7 @@ function factory (type, config, load, typed) {
 exports.name = 'usolve';
 exports.factory = factory;
 
-},{"../../../type/matrix/function/matrix":439,"../../arithmetic/divideScalar":265,"../../arithmetic/multiplyScalar":280,"../../arithmetic/subtract":288,"../../relational/equalScalar":356,"./utils/solveValidation":239}],239:[function(require,module,exports){
+},{"../../../type/matrix/function/matrix":504,"../../arithmetic/divideScalar":330,"../../arithmetic/multiplyScalar":345,"../../arithmetic/subtract":353,"../../relational/equalScalar":421,"./utils/solveValidation":304}],304:[function(require,module,exports){
 'use strict';
 
 var util = require('../../../../utils/index');
@@ -28580,7 +33038,7 @@ function factory (type) {
 }
 
 exports.factory = factory;
-},{"../../../../utils/index":485}],240:[function(require,module,exports){
+},{"../../../../utils/index":550}],305:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -29155,7 +33613,7 @@ exports.name = 'cs_amd';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"../../arithmetic/add":259,"../../arithmetic/multiply":279,"../../matrix/transpose":340,"./cs_fkeep":244,"./cs_flip":245,"./cs_tdfs":256}],241:[function(require,module,exports){
+},{"../../arithmetic/add":324,"../../arithmetic/multiply":344,"../../matrix/transpose":405,"./cs_fkeep":309,"./cs_flip":310,"./cs_tdfs":321}],306:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -29278,7 +33736,7 @@ exports.name = 'cs_counts';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"../../matrix/transpose":340,"./cs_leaf":247}],242:[function(require,module,exports){
+},{"../../matrix/transpose":405,"./cs_leaf":312}],307:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -29365,7 +33823,7 @@ exports.name = 'cs_dfs';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"./cs_mark":249,"./cs_marked":250,"./cs_unflip":257}],243:[function(require,module,exports){
+},{"./cs_mark":314,"./cs_marked":315,"./cs_unflip":322}],308:[function(require,module,exports){
 'use strict';
 
 function factory () {
@@ -29443,7 +33901,7 @@ exports.name = 'cs_etree';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{}],244:[function(require,module,exports){
+},{}],309:[function(require,module,exports){
 'use strict';
 
 function factory () {
@@ -29510,7 +33968,7 @@ exports.name = 'cs_fkeep';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{}],245:[function(require,module,exports){
+},{}],310:[function(require,module,exports){
 'use strict';
 
 function factory () {
@@ -29534,7 +33992,7 @@ exports.name = 'cs_flip';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{}],246:[function(require,module,exports){
+},{}],311:[function(require,module,exports){
 'use strict';
 
 function factory () {
@@ -29577,7 +34035,7 @@ exports.name = 'cs_ipvec';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{}],247:[function(require,module,exports){
+},{}],312:[function(require,module,exports){
 'use strict';
 
 function factory () {
@@ -29645,7 +34103,7 @@ exports.name = 'cs_leaf';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{}],248:[function(require,module,exports){
+},{}],313:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -29825,7 +34283,7 @@ exports.name = 'cs_lu';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"../../arithmetic/abs":258,"../../arithmetic/divideScalar":265,"../../arithmetic/multiply":279,"../../relational/larger":358,"../../relational/largerEq":359,"./cs_spsolve":254}],249:[function(require,module,exports){
+},{"../../arithmetic/abs":323,"../../arithmetic/divideScalar":330,"../../arithmetic/multiply":344,"../../relational/larger":423,"../../relational/largerEq":424,"./cs_spsolve":319}],314:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -29852,7 +34310,7 @@ exports.name = 'cs_mark';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"./cs_flip":245}],250:[function(require,module,exports){
+},{"./cs_flip":310}],315:[function(require,module,exports){
 'use strict';
 
 function factory () {
@@ -29877,7 +34335,7 @@ exports.name = 'cs_marked';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{}],251:[function(require,module,exports){
+},{}],316:[function(require,module,exports){
 'use strict';
 
 function factory (type) {
@@ -29950,7 +34408,7 @@ exports.name = 'cs_permute';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{}],252:[function(require,module,exports){
+},{}],317:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -30011,7 +34469,7 @@ exports.name = 'cs_post';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"./cs_tdfs":256}],253:[function(require,module,exports){
+},{"./cs_tdfs":321}],318:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -30074,7 +34532,7 @@ exports.name = 'cs_reach';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"./cs_dfs":242,"./cs_mark":249,"./cs_marked":250}],254:[function(require,module,exports){
+},{"./cs_dfs":307,"./cs_mark":314,"./cs_marked":315}],319:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -30162,7 +34620,7 @@ exports.name = 'cs_spsolve';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"../../arithmetic/divideScalar":265,"../../arithmetic/multiply":279,"../../arithmetic/subtract":288,"./cs_reach":253}],255:[function(require,module,exports){
+},{"../../arithmetic/divideScalar":330,"../../arithmetic/multiply":344,"../../arithmetic/subtract":353,"./cs_reach":318}],320:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -30327,7 +34785,7 @@ exports.name = 'cs_sqr';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"./cs_amd":240,"./cs_counts":241,"./cs_etree":243,"./cs_permute":251,"./cs_post":252}],256:[function(require,module,exports){
+},{"./cs_amd":305,"./cs_counts":306,"./cs_etree":308,"./cs_permute":316,"./cs_post":317}],321:[function(require,module,exports){
 'use strict';
 
 function factory () {
@@ -30381,7 +34839,7 @@ exports.name = 'cs_tdfs';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{}],257:[function(require,module,exports){
+},{}],322:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -30407,7 +34865,7 @@ exports.name = 'cs_unflip';
 exports.path = 'sparse';
 exports.factory = factory;
 
-},{"./cs_flip":245}],258:[function(require,module,exports){
+},{"./cs_flip":310}],323:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -30470,7 +34928,7 @@ function factory (type, config, load, typed) {
 exports.name = 'abs';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],259:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],324:[function(require,module,exports){
 'use strict';
 
 var extend = require('../../utils/object').extend;
@@ -30622,7 +35080,7 @@ function factory (type, config, load, typed) {
 exports.name = 'add';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm01":442,"../../type/matrix/utils/algorithm04":445,"../../type/matrix/utils/algorithm10":451,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex.js":486,"../../utils/object":488,"./addScalar":260}],260:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm01":507,"../../type/matrix/utils/algorithm04":510,"../../type/matrix/utils/algorithm10":516,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex.js":551,"../../utils/object":553,"./addScalar":325}],325:[function(require,module,exports){
 'use strict';
 
 function factory(type, config, load, typed) {
@@ -30675,7 +35133,7 @@ function factory(type, config, load, typed) {
 
 exports.factory = factory;
 
-},{}],261:[function(require,module,exports){
+},{}],326:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -30862,7 +35320,7 @@ var _cbrtNumber = Math.cbrt || function (x) {
 exports.name = 'cbrt';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/collection/deepMap":479,"../utils/isNegative":408,"./unaryMinus":289}],262:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/collection/deepMap":544,"../utils/isNegative":473,"./unaryMinus":354}],327:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -30925,7 +35383,7 @@ function factory (type, config, load, typed) {
 exports.name = 'ceil';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],263:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],328:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -30991,7 +35449,7 @@ function factory (type, config, load, typed) {
 exports.name = 'cube';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],264:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],329:[function(require,module,exports){
 'use strict';
 
 var extend = require('../../utils/object').extend;
@@ -31082,7 +35540,7 @@ function factory (type, config, load, typed) {
 exports.name = 'divide';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm14":455,"../../utils/object":488,"../matrix/inv":329,"./divideScalar":265,"./multiply":279}],265:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm14":520,"../../utils/object":553,"../matrix/inv":394,"./divideScalar":330,"./multiply":344}],330:[function(require,module,exports){
 'use strict';
 
 function factory(type, config, load, typed) {
@@ -31143,7 +35601,7 @@ function factory(type, config, load, typed) {
 
 exports.factory = factory;
 
-},{"./multiplyScalar":280}],266:[function(require,module,exports){
+},{"./multiplyScalar":345}],331:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -31290,7 +35748,7 @@ function factory (type, config, load, typed) {
 exports.name = 'dotDivide';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486,"./divideScalar":265}],267:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551,"./divideScalar":330}],332:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -31435,7 +35893,7 @@ function factory (type, config, load, typed) {
 exports.name = 'dotMultiply';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm09":450,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486,"./multiplyScalar":280}],268:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm09":515,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551,"./multiplyScalar":345}],333:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -31578,7 +36036,7 @@ function factory (type, config, load, typed) {
 exports.name = 'dotPow';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486,"./pow":283}],269:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551,"./pow":348}],334:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -31637,7 +36095,7 @@ function factory (type, config, load, typed) {
 exports.name = 'exp';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],270:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],335:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -31704,7 +36162,7 @@ function factory (type, config, load, typed) {
 exports.name = 'fix';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],271:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],336:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -31766,7 +36224,7 @@ function factory (type, config, load, typed) {
 exports.name = 'floor';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],272:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],337:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -31967,7 +36425,7 @@ function _gcd(a, b) {
 exports.name = 'gcd';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm01":442,"../../type/matrix/utils/algorithm04":445,"../../type/matrix/utils/algorithm10":451,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/number":487}],273:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm01":507,"../../type/matrix/utils/algorithm04":510,"../../type/matrix/utils/algorithm10":516,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/number":552}],338:[function(require,module,exports){
 'use strict';
 
 var flatten = require('../../utils/array').flatten;
@@ -32053,7 +36511,7 @@ function factory (type, config, load, typed) {
 exports.name = 'hypot';
 exports.factory = factory;
 
-},{"../../utils/array":465,"../relational/smaller":360,"../utils/isPositive":410,"./abs":258,"./addScalar":260,"./divideScalar":265,"./multiplyScalar":280,"./sqrt":286}],274:[function(require,module,exports){
+},{"../../utils/array":530,"../relational/smaller":425,"../utils/isPositive":475,"./abs":323,"./addScalar":325,"./divideScalar":330,"./multiplyScalar":345,"./sqrt":351}],339:[function(require,module,exports){
 module.exports = [
   require('./abs'),
   require('./add'),
@@ -32088,7 +36546,7 @@ module.exports = [
   require('./xgcd')
 ];
 
-},{"./abs":258,"./add":259,"./addScalar":260,"./cbrt":261,"./ceil":262,"./cube":263,"./divide":264,"./dotDivide":266,"./dotMultiply":267,"./dotPow":268,"./exp":269,"./fix":270,"./floor":271,"./gcd":272,"./hypot":273,"./lcm":275,"./log":276,"./log10":277,"./mod":278,"./multiply":279,"./norm":281,"./nthRoot":282,"./pow":283,"./round":284,"./sign":285,"./sqrt":286,"./square":287,"./subtract":288,"./unaryMinus":289,"./unaryPlus":290,"./xgcd":291}],275:[function(require,module,exports){
+},{"./abs":323,"./add":324,"./addScalar":325,"./cbrt":326,"./ceil":327,"./cube":328,"./divide":329,"./dotDivide":331,"./dotMultiply":332,"./dotPow":333,"./exp":334,"./fix":335,"./floor":336,"./gcd":337,"./hypot":338,"./lcm":340,"./log":341,"./log10":342,"./mod":343,"./multiply":344,"./norm":346,"./nthRoot":347,"./pow":348,"./round":349,"./sign":350,"./sqrt":351,"./square":352,"./subtract":353,"./unaryMinus":354,"./unaryPlus":355,"./xgcd":356}],340:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -32304,7 +36762,7 @@ function _lcm (a, b) {
 exports.name = 'lcm';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm06":447,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/number":487}],276:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm06":512,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/number":552}],341:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -32392,7 +36850,7 @@ function factory (type, config, load, typed) {
 exports.name = 'log';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"./divideScalar":265}],277:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"./divideScalar":330}],342:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -32472,7 +36930,7 @@ exports.name = 'log10';
 exports.factory = factory;
 
 
-},{"../../utils/collection/deepMap":479}],278:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],343:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -32658,7 +37116,7 @@ function factory (type, config, load, typed) {
 exports.name = 'mod';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm05":446,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486}],279:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm05":511,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551}],344:[function(require,module,exports){
 'use strict';
 
 var extend = require('../../utils/object').extend;
@@ -33616,7 +38074,7 @@ function factory (type, config, load, typed) {
 exports.name = 'multiply';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm14":455,"../../utils/array":465,"../../utils/latex":486,"../../utils/object":488,"../relational/equalScalar":356,"./addScalar":260,"./multiplyScalar":280}],280:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm14":520,"../../utils/array":530,"../../utils/latex":551,"../../utils/object":553,"../relational/equalScalar":421,"./addScalar":325,"./multiplyScalar":345}],345:[function(require,module,exports){
 'use strict';
 
 function factory(type, config, load, typed) {
@@ -33675,7 +38133,7 @@ function factory(type, config, load, typed) {
 
 exports.factory = factory;
 
-},{}],281:[function(require,module,exports){
+},{}],346:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -33892,7 +38350,7 @@ function factory (type, config, load, typed) {
 exports.name = 'norm';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../arithmetic/abs":258,"../arithmetic/add":259,"../arithmetic/multiply":279,"../arithmetic/pow":283,"../arithmetic/sqrt":286,"../matrix/trace":339,"../matrix/transpose":340,"../relational/equalScalar":356,"../relational/larger":358,"../relational/smaller":360}],282:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../arithmetic/abs":323,"../arithmetic/add":324,"../arithmetic/multiply":344,"../arithmetic/pow":348,"../arithmetic/sqrt":351,"../matrix/trace":404,"../matrix/transpose":405,"../relational/equalScalar":421,"../relational/larger":423,"../relational/smaller":425}],347:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -34193,7 +38651,7 @@ function _nthComplexRoot(a, root) {
 exports.name = 'nthRoot';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm01":442,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm06":447,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455}],283:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm01":507,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm06":512,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520}],348:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -34379,7 +38837,7 @@ function factory (type, config, load, typed) {
 exports.name = 'pow';
 exports.factory = factory;
 
-},{"../../type/fraction/function/fraction":427,"../../type/matrix/function/matrix":439,"../../type/number":456,"../../utils/array":465,"../../utils/latex":486,"../../utils/number":487,"../matrix/eye":324,"./multiply":279}],284:[function(require,module,exports){
+},{"../../type/fraction/function/fraction":492,"../../type/matrix/function/matrix":504,"../../type/number":521,"../../utils/array":530,"../../utils/latex":551,"../../utils/number":552,"../matrix/eye":389,"./multiply":344}],349:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -34555,7 +39013,7 @@ function _round (value, decimals) {
 exports.name = 'round';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm14":455,"../../utils/collection/deepMap":479,"../../utils/number":487,"../matrix/zeros":341,"../relational/equalScalar":356}],285:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm14":520,"../../utils/collection/deepMap":544,"../../utils/number":552,"../matrix/zeros":406,"../relational/equalScalar":421}],350:[function(require,module,exports){
 'use strict';
 
 var number = require('../../utils/number');
@@ -34626,7 +39084,7 @@ exports.name = 'sign';
 exports.factory = factory;
 
 
-},{"../../utils/collection/deepMap":479,"../../utils/number":487}],286:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/number":552}],351:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -34708,7 +39166,7 @@ function factory (type, config, load, typed) {
 exports.name = 'sqrt';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],287:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],352:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -34775,7 +39233,7 @@ function factory (type, config, load, typed) {
 exports.name = 'square';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],288:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],353:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../error/DimensionError');
@@ -34976,7 +39434,7 @@ function factory (type, config, load, typed) {
 exports.name = 'subtract';
 exports.factory = factory;
 
-},{"../../error/DimensionError":15,"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm01":442,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm05":446,"../../type/matrix/utils/algorithm10":451,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486,"./addScalar":260,"./unaryMinus":289}],289:[function(require,module,exports){
+},{"../../error/DimensionError":80,"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm01":507,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm05":511,"../../type/matrix/utils/algorithm10":516,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551,"./addScalar":325,"./unaryMinus":354}],354:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -35048,7 +39506,7 @@ function factory (type, config, load, typed) {
 exports.name = 'unaryMinus';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/latex":486}],290:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/latex":551}],355:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -35122,7 +39580,7 @@ function factory (type, config, load, typed) {
 exports.name = 'unaryPlus';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/latex":486}],291:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/latex":551}],356:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -35269,7 +39727,7 @@ function factory (type, config, load, typed) {
 exports.name = 'xgcd';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/number":487}],292:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/number":552}],357:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -35420,7 +39878,7 @@ function factory (type, config, load, typed) {
 exports.name = 'bitAnd';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm06":447,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/bitAnd":466,"../../utils/latex":486,"../../utils/number":487}],293:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm06":512,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/bitAnd":531,"../../utils/latex":551,"../../utils/number":552}],358:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -35478,7 +39936,7 @@ function factory (type, config, load, typed) {
 exports.name = 'bitNot';
 exports.factory = factory;
 
-},{"../../utils/bignumber/bitNot":467,"../../utils/collection/deepMap":479,"../../utils/latex":486,"../../utils/number":487}],294:[function(require,module,exports){
+},{"../../utils/bignumber/bitNot":532,"../../utils/collection/deepMap":544,"../../utils/latex":551,"../../utils/number":552}],359:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -35629,7 +40087,7 @@ function factory (type, config, load, typed) {
 exports.name = 'bitOr';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm01":442,"../../type/matrix/utils/algorithm04":445,"../../type/matrix/utils/algorithm10":451,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/bitOr":468,"../../utils/latex":486,"../../utils/number":487}],295:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm01":507,"../../type/matrix/utils/algorithm04":510,"../../type/matrix/utils/algorithm10":516,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/bitOr":533,"../../utils/latex":551,"../../utils/number":552}],360:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -35780,7 +40238,7 @@ function factory (type, config, load, typed) {
 exports.name = 'bitXor';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/bitXor":469,"../../utils/latex":486,"../../utils/number":487}],296:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/bitXor":534,"../../utils/latex":551,"../../utils/number":552}],361:[function(require,module,exports){
 module.exports = [
   require('./bitAnd'),
   require('./bitNot'),
@@ -35791,7 +40249,7 @@ module.exports = [
   require('./rightLogShift')
 ];
 
-},{"./bitAnd":292,"./bitNot":293,"./bitOr":294,"./bitXor":295,"./leftShift":297,"./rightArithShift":298,"./rightLogShift":299}],297:[function(require,module,exports){
+},{"./bitAnd":357,"./bitNot":358,"./bitOr":359,"./bitXor":360,"./leftShift":362,"./rightArithShift":363,"./rightLogShift":364}],362:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -35955,7 +40413,7 @@ function factory (type, config, load, typed) {
 exports.name = 'leftShift';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm01":442,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm08":449,"../../type/matrix/utils/algorithm10":451,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/leftShift":473,"../../utils/latex":486,"../../utils/number":487,"../matrix/zeros":341,"../relational/equalScalar":356}],298:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm01":507,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm08":514,"../../type/matrix/utils/algorithm10":516,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/leftShift":538,"../../utils/latex":551,"../../utils/number":552,"../matrix/zeros":406,"../relational/equalScalar":421}],363:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -36119,7 +40577,7 @@ function factory (type, config, load, typed) {
 exports.name = 'rightArithShift';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm01":442,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm08":449,"../../type/matrix/utils/algorithm10":451,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/rightArithShift":475,"../../utils/latex":486,"../../utils/number":487,"../matrix/zeros":341,"../relational/equalScalar":356}],299:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm01":507,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm08":514,"../../type/matrix/utils/algorithm10":516,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/rightArithShift":540,"../../utils/latex":551,"../../utils/number":552,"../matrix/zeros":406,"../relational/equalScalar":421}],364:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -36283,7 +40741,7 @@ function factory (type, config, load, typed) {
 exports.name = 'rightLogShift';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm01":442,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm08":449,"../../type/matrix/utils/algorithm10":451,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486,"../../utils/number":487,"../matrix/zeros":341,"../relational/equalScalar":356}],300:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm01":507,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm08":514,"../../type/matrix/utils/algorithm10":516,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551,"../../utils/number":552,"../matrix/zeros":406,"../relational/equalScalar":421}],365:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -36338,7 +40796,7 @@ function factory (type, config, load, typed) {
 exports.name = 'bellNumbers';
 exports.factory = factory;
 
-},{"../arithmetic/add":259,"../utils/isInteger":407,"../utils/isNegative":408,"./stirlingS2":304}],301:[function(require,module,exports){
+},{"../arithmetic/add":324,"../utils/isInteger":472,"../utils/isNegative":473,"./stirlingS2":369}],366:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -36391,7 +40849,7 @@ function factory (type, config, load, typed) {
 exports.name = 'catalan';
 exports.factory = factory;
 
-},{"../arithmetic/add":259,"../arithmetic/divide":264,"../arithmetic/multiply":279,"../probability/combinations":342,"../utils/isInteger":407,"../utils/isNegative":408}],302:[function(require,module,exports){
+},{"../arithmetic/add":324,"../arithmetic/divide":329,"../arithmetic/multiply":344,"../probability/combinations":407,"../utils/isInteger":472,"../utils/isNegative":473}],367:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -36444,7 +40902,7 @@ function factory (type, config, load, typed) {
 exports.name = 'composition';
 exports.factory = factory;
 
-},{"../arithmetic/addScalar":260,"../probability/combinations":342,"../relational/larger":358,"../utils/isInteger":407,"../utils/isPositive":410}],303:[function(require,module,exports){
+},{"../arithmetic/addScalar":325,"../probability/combinations":407,"../relational/larger":423,"../utils/isInteger":472,"../utils/isPositive":475}],368:[function(require,module,exports){
 module.exports = [
   require('./bellNumbers'),
   require('./composition'),
@@ -36452,7 +40910,7 @@ module.exports = [
   require('./catalan')
 ];
 
-},{"./bellNumbers":300,"./catalan":301,"./composition":302,"./stirlingS2":304}],304:[function(require,module,exports){
+},{"./bellNumbers":365,"./catalan":366,"./composition":367,"./stirlingS2":369}],369:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -36523,7 +40981,7 @@ function factory (type, config, load, typed) {
 exports.name = 'stirlingS2';
 exports.factory = factory;
 
-},{"../arithmetic/add":259,"../arithmetic/divide":264,"../arithmetic/multiply":279,"../arithmetic/pow":283,"../arithmetic/subtract":288,"../probability/combinations":342,"../probability/factorial":344,"../relational/larger":358,"../utils/isInteger":407,"../utils/isNegative":408}],305:[function(require,module,exports){
+},{"../arithmetic/add":324,"../arithmetic/divide":329,"../arithmetic/multiply":344,"../arithmetic/pow":348,"../arithmetic/subtract":353,"../probability/combinations":407,"../probability/factorial":409,"../relational/larger":423,"../utils/isInteger":472,"../utils/isNegative":473}],370:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -36580,7 +41038,7 @@ function factory (type, config, load, typed) {
 exports.name = 'arg';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],306:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],371:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -36637,7 +41095,7 @@ function factory (type, config, load, typed) {
 exports.name = 'conj';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],307:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],372:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -36696,7 +41154,7 @@ function factory (type, config, load, typed) {
 exports.name = 'im';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],308:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],373:[function(require,module,exports){
 module.exports = [
   require('./arg'),
   require('./conj'),
@@ -36704,7 +41162,7 @@ module.exports = [
   require('./re')
 ];
 
-},{"./arg":305,"./conj":306,"./im":307,"./re":309}],309:[function(require,module,exports){
+},{"./arg":370,"./conj":371,"./im":372,"./re":374}],374:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -36763,7 +41221,7 @@ function factory (type, config, load, typed) {
 exports.name = 're';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],310:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],375:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -37066,13 +41524,13 @@ function _distancePairwise(a){
 exports.name = 'distance';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439}],311:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504}],376:[function(require,module,exports){
 module.exports = [
   require('./intersect'),
   require('./distance')
 ];
 
-},{"./distance":310,"./intersect":312}],312:[function(require,module,exports){
+},{"./distance":375,"./intersect":377}],377:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -37216,7 +41674,7 @@ function factory (type, config, load, typed) {
 exports.name = 'intersect';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../arithmetic/abs":258,"../arithmetic/add":259,"../arithmetic/multiply":279,"../arithmetic/subtract":288}],313:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../arithmetic/abs":323,"../arithmetic/add":324,"../arithmetic/multiply":344,"../arithmetic/subtract":353}],378:[function(require,module,exports){
 module.exports = [
   require('./algebra'),
   require('./arithmetic'),
@@ -37235,7 +41693,7 @@ module.exports = [
   require('./utils')
 ];
 
-},{"./algebra":235,"./arithmetic":274,"./bitwise":296,"./combinatorics":303,"./complex":308,"./geometry":311,"./logical":315,"./matrix":328,"./probability":346,"./relational":357,"./statistics":363,"./string":375,"./trigonometry":396,"./unit":403,"./utils":406}],314:[function(require,module,exports){
+},{"./algebra":300,"./arithmetic":339,"./bitwise":361,"./combinatorics":368,"./complex":373,"./geometry":376,"./logical":380,"./matrix":393,"./probability":411,"./relational":422,"./statistics":428,"./string":440,"./trigonometry":461,"./unit":468,"./utils":471}],379:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -37408,7 +41866,7 @@ function factory (type, config, load, typed) {
 exports.name = 'and';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm06":447,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486,"../matrix/zeros":341,"../utils/isZero":411,"./not":316}],315:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm06":512,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551,"../matrix/zeros":406,"../utils/isZero":476,"./not":381}],380:[function(require,module,exports){
 module.exports = [
   require('./and'),
   require('./not'),
@@ -37416,7 +41874,7 @@ module.exports = [
   require('./xor')
 ];
 
-},{"./and":314,"./not":316,"./or":317,"./xor":318}],316:[function(require,module,exports){
+},{"./and":379,"./not":381,"./or":382,"./xor":383}],381:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -37481,7 +41939,7 @@ function factory (type, config, load, typed) {
 exports.name = 'not';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/latex":486}],317:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/latex":551}],382:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -37641,7 +42099,7 @@ function factory (type, config, load, typed) {
 exports.name = 'or';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm05":446,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486}],318:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm05":511,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551}],383:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -37801,7 +42259,7 @@ function factory (type, config, load, typed) {
 exports.name = 'xor';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486}],319:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551}],384:[function(require,module,exports){
 'use strict';
 
 var clone = require('../../utils/object').clone;
@@ -37947,7 +42405,7 @@ function _concat(a, b, concatDim, dim) {
 exports.name = 'concat';
 exports.factory = factory;
 
-},{"../../error/DimensionError":15,"../../error/IndexError":16,"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/number":487,"../../utils/object":488}],320:[function(require,module,exports){
+},{"../../error/DimensionError":80,"../../error/IndexError":81,"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/number":552,"../../utils/object":553}],385:[function(require,module,exports){
 'use strict';
 
 var size = require('../../utils/array').size;
@@ -38035,7 +42493,7 @@ function factory (type, config, load, typed) {
 exports.name = 'cross';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465,"../arithmetic/multiply":279,"../arithmetic/subtract":288}],321:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530,"../arithmetic/multiply":344,"../arithmetic/subtract":353}],386:[function(require,module,exports){
 'use strict';
 
 var util = require('../../utils/index');
@@ -38205,7 +42663,7 @@ exports.name = 'det';
 exports.factory = factory;
 
 
-},{"../../type/matrix/function/matrix":439,"../../utils/index":485,"../arithmetic/add":259,"../arithmetic/multiply":279,"../arithmetic/subtract":288,"../arithmetic/unaryMinus":289}],322:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/index":550,"../arithmetic/add":324,"../arithmetic/multiply":344,"../arithmetic/subtract":353,"../arithmetic/unaryMinus":354}],387:[function(require,module,exports){
 'use strict';
 
 var array     = require('../../utils/array');
@@ -38377,7 +42835,7 @@ function factory (type, config, load, typed) {
 exports.name = 'diag';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/number":487,"../../utils/object":488}],323:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/number":552,"../../utils/object":553}],388:[function(require,module,exports){
 'use strict';
 
 var size = require('../../utils/array').size;
@@ -38458,7 +42916,7 @@ function factory (type, config, load, typed) {
 exports.name = 'dot';
 exports.factory = factory;
 
-},{"../../utils/array":465,"../arithmetic/add":259,"../arithmetic/multiply":279}],324:[function(require,module,exports){
+},{"../../utils/array":530,"../arithmetic/add":324,"../arithmetic/multiply":344}],389:[function(require,module,exports){
 'use strict';
 
 var array = require('../../utils/array');
@@ -38606,7 +43064,7 @@ function factory (type, config, load, typed) {
 exports.name = 'eye';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/number":487}],325:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/number":552}],390:[function(require,module,exports){
 'use strict';
 
 var size = require('../../utils/array').size;
@@ -38697,7 +43155,7 @@ function _filterRegExp (x, regexp) {
 exports.name = 'filter';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465}],326:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530}],391:[function(require,module,exports){
 'use strict';
 
 var clone = require('../../utils/object').clone;
@@ -38744,7 +43202,7 @@ function factory (type, config, load, typed) {
 exports.name = 'flatten';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/object":488}],327:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/object":553}],392:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -38808,7 +43266,7 @@ function _forEach (array, callback) {
 exports.name = 'forEach';
 exports.factory = factory;
 
-},{}],328:[function(require,module,exports){
+},{}],393:[function(require,module,exports){
 module.exports = [
   require('./concat'),
   require('./cross'),
@@ -38834,7 +43292,7 @@ module.exports = [
   require('./zeros')
 ];
 
-},{"./concat":319,"./cross":320,"./det":321,"./diag":322,"./dot":323,"./eye":324,"./filter":325,"./flatten":326,"./forEach":327,"./inv":329,"./map":330,"./ones":331,"./partitionSelect":332,"./range":333,"./resize":334,"./size":335,"./sort":336,"./squeeze":337,"./subset":338,"./trace":339,"./transpose":340,"./zeros":341}],329:[function(require,module,exports){
+},{"./concat":384,"./cross":385,"./det":386,"./diag":387,"./dot":388,"./eye":389,"./filter":390,"./flatten":391,"./forEach":392,"./inv":394,"./map":395,"./ones":396,"./partitionSelect":397,"./range":398,"./resize":399,"./size":400,"./sort":401,"./squeeze":402,"./subset":403,"./trace":404,"./transpose":405,"./zeros":406}],394:[function(require,module,exports){
 'use strict';
 
 var util = require('../../utils/index');
@@ -39043,7 +43501,7 @@ function factory (type, config, load, typed) {
 exports.name = 'inv';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/index":485,"../arithmetic/addScalar":260,"../arithmetic/divideScalar":265,"../arithmetic/multiply":279,"../arithmetic/unaryMinus":289,"../matrix/det":321,"./eye":324}],330:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/index":550,"../arithmetic/addScalar":325,"../arithmetic/divideScalar":330,"../arithmetic/multiply":344,"../arithmetic/unaryMinus":354,"../matrix/det":386,"./eye":389}],395:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -39110,7 +43568,7 @@ function _map (array, callback) {
 exports.name = 'map';
 exports.factory = factory;
 
-},{}],331:[function(require,module,exports){
+},{}],396:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -39246,7 +43704,7 @@ function factory (type, config, load, typed) {
 exports.name = 'ones';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/number":487}],332:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/number":552}],397:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -39384,7 +43842,7 @@ function factory (type, config, load, typed) {
 exports.name = 'partitionSelect';
 exports.factory = factory;
 
-},{"../../utils/number":487,"../relational/compare":353}],333:[function(require,module,exports){
+},{"../../utils/number":552,"../relational/compare":418}],398:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -39665,7 +44123,7 @@ function factory (type, config, load, typed) {
 exports.name = 'range';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439}],334:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504}],399:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../error/DimensionError');
@@ -39805,7 +44263,7 @@ function factory (type, config, load, typed) {
 exports.name = 'resize';
 exports.factory = factory;
 
-},{"../../error/ArgumentsError":14,"../../error/DimensionError":15,"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/number":487,"../../utils/object":488,"../../utils/string":489}],335:[function(require,module,exports){
+},{"../../error/ArgumentsError":79,"../../error/DimensionError":80,"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/number":552,"../../utils/object":553,"../../utils/string":554}],400:[function(require,module,exports){
 'use strict';
 
 var array = require('../../utils/array');
@@ -39862,7 +44320,7 @@ function factory (type, config, load, typed) {
 exports.name = 'size';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465}],336:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530}],401:[function(require,module,exports){
 'use strict';
 
 var size = require('../../utils/array').size;
@@ -39984,7 +44442,7 @@ function factory (type, config, load, typed) {
 exports.name = 'sort';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465,"../relational/compare":353}],337:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530,"../relational/compare":418}],402:[function(require,module,exports){
 'use strict';
 
 var object = require('../../utils/object');
@@ -40047,7 +44505,7 @@ function factory (type, config, load, typed) {
 exports.name = 'squeeze';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/object":488}],338:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/object":553}],403:[function(require,module,exports){
 'use strict';
 
 var clone = require('../../utils/object').clone;
@@ -40278,7 +44736,7 @@ function _setObjectProperty (object, index, replacement) {
 exports.name = 'subset';
 exports.factory = factory;
 
-},{"../../error/DimensionError":15,"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/object":488}],339:[function(require,module,exports){
+},{"../../error/DimensionError":80,"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/object":553}],404:[function(require,module,exports){
 'use strict';
 
 var clone = require('../../utils/object').clone;
@@ -40427,7 +44885,7 @@ function factory (type, config, load, typed) {
 exports.name = 'trace';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/object":488,"../../utils/string":489,"../arithmetic/add":259}],340:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/object":553,"../../utils/string":554,"../arithmetic/add":324}],405:[function(require,module,exports){
 'use strict';
 
 var clone = require('../../utils/object').clone;
@@ -40605,7 +45063,7 @@ function factory (type, config, load, typed) {
 exports.name = 'transpose';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/latex":486,"../../utils/object":488,"../../utils/string":489}],341:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/latex":551,"../../utils/object":553,"../../utils/string":554}],406:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -40741,7 +45199,7 @@ function factory (type, config, load, typed) {
 exports.name = 'zeros';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/number":487}],342:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/number":552}],407:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -40834,7 +45292,7 @@ function isPositiveInteger(n) {
 exports.name = 'combinations';
 exports.factory = factory;
 
-},{"../../utils/number":487}],343:[function(require,module,exports){
+},{"../../utils/number":552}],408:[function(require,module,exports){
 'use strict';
 
 var ArgumentsError = require('../../error/ArgumentsError');
@@ -41048,7 +45506,7 @@ function factory (type, config, load, typed) {
 exports.name = 'distribution';
 exports.factory = factory;
 
-},{"../../error/ArgumentsError":14,"../../type/matrix/function/matrix":439,"../../utils/array":465,"../../utils/collection/isCollection":480}],344:[function(require,module,exports){
+},{"../../error/ArgumentsError":79,"../../type/matrix/function/matrix":504,"../../utils/array":530,"../../utils/collection/isCollection":545}],409:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -41111,7 +45569,7 @@ function factory (type, config, load, typed) {
 exports.name = 'factorial';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/latex":486,"./gamma":345}],345:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/latex":551,"./gamma":410}],410:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -41315,7 +45773,7 @@ var p = [
 exports.name = 'gamma';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/number":487,"../arithmetic/multiply":279,"../arithmetic/pow":283}],346:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/number":552,"../arithmetic/multiply":344,"../arithmetic/pow":348}],411:[function(require,module,exports){
 module.exports = [
   //require('./distribution'), // TODO: rethink math.distribution
   require('./combinations'),
@@ -41329,7 +45787,7 @@ module.exports = [
   require('./randomInt')
 ];
 
-},{"./combinations":342,"./factorial":344,"./gamma":345,"./kldivergence":347,"./multinomial":348,"./permutations":349,"./pickRandom":350,"./random":351,"./randomInt":352}],347:[function(require,module,exports){
+},{"./combinations":407,"./factorial":409,"./gamma":410,"./kldivergence":412,"./multinomial":413,"./permutations":414,"./pickRandom":415,"./random":416,"./randomInt":417}],412:[function(require,module,exports){
 'use strict';
 
 
@@ -41422,7 +45880,7 @@ exports.name = 'kldivergence';
 exports.factory = factory;
  
 
-},{"../../type/matrix/function/matrix":439,"../arithmetic/divide":264,"../arithmetic/dotDivide":266,"../arithmetic/log":276,"../arithmetic/multiply":279,"../statistics/sum":372,"../utils/isNumeric":409}],348:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../arithmetic/divide":329,"../arithmetic/dotDivide":331,"../arithmetic/log":341,"../arithmetic/multiply":344,"../statistics/sum":437,"../utils/isNumeric":474}],413:[function(require,module,exports){
 'use strict';
 
 var deepForEach = require('../../utils/collection/deepForEach');
@@ -41477,7 +45935,7 @@ function factory (type, config, load, typed) {
 exports.name = 'multinomial';
 exports.factory = factory;
 
-},{"../../utils/collection/deepForEach":478,"../arithmetic/add":259,"../arithmetic/divide":264,"../arithmetic/multiply":279,"../probability/factorial":344,"../utils/isInteger":407,"../utils/isPositive":410}],349:[function(require,module,exports){
+},{"../../utils/collection/deepForEach":543,"../arithmetic/add":324,"../arithmetic/divide":329,"../arithmetic/multiply":344,"../probability/factorial":409,"../utils/isInteger":472,"../utils/isPositive":475}],414:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -41573,7 +46031,7 @@ function isPositiveInteger(n) {
 exports.name = 'permutations';
 exports.factory = factory;
 
-},{"../../utils/number":487,"./factorial":344}],350:[function(require,module,exports){
+},{"../../utils/number":552,"./factorial":409}],415:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -41609,7 +46067,7 @@ function factory (type, config, load, typed) {
 exports.name = 'pickRandom';
 exports.factory = factory;
 
-},{"./distribution":343}],351:[function(require,module,exports){
+},{"./distribution":408}],416:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -41656,7 +46114,7 @@ function factory (type, config, load, typed) {
 exports.name = 'random';
 exports.factory = factory;
 
-},{"./distribution":343}],352:[function(require,module,exports){
+},{"./distribution":408}],417:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -41701,7 +46159,7 @@ function factory (type, config, load, typed) {
 exports.name = 'randomInt';
 exports.factory = factory;
 
-},{"./distribution":343}],353:[function(require,module,exports){
+},{"./distribution":408}],418:[function(require,module,exports){
 'use strict';
 
 var nearlyEqual = require('../../utils/number').nearlyEqual;
@@ -41885,7 +46343,7 @@ function factory (type, config, load, typed) {
 exports.name = 'compare';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm05":446,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/nearlyEqual":474,"../../utils/number":487}],354:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm05":511,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/nearlyEqual":539,"../../utils/number":552}],419:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -41968,7 +46426,7 @@ function factory (type, config, load, typed) {
 exports.name = 'deepEqual';
 exports.factory = factory;
 
-},{"./equal":355}],355:[function(require,module,exports){
+},{"./equal":420}],420:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -42139,7 +46597,7 @@ function factory (type, config, load, typed) {
 exports.name = 'equal';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486,"./equalScalar":356}],356:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551,"./equalScalar":421}],421:[function(require,module,exports){
 'use strict';
 
 var nearlyEqual = require('../../utils/number').nearlyEqual;
@@ -42194,7 +46652,7 @@ function factory (type, config, load, typed) {
 
 exports.factory = factory;
 
-},{"../../utils/bignumber/nearlyEqual":474,"../../utils/number":487}],357:[function(require,module,exports){
+},{"../../utils/bignumber/nearlyEqual":539,"../../utils/number":552}],422:[function(require,module,exports){
 module.exports = [
   require('./compare'),
   require('./deepEqual'),
@@ -42206,7 +46664,7 @@ module.exports = [
   require('./unequal')
 ];
 
-},{"./compare":353,"./deepEqual":354,"./equal":355,"./larger":358,"./largerEq":359,"./smaller":360,"./smallerEq":361,"./unequal":362}],358:[function(require,module,exports){
+},{"./compare":418,"./deepEqual":419,"./equal":420,"./larger":423,"./largerEq":424,"./smaller":425,"./smallerEq":426,"./unequal":427}],423:[function(require,module,exports){
 'use strict';
 
 var nearlyEqual = require('../../utils/number').nearlyEqual;
@@ -42387,7 +46845,7 @@ function factory (type, config, load, typed) {
 exports.name = 'larger';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/nearlyEqual":474,"../../utils/latex":486,"../../utils/number":487}],359:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/nearlyEqual":539,"../../utils/latex":551,"../../utils/number":552}],424:[function(require,module,exports){
 'use strict';
 
 var nearlyEqual = require('../../utils/number').nearlyEqual;
@@ -42564,7 +47022,7 @@ function factory (type, config, load, typed) {
 exports.name = 'largerEq';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/nearlyEqual":474,"../../utils/latex":486,"../../utils/number":487}],360:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/nearlyEqual":539,"../../utils/latex":551,"../../utils/number":552}],425:[function(require,module,exports){
 'use strict';
 
 var nearlyEqual = require('../../utils/number').nearlyEqual;
@@ -42745,7 +47203,7 @@ function factory (type, config, load, typed) {
 exports.name = 'smaller';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/nearlyEqual":474,"../../utils/latex":486,"../../utils/number":487}],361:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/nearlyEqual":539,"../../utils/latex":551,"../../utils/number":552}],426:[function(require,module,exports){
 'use strict';
 
 var nearlyEqual = require('../../utils/number').nearlyEqual;
@@ -42921,7 +47379,7 @@ function factory (type, config, load, typed) {
 exports.name = 'smallerEq';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/nearlyEqual":474,"../../utils/latex":486,"../../utils/number":487}],362:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/nearlyEqual":539,"../../utils/latex":551,"../../utils/number":552}],427:[function(require,module,exports){
 'use strict';
 
 var nearlyEqual = require('../../utils/number').nearlyEqual;
@@ -43127,7 +47585,7 @@ function factory (type, config, load, typed) {
 exports.name = 'unequal';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm07":448,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/bignumber/nearlyEqual":474,"../../utils/latex":486,"../../utils/number":487}],363:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm07":513,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/bignumber/nearlyEqual":539,"../../utils/latex":551,"../../utils/number":552}],428:[function(require,module,exports){
 module.exports = [
   require('./max'),
   require('./mean'),
@@ -43140,7 +47598,7 @@ module.exports = [
   require('./sum'),
   require('./var')
 ];
-},{"./max":364,"./mean":365,"./median":366,"./min":367,"./mode":368,"./prod":369,"./quantileSeq":370,"./std":371,"./sum":372,"./var":373}],364:[function(require,module,exports){
+},{"./max":429,"./mean":430,"./median":431,"./min":432,"./mode":433,"./prod":434,"./quantileSeq":435,"./std":436,"./sum":437,"./var":438}],429:[function(require,module,exports){
 'use strict';
 
 var deepForEach = require('../../utils/collection/deepForEach');
@@ -43241,7 +47699,7 @@ function factory (type, config, load, typed) {
 exports.name = 'max';
 exports.factory = factory;
 
-},{"../../utils/collection/containsCollections":477,"../../utils/collection/deepForEach":478,"../../utils/collection/reduce":481,"../relational/larger":358}],365:[function(require,module,exports){
+},{"../../utils/collection/containsCollections":542,"../../utils/collection/deepForEach":543,"../../utils/collection/reduce":546,"../relational/larger":423}],430:[function(require,module,exports){
 'use strict';
 
 var size = require('../../utils/array').size;
@@ -43341,7 +47799,7 @@ function factory (type, config, load, typed) {
 exports.name = 'mean';
 exports.factory = factory;
 
-},{"../../utils/array":465,"../../utils/collection/containsCollections":477,"../../utils/collection/deepForEach":478,"../../utils/collection/reduce":481,"../arithmetic/add":259,"../arithmetic/divide":264}],366:[function(require,module,exports){
+},{"../../utils/array":530,"../../utils/collection/containsCollections":542,"../../utils/collection/deepForEach":543,"../../utils/collection/reduce":546,"../arithmetic/add":324,"../arithmetic/divide":329}],431:[function(require,module,exports){
 'use strict';
 
 var flatten = require('../../utils/array').flatten;
@@ -43461,7 +47919,7 @@ function factory (type, config, load, typed) {
 exports.name = 'median';
 exports.factory = factory;
 
-},{"../../utils/array":465,"../../utils/collection/containsCollections":477,"../../utils/collection/reduce":481,"../arithmetic/addScalar":260,"../arithmetic/divideScalar":265,"../matrix/partitionSelect":332,"../relational/compare":353}],367:[function(require,module,exports){
+},{"../../utils/array":530,"../../utils/collection/containsCollections":542,"../../utils/collection/reduce":546,"../arithmetic/addScalar":325,"../arithmetic/divideScalar":330,"../matrix/partitionSelect":397,"../relational/compare":418}],432:[function(require,module,exports){
 'use strict';
 
 var deepForEach = require('../../utils/collection/deepForEach');
@@ -43562,7 +48020,7 @@ function factory (type, config, load, typed) {
 exports.name = 'min';
 exports.factory = factory;
 
-},{"../../utils/collection/containsCollections":477,"../../utils/collection/deepForEach":478,"../../utils/collection/reduce":481,"../relational/smaller":360}],368:[function(require,module,exports){
+},{"../../utils/collection/containsCollections":542,"../../utils/collection/deepForEach":543,"../../utils/collection/reduce":546,"../relational/smaller":425}],433:[function(require,module,exports){
 'use strict';
 
 var flatten = require('../../utils/array').flatten;
@@ -43640,7 +48098,7 @@ function factory (type, config, load, typed) {
 
 exports.name = 'mode';
 exports.factory = factory;
-},{"../../utils/array":465}],369:[function(require,module,exports){
+},{"../../utils/array":530}],434:[function(require,module,exports){
 'use strict';
 
 var deepForEach = require('../../utils/collection/deepForEach');
@@ -43718,7 +48176,7 @@ function factory (type, config, load, typed) {
 exports.name = 'prod';
 exports.factory = factory;
 
-},{"../../utils/collection/deepForEach":478,"../arithmetic/multiplyScalar":280}],370:[function(require,module,exports){
+},{"../../utils/collection/deepForEach":543,"../arithmetic/multiplyScalar":345}],435:[function(require,module,exports){
 'use strict';
 
 var isInteger = require('../../utils/number').isInteger;
@@ -43977,7 +48435,7 @@ function factory (type, config, load, typed) {
 exports.name = 'quantileSeq';
 exports.factory = factory;
 
-},{"../../utils/array":465,"../../utils/collection/isCollection":480,"../../utils/number":487,"../arithmetic/add":259,"../arithmetic/multiply":279,"../matrix/partitionSelect":332,"../relational/compare":353}],371:[function(require,module,exports){
+},{"../../utils/array":530,"../../utils/collection/isCollection":545,"../../utils/number":552,"../arithmetic/add":324,"../arithmetic/multiply":344,"../matrix/partitionSelect":397,"../relational/compare":418}],436:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -44053,7 +48511,7 @@ function factory (type, config, load, typed) {
 exports.name = 'std';
 exports.factory = factory;
 
-},{"../arithmetic/sqrt":286,"../statistics/var":373}],372:[function(require,module,exports){
+},{"../arithmetic/sqrt":351,"../statistics/var":438}],437:[function(require,module,exports){
 'use strict';
 
 var deepForEach = require('../../utils/collection/deepForEach');
@@ -44139,7 +48597,7 @@ function factory (type, config, load, typed) {
 exports.name = 'sum';
 exports.factory = factory;
 
-},{"../../utils/collection/deepForEach":478,"../arithmetic/addScalar":260}],373:[function(require,module,exports){
+},{"../../utils/collection/deepForEach":543,"../arithmetic/addScalar":325}],438:[function(require,module,exports){
 'use strict';
 
 var DEFAULT_NORMALIZATION = 'unbiased';
@@ -44269,7 +48727,7 @@ function factory (type, config, load, typed) {
 exports.name = 'var';
 exports.factory = factory;
 
-},{"../../utils/collection/deepForEach":478,"../arithmetic/addScalar":260,"../arithmetic/divideScalar":265,"../arithmetic/multiplyScalar":280,"../arithmetic/subtract":288}],374:[function(require,module,exports){
+},{"../../utils/collection/deepForEach":543,"../arithmetic/addScalar":325,"../arithmetic/divideScalar":330,"../arithmetic/multiplyScalar":345,"../arithmetic/subtract":353}],439:[function(require,module,exports){
 'use strict';
 
 var string = require('../../utils/string');
@@ -44385,13 +48843,13 @@ function factory (type, config, load, typed) {
 exports.name = 'format';
 exports.factory = factory;
 
-},{"../../utils/string":489}],375:[function(require,module,exports){
+},{"../../utils/string":554}],440:[function(require,module,exports){
 module.exports = [
   require('./format'),
   require('./print')
 ];
 
-},{"./format":374,"./print":376}],376:[function(require,module,exports){
+},{"./format":439,"./print":441}],441:[function(require,module,exports){
 'use strict';
 
 var isString = require('../../utils/string').isString;
@@ -44480,7 +48938,7 @@ function _print(template, values, options) {
 exports.name = 'print';
 exports.factory = factory;
 
-},{"../../utils/string":489}],377:[function(require,module,exports){
+},{"../../utils/string":554}],442:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -44541,7 +48999,7 @@ function factory (type, config, load, typed) {
 exports.name = 'acos';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],378:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],443:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -44611,7 +49069,7 @@ var _acosh = Math.acosh || function (x) {
 exports.name = 'acosh';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],379:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],444:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -44667,7 +49125,7 @@ function factory (type, config, load, typed) {
 exports.name = 'acot';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],380:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],445:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -44724,7 +49182,7 @@ function factory (type, config, load, typed) {
 exports.name = 'acoth';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],381:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],446:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -44784,7 +49242,7 @@ function factory (type, config, load, typed) {
 exports.name = 'acsc';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],382:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],447:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -44839,7 +49297,7 @@ function factory (type, config, load, typed) {
 exports.name = 'acsch';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],383:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],448:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -44898,7 +49356,7 @@ function factory (type, config, load, typed) {
 exports.name = 'asec';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],384:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],449:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -44964,7 +49422,7 @@ function factory (type, config, load, typed) {
 exports.name = 'asech';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"./acosh":378}],385:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"./acosh":443}],450:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45026,7 +49484,7 @@ function factory (type, config, load, typed) {
 exports.name = 'asin';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],386:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],451:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45081,7 +49539,7 @@ function factory (type, config, load, typed) {
 exports.name = 'asinh';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],387:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],452:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45138,7 +49596,7 @@ function factory (type, config, load, typed) {
 exports.name = 'atan';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],388:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],453:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -45292,7 +49750,7 @@ function factory (type, config, load, typed) {
 exports.name = 'atan2';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm02":443,"../../type/matrix/utils/algorithm03":444,"../../type/matrix/utils/algorithm09":450,"../../type/matrix/utils/algorithm11":452,"../../type/matrix/utils/algorithm12":453,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455}],389:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm02":508,"../../type/matrix/utils/algorithm03":509,"../../type/matrix/utils/algorithm09":515,"../../type/matrix/utils/algorithm11":517,"../../type/matrix/utils/algorithm12":518,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520}],454:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45359,7 +49817,7 @@ var _atanh = Math.atanh || function (x) {
 exports.name = 'atanh';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],390:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],455:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45423,7 +49881,7 @@ function factory (type, config, load, typed) {
 exports.name = 'cos';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],391:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],456:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45491,7 +49949,7 @@ var _cosh = Math.cosh || function (x) {
 exports.name = 'cosh';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],392:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],457:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45551,7 +50009,7 @@ function factory (type, config, load, typed) {
 exports.name = 'cot';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],393:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],458:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45622,7 +50080,7 @@ function _coth(x) {
 exports.name = 'coth';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],394:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],459:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45682,7 +50140,7 @@ function factory (type, config, load, typed) {
 exports.name = 'csc';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],395:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],460:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45759,7 +50217,7 @@ function _csch(x) {
 exports.name = 'csch';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/number":487}],396:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/number":552}],461:[function(require,module,exports){
 module.exports = [
   require('./acos'),
   require('./acosh'),
@@ -45788,7 +50246,7 @@ module.exports = [
   require('./tanh')
 ];
 
-},{"./acos":377,"./acosh":378,"./acot":379,"./acoth":380,"./acsc":381,"./acsch":382,"./asec":383,"./asech":384,"./asin":385,"./asinh":386,"./atan":387,"./atan2":388,"./atanh":389,"./cos":390,"./cosh":391,"./cot":392,"./coth":393,"./csc":394,"./csch":395,"./sec":397,"./sech":398,"./sin":399,"./sinh":400,"./tan":401,"./tanh":402}],397:[function(require,module,exports){
+},{"./acos":442,"./acosh":443,"./acot":444,"./acoth":445,"./acsc":446,"./acsch":447,"./asec":448,"./asech":449,"./asin":450,"./asinh":451,"./atan":452,"./atan2":453,"./atanh":454,"./cos":455,"./cosh":456,"./cot":457,"./coth":458,"./csc":459,"./csch":460,"./sec":462,"./sech":463,"./sin":464,"./sinh":465,"./tan":466,"./tanh":467}],462:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45848,7 +50306,7 @@ function factory (type, config, load, typed) {
 exports.name = 'sec';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],398:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],463:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45918,7 +50376,7 @@ function _sech(x) {
 exports.name = 'sech';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],399:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],464:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -45983,7 +50441,7 @@ function factory (type, config, load, typed) {
 exports.name = 'sin';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],400:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],465:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -46052,7 +50510,7 @@ var _sinh = Math.sinh || function (x) {
 exports.name = 'sinh';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],401:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],466:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -46113,7 +50571,7 @@ function factory (type, config, load, typed) {
 exports.name = 'tan';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],402:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],467:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -46186,11 +50644,11 @@ var _tanh = Math.tanh || function (x) {
 exports.name = 'tanh';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479}],403:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544}],468:[function(require,module,exports){
 module.exports = [
   require('./to')
 ];
-},{"./to":404}],404:[function(require,module,exports){
+},{"./to":469}],469:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -46282,7 +50740,7 @@ function factory (type, config, load, typed) {
 exports.name = 'to';
 exports.factory = factory;
 
-},{"../../type/matrix/function/matrix":439,"../../type/matrix/utils/algorithm13":454,"../../type/matrix/utils/algorithm14":455,"../../utils/latex":486}],405:[function(require,module,exports){
+},{"../../type/matrix/function/matrix":504,"../../type/matrix/utils/algorithm13":519,"../../type/matrix/utils/algorithm14":520,"../../utils/latex":551}],470:[function(require,module,exports){
 'use strict';
 
 var object= require('../../utils/object');
@@ -46318,7 +50776,7 @@ function factory (type, config, load, typed) {
 exports.name = 'clone';
 exports.factory = factory;
 
-},{"../../utils/object":488}],406:[function(require,module,exports){
+},{"../../utils/object":553}],471:[function(require,module,exports){
 module.exports = [
   require('./clone'),
   require('./isInteger'),
@@ -46329,7 +50787,7 @@ module.exports = [
   require('./typeof')
 ];
 
-},{"./clone":405,"./isInteger":407,"./isNegative":408,"./isNumeric":409,"./isPositive":410,"./isZero":411,"./typeof":412}],407:[function(require,module,exports){
+},{"./clone":470,"./isInteger":472,"./isNegative":473,"./isNumeric":474,"./isPositive":475,"./isZero":476,"./typeof":477}],472:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -46387,7 +50845,7 @@ function factory (type, config, load, typed) {
 exports.name = 'isInteger';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/number":487}],408:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/number":552}],473:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -46451,7 +50909,7 @@ function factory (type, config, load, typed) {
 exports.name = 'isNegative';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/number":487}],409:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/number":552}],474:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -46506,7 +50964,7 @@ function factory (type, config, load, typed) {
 exports.name = 'isNumeric';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/number":487}],410:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/number":552}],475:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -46572,7 +51030,7 @@ function factory (type, config, load, typed) {
 exports.name = 'isPositive';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/number":487}],411:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/number":552}],476:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../utils/collection/deepMap');
@@ -46644,7 +51102,7 @@ function factory (type, config, load, typed) {
 exports.name = 'isZero';
 exports.factory = factory;
 
-},{"../../utils/collection/deepMap":479,"../../utils/number":487}],412:[function(require,module,exports){
+},{"../../utils/collection/deepMap":544,"../../utils/number":552}],477:[function(require,module,exports){
 'use strict';
 
 var types = require('../../utils/types');
@@ -46723,7 +51181,7 @@ function factory (type, config, load, typed) {
 exports.name = 'typeof';
 exports.factory = factory;
 
-},{"../../utils/types":490}],413:[function(require,module,exports){
+},{"../../utils/types":555}],478:[function(require,module,exports){
 module.exports = [
   require('./type'),        // data types (Matrix, Complex, Unit, ...)
   require('./constants'),   // constants
@@ -46733,12 +51191,12 @@ module.exports = [
   require('./error')        // errors
 ];
 
-},{"./constants":9,"./error":17,"./expression":198,"./function":313,"./json":414,"./type":429}],414:[function(require,module,exports){
+},{"./constants":74,"./error":82,"./expression":263,"./function":378,"./json":479,"./type":494}],479:[function(require,module,exports){
 module.exports = [
   require('./reviver')
 ];
 
-},{"./reviver":415}],415:[function(require,module,exports){
+},{"./reviver":480}],480:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -46762,7 +51220,7 @@ exports.name = 'reviver';
 exports.path = 'json';
 exports.factory = factory;
 
-},{}],416:[function(require,module,exports){
+},{}],481:[function(require,module,exports){
 var Decimal = require('decimal.js');
 
 function factory (type, config, load, typed, math) {
@@ -46811,7 +51269,7 @@ exports.name = 'BigNumber';
 exports.path = 'type';
 exports.factory = factory;
 exports.math = true; // request access to the math namespace
-},{"decimal.js":5}],417:[function(require,module,exports){
+},{"decimal.js":9}],482:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../../utils/collection/deepMap');
@@ -46881,7 +51339,7 @@ function factory (type, config, load, typed) {
 exports.name = 'bignumber';
 exports.factory = factory;
 
-},{"../../../utils/collection/deepMap":479}],418:[function(require,module,exports){
+},{"../../../utils/collection/deepMap":544}],483:[function(require,module,exports){
 module.exports = [
   // type
   require('./BigNumber'),
@@ -46890,7 +51348,7 @@ module.exports = [
   require('./function/bignumber')
 ];
 
-},{"./BigNumber":416,"./function/bignumber":417}],419:[function(require,module,exports){
+},{"./BigNumber":481,"./function/bignumber":482}],484:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('./../utils/collection/deepMap');
@@ -46970,7 +51428,7 @@ function factory (type, config, load, typed) {
 exports.name = 'boolean';
 exports.factory = factory;
 
-},{"./../utils/collection/deepMap":479}],420:[function(require,module,exports){
+},{"./../utils/collection/deepMap":544}],485:[function(require,module,exports){
 'use strict';
 
 var format = require('../../utils/string').format;
@@ -47137,7 +51595,7 @@ exports.factory = factory;
 exports.math = true;  // require providing the math namespace as 5th argument
 exports.lazy = false; // we need to register a listener on the import events, so no lazy loading
 
-},{"../../utils/object":488,"../../utils/string":489}],421:[function(require,module,exports){
+},{"../../utils/object":553,"../../utils/string":554}],486:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -47190,7 +51648,7 @@ function factory (type, config, load, typed) {
 exports.name = 'chain';
 exports.factory = factory;
 
-},{}],422:[function(require,module,exports){
+},{}],487:[function(require,module,exports){
 module.exports = [
   // type
   require('./Chain'),
@@ -47199,7 +51657,7 @@ module.exports = [
   require('./function/chain')
 ];
 
-},{"./Chain":420,"./function/chain":421}],423:[function(require,module,exports){
+},{"./Chain":485,"./function/chain":486}],488:[function(require,module,exports){
 var Complex = require('complex.js');
 var format = require('../../utils/number').format;
 var isNumber = require('../../utils/number').isNumber;
@@ -47373,7 +51831,7 @@ exports.path = 'type';
 exports.factory = factory;
 exports.math = true; // request access to the math namespace
 
-},{"../../utils/number":487,"complex.js":3}],424:[function(require,module,exports){
+},{"../../utils/number":552,"complex.js":7}],489:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../../utils/collection/deepMap');
@@ -47475,7 +51933,7 @@ function factory (type, config, load, typed) {
 exports.name = 'complex';
 exports.factory = factory;
 
-},{"../../../utils/collection/deepMap":479,"../../../utils/latex":486}],425:[function(require,module,exports){
+},{"../../../utils/collection/deepMap":544,"../../../utils/latex":551}],490:[function(require,module,exports){
 module.exports = [
   // type
   require('./Complex'),
@@ -47484,7 +51942,7 @@ module.exports = [
   require('./function/complex')
 ];
 
-},{"./Complex":423,"./function/complex":424}],426:[function(require,module,exports){
+},{"./Complex":488,"./function/complex":489}],491:[function(require,module,exports){
 var Fraction = require('fraction.js');
 
 /**
@@ -47525,7 +51983,7 @@ exports.name = 'Fraction';
 exports.path = 'type';
 exports.factory = factory;
 
-},{"fraction.js":6}],427:[function(require,module,exports){
+},{"fraction.js":12}],492:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../../utils/collection/deepMap');
@@ -47596,7 +52054,7 @@ function factory (type, config, load, typed) {
 exports.name = 'fraction';
 exports.factory = factory;
 
-},{"../../../utils/collection/deepMap":479}],428:[function(require,module,exports){
+},{"../../../utils/collection/deepMap":544}],493:[function(require,module,exports){
 module.exports = [
   // type
   require('./Fraction'),
@@ -47605,7 +52063,7 @@ module.exports = [
   require('./function/fraction')
 ];
 
-},{"./Fraction":426,"./function/fraction":427}],429:[function(require,module,exports){
+},{"./Fraction":491,"./function/fraction":492}],494:[function(require,module,exports){
 module.exports = [
   require('./bignumber'),
   require('./boolean'),
@@ -47619,7 +52077,7 @@ module.exports = [
   require('./unit')
 ];
 
-},{"./bignumber":418,"./boolean":419,"./chain":422,"./complex":425,"./fraction":428,"./matrix":441,"./number":456,"./resultset":458,"./string":459,"./unit":462}],430:[function(require,module,exports){
+},{"./bignumber":483,"./boolean":484,"./chain":487,"./complex":490,"./fraction":493,"./matrix":506,"./number":521,"./resultset":523,"./string":524,"./unit":527}],495:[function(require,module,exports){
 'use strict';
 
 var util = require('../../utils/index');
@@ -48478,7 +52936,7 @@ exports.name = 'DenseMatrix';
 exports.path = 'type';
 exports.factory = factory;
 exports.lazy = false;  // no lazy loading, as we alter type.Matrix._storage
-},{"../../error/DimensionError":15,"../../utils/index":485,"./Matrix":433}],431:[function(require,module,exports){
+},{"../../error/DimensionError":80,"../../utils/index":550,"./Matrix":498}],496:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -48829,7 +53287,7 @@ exports.name = 'FibonacciHeap';
 exports.path = 'type';
 exports.factory = factory;
 
-},{"../../function/relational/larger":358,"../../function/relational/smaller":360}],432:[function(require,module,exports){
+},{"../../function/relational/larger":423,"../../function/relational/smaller":425}],497:[function(require,module,exports){
 'use strict';
 
 var util = require('../../utils/index');
@@ -49055,7 +53513,7 @@ exports.name = 'ImmutableDenseMatrix';
 exports.path = 'type';
 exports.factory = factory;
 
-},{"../../function/relational/smaller":360,"../../utils/index":485,"./DenseMatrix":430}],433:[function(require,module,exports){
+},{"../../function/relational/smaller":425,"../../utils/index":550,"./DenseMatrix":495}],498:[function(require,module,exports){
 'use strict';
 
 var util = require('../../utils/index');
@@ -49309,7 +53767,7 @@ exports.name = 'Matrix';
 exports.path = 'type';
 exports.factory = factory;
 
-},{"../../utils/index":485}],434:[function(require,module,exports){
+},{"../../utils/index":550}],499:[function(require,module,exports){
 'use strict';
 
 var clone = require('../../utils/object').clone;
@@ -49594,7 +54052,7 @@ exports.name = 'Index';
 exports.path = 'type';
 exports.factory = factory;
 
-},{"../../utils/number":487,"../../utils/object":488}],435:[function(require,module,exports){
+},{"../../utils/number":552,"../../utils/object":553}],500:[function(require,module,exports){
 'use strict';
 
 var number = require('../../utils/number');
@@ -49912,7 +54370,7 @@ exports.name = 'Range';
 exports.path = 'type';
 exports.factory = factory;
 
-},{"../../utils/number":487}],436:[function(require,module,exports){
+},{"../../utils/number":552}],501:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load) {
@@ -50055,7 +54513,7 @@ exports.name = 'Spa';
 exports.path = 'type';
 exports.factory = factory;
 
-},{"../../function/arithmetic/add":259,"../../function/relational/equalScalar":356}],437:[function(require,module,exports){
+},{"../../function/arithmetic/add":324,"../../function/relational/equalScalar":421}],502:[function(require,module,exports){
 'use strict';
 
 var util = require('../../utils/index');
@@ -51395,7 +55853,7 @@ exports.path = 'type';
 exports.factory = factory;
 exports.lazy = false;  // no lazy loading, as we alter type.Matrix._storage
 
-},{"../../error/DimensionError":15,"../../function/relational/equalScalar":356,"../../utils/index":485,"./Matrix":433}],438:[function(require,module,exports){
+},{"../../error/DimensionError":80,"../../function/relational/equalScalar":421,"../../utils/index":550,"./Matrix":498}],503:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -51461,7 +55919,7 @@ function factory (type, config, load, typed) {
 exports.name = 'index';
 exports.factory = factory;
 
-},{}],439:[function(require,module,exports){
+},{}],504:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -51551,7 +56009,7 @@ function factory (type, config, load, typed) {
 exports.name = 'matrix';
 exports.factory = factory;
 
-},{}],440:[function(require,module,exports){
+},{}],505:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -51614,7 +56072,7 @@ function factory (type, config, load, typed) {
 exports.name = 'sparse';
 exports.factory = factory;
 
-},{}],441:[function(require,module,exports){
+},{}],506:[function(require,module,exports){
 module.exports = [
   // types
   require('./Matrix'),
@@ -51632,7 +56090,7 @@ module.exports = [
   require('./function/sparse')
 ];
 
-},{"./DenseMatrix":430,"./FibonacciHeap":431,"./ImmutableDenseMatrix":432,"./Matrix":433,"./MatrixIndex":434,"./Range":435,"./Spa":436,"./SparseMatrix":437,"./function/index":438,"./function/matrix":439,"./function/sparse":440}],442:[function(require,module,exports){
+},{"./DenseMatrix":495,"./FibonacciHeap":496,"./ImmutableDenseMatrix":497,"./Matrix":498,"./MatrixIndex":499,"./Range":500,"./Spa":501,"./SparseMatrix":502,"./function/index":503,"./function/matrix":504,"./function/sparse":505}],507:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../../error/DimensionError');
@@ -51748,7 +56206,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm01';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15}],443:[function(require,module,exports){
+},{"../../../error/DimensionError":80}],508:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../../error/DimensionError');
@@ -51869,7 +56327,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm02';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15,"../../../function/relational/equalScalar":356}],444:[function(require,module,exports){
+},{"../../../error/DimensionError":80,"../../../function/relational/equalScalar":421}],509:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../../error/DimensionError');
@@ -51996,7 +56454,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm03';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15}],445:[function(require,module,exports){
+},{"../../../error/DimensionError":80}],510:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../../error/DimensionError');
@@ -52185,7 +56643,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm04';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15,"../../../function/relational/equalScalar":356}],446:[function(require,module,exports){
+},{"../../../error/DimensionError":80,"../../../function/relational/equalScalar":421}],511:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../../error/DimensionError');
@@ -52363,7 +56821,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm05';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15,"../../../function/relational/equalScalar":356}],447:[function(require,module,exports){
+},{"../../../error/DimensionError":80,"../../../function/relational/equalScalar":421}],512:[function(require,module,exports){
 'use strict';
 
 var scatter = require('./../../../utils/collection/scatter');
@@ -52528,7 +56986,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm06';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15,"../../../function/relational/equalScalar":356,"./../../../utils/collection/scatter":482}],448:[function(require,module,exports){
+},{"../../../error/DimensionError":80,"../../../function/relational/equalScalar":421,"./../../../utils/collection/scatter":547}],513:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../../error/DimensionError');
@@ -52654,7 +57112,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm07';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15}],449:[function(require,module,exports){
+},{"../../../error/DimensionError":80}],514:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../../error/DimensionError');
@@ -52816,7 +57274,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm08';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15,"../../../function/relational/equalScalar":356}],450:[function(require,module,exports){
+},{"../../../error/DimensionError":80,"../../../function/relational/equalScalar":421}],515:[function(require,module,exports){
 'use strict';
 
 var DimensionError = require('../../../error/DimensionError');
@@ -52967,7 +57425,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm09';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15,"../../../function/relational/equalScalar":356}],451:[function(require,module,exports){
+},{"../../../error/DimensionError":80,"../../../function/relational/equalScalar":421}],516:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -53079,7 +57537,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm10';
 exports.factory = factory;
 
-},{}],452:[function(require,module,exports){
+},{}],517:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -53190,7 +57648,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm11';
 exports.factory = factory;
 
-},{"../../../function/relational/equalScalar":356}],453:[function(require,module,exports){
+},{"../../../function/relational/equalScalar":421}],518:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -53302,7 +57760,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm12';
 exports.factory = factory;
 
-},{}],454:[function(require,module,exports){
+},{}],519:[function(require,module,exports){
 'use strict';
 
 var util = require('../../../utils/index');
@@ -53408,7 +57866,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm13';
 exports.factory = factory;
 
-},{"../../../error/DimensionError":15,"../../../utils/index":485}],455:[function(require,module,exports){
+},{"../../../error/DimensionError":80,"../../../utils/index":550}],520:[function(require,module,exports){
 'use strict';
 
 var clone = require('../../../utils/object').clone;
@@ -53492,7 +57950,7 @@ function factory (type, config, load, typed) {
 exports.name = 'algorithm14';
 exports.factory = factory;
 
-},{"../../../utils/object":488}],456:[function(require,module,exports){
+},{"../../../utils/object":553}],521:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('./../utils/collection/deepMap');
@@ -53573,7 +58031,7 @@ function factory (type, config, load, typed) {
 exports.name = 'number';
 exports.factory = factory;
 
-},{"./../utils/collection/deepMap":479}],457:[function(require,module,exports){
+},{"./../utils/collection/deepMap":544}],522:[function(require,module,exports){
 'use strict';
 
 function factory (type, config, load, typed) {
@@ -53646,13 +58104,13 @@ exports.name = 'ResultSet';
 exports.path = 'type';
 exports.factory = factory;
 
-},{}],458:[function(require,module,exports){
+},{}],523:[function(require,module,exports){
 module.exports = [
   // type
   require('./ResultSet')
 ];
 
-},{"./ResultSet":457}],459:[function(require,module,exports){
+},{"./ResultSet":522}],524:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('./../utils/collection/deepMap');
@@ -53723,7 +58181,7 @@ function factory (type, config, load, typed) {
 exports.name = 'string';
 exports.factory = factory;
 
-},{"../utils/number":487,"./../utils/collection/deepMap":479}],460:[function(require,module,exports){
+},{"../utils/number":552,"./../utils/collection/deepMap":544}],525:[function(require,module,exports){
 'use strict';
 
 var endsWith = require('../../utils/string').endsWith;
@@ -56584,7 +61042,7 @@ exports.path = 'type';
 exports.factory = factory;
 exports.math = true; // request access to the math namespace
 
-},{"../../function/arithmetic/abs":258,"../../function/arithmetic/addScalar":260,"../../function/arithmetic/divideScalar":265,"../../function/arithmetic/multiplyScalar":280,"../../function/arithmetic/pow":283,"../../function/arithmetic/subtract":288,"../../function/relational/equal":355,"../../function/string/format":374,"../../function/utils/isNumeric":409,"../../function/utils/typeof":412,"../../type/complex/Complex":423,"../../type/number":456,"../../utils/bignumber/constants":471,"../../utils/object":488,"../../utils/string":489}],461:[function(require,module,exports){
+},{"../../function/arithmetic/abs":323,"../../function/arithmetic/addScalar":325,"../../function/arithmetic/divideScalar":330,"../../function/arithmetic/multiplyScalar":345,"../../function/arithmetic/pow":348,"../../function/arithmetic/subtract":353,"../../function/relational/equal":420,"../../function/string/format":439,"../../function/utils/isNumeric":474,"../../function/utils/typeof":477,"../../type/complex/Complex":488,"../../type/number":521,"../../utils/bignumber/constants":536,"../../utils/object":553,"../../utils/string":554}],526:[function(require,module,exports){
 'use strict';
 
 var deepMap = require('../../../utils/collection/deepMap');
@@ -56647,7 +61105,7 @@ function factory (type, config, load, typed) {
 exports.name = 'unit';
 exports.factory = factory;
 
-},{"../../../utils/collection/deepMap":479}],462:[function(require,module,exports){
+},{"../../../utils/collection/deepMap":544}],527:[function(require,module,exports){
 module.exports = [
   // type
   require('./Unit'),
@@ -56659,7 +61117,7 @@ module.exports = [
   require('./physicalConstants')
 ];
 
-},{"./Unit":460,"./function/unit":461,"./physicalConstants":463}],463:[function(require,module,exports){
+},{"./Unit":525,"./function/unit":526,"./physicalConstants":528}],528:[function(require,module,exports){
 var lazy = require('../../utils/object').lazy;
 
 
@@ -56745,7 +61203,7 @@ exports.factory = factory;
 exports.lazy = false;  // no lazy loading of constants, the constants themselves are lazy when needed
 exports.math = true;   // request access to the math namespace
 
-},{"../../utils/object":488}],464:[function(require,module,exports){
+},{"../../utils/object":553}],529:[function(require,module,exports){
 'use strict';
 
 /**
@@ -56995,7 +61453,7 @@ function zeros(length) {
 
 module.exports = NumberFormatter;
 
-},{}],465:[function(require,module,exports){
+},{}],530:[function(require,module,exports){
 'use strict';
 
 var number = require('./number');
@@ -57341,7 +61799,7 @@ exports.flatten = function(array) {
  */
 exports.isArray = Array.isArray;
 
-},{"../error/DimensionError":15,"../error/IndexError":16,"./number":487,"./object":488,"./string":489,"./types":490}],466:[function(require,module,exports){
+},{"../error/DimensionError":80,"../error/IndexError":81,"./number":552,"./object":553,"./string":554,"./types":555}],531:[function(require,module,exports){
 var bitwise = require('./bitwise');
 
 /**
@@ -57411,7 +61869,7 @@ module.exports = function bitAnd(x, y) {
   return bitwise(x, y, function (a, b) { return a & b });
 };
 
-},{"./bitwise":470}],467:[function(require,module,exports){
+},{"./bitwise":535}],532:[function(require,module,exports){
 /**
  * Bitwise not
  * @param {BigNumber} value
@@ -57434,7 +61892,7 @@ module.exports = function bitNot (x) {
   return x;
 };
 
-},{}],468:[function(require,module,exports){
+},{}],533:[function(require,module,exports){
 var bitwise = require('./bitwise');
 
 /**
@@ -57489,7 +61947,7 @@ module.exports = function bitOr (x, y) {
   return bitwise(x, y, function (a, b) { return a | b });
 };
 
-},{"./bitwise":470}],469:[function(require,module,exports){
+},{"./bitwise":535}],534:[function(require,module,exports){
 var bitwise = require('./bitwise');
 var bitNot = require('./bitNot');
 
@@ -57551,7 +62009,7 @@ module.exports = function bitXor(x, y) {
   return bitwise(x, y, function (a, b) { return a ^ b });
 };
 
-},{"./bitNot":467,"./bitwise":470}],470:[function(require,module,exports){
+},{"./bitNot":532,"./bitwise":535}],535:[function(require,module,exports){
 var bitNot = require('./bitNot');
 
 /**
@@ -57677,7 +62135,7 @@ function decCoefficientToBinaryString (x) {
   return arr.reverse();
 }
 
-},{"./bitNot":467}],471:[function(require,module,exports){
+},{"./bitNot":532}],536:[function(require,module,exports){
 var memoize = require('../function').memoize;
 
 /**
@@ -57728,7 +62186,7 @@ function hasher (args) {
   return args[0].precision;
 }
 
-},{"../function":484}],472:[function(require,module,exports){
+},{"../function":549}],537:[function(require,module,exports){
 /**
  * Convert a BigNumber to a formatted string representation.
  *
@@ -57913,7 +62371,7 @@ exports.toFixed = function (value, precision) {
   // undefined default precision instead of 0.
 };
 
-},{}],473:[function(require,module,exports){
+},{}],538:[function(require,module,exports){
 
 /**
  * Bitwise left shift
@@ -57956,7 +62414,7 @@ module.exports = function leftShift (x, y) {
   return x.times(new BigNumber(2).pow(y));
 };
 
-},{}],474:[function(require,module,exports){
+},{}],539:[function(require,module,exports){
 'use strict';
 
 /**
@@ -58003,7 +62461,7 @@ module.exports = function nearlyEqual(x, y, epsilon) {
   return false;
 };
 
-},{}],475:[function(require,module,exports){
+},{}],540:[function(require,module,exports){
 /*
  * Special Cases:
  *   n >> -n =  N
@@ -58052,7 +62510,7 @@ module.exports = function rightArithShift (x, y) {
   return x.div(new BigNumber(2).pow(y)).floor();
 };
 
-},{}],476:[function(require,module,exports){
+},{}],541:[function(require,module,exports){
 'use strict';
 
 /**
@@ -58064,7 +62522,7 @@ exports.isBoolean = function(value) {
   return typeof value == 'boolean';
 };
 
-},{}],477:[function(require,module,exports){
+},{}],542:[function(require,module,exports){
 'use strict';
 
 var isCollection = require('./isCollection');
@@ -58084,7 +62542,7 @@ module.exports = function containsCollections (array) {
   return false;
 };
 
-},{"./isCollection":480}],478:[function(require,module,exports){
+},{"./isCollection":545}],543:[function(require,module,exports){
 'use strict';
 
 /**
@@ -58111,7 +62569,7 @@ module.exports = function deepForEach (array, callback) {
   }
 };
 
-},{}],479:[function(require,module,exports){
+},{}],544:[function(require,module,exports){
 'use strict';
 
 /**
@@ -58138,7 +62596,7 @@ module.exports = function deepMap(array, callback, skipZeros) {
   }
 };
 
-},{}],480:[function(require,module,exports){
+},{}],545:[function(require,module,exports){
 'use strict';
 
 /**
@@ -58150,7 +62608,7 @@ module.exports = function isCollection (x) {
   return (Array.isArray(x) || (x && x.isMatrix === true));
 };
 
-},{}],481:[function(require,module,exports){
+},{}],546:[function(require,module,exports){
 'use strict';
 
 var arraySize = require('../array').size;
@@ -58235,7 +62693,7 @@ function _switch(mat){
   return ret;
 }
 
-},{"../../error/IndexError":16,"../array":465}],482:[function(require,module,exports){
+},{"../../error/IndexError":81,"../array":530}],547:[function(require,module,exports){
 'use strict';
 
 module.exports = function scatter(a, j, w, x, u, mark, c, f, inverse, update, value) {
@@ -58301,7 +62759,7 @@ module.exports = function scatter(a, j, w, x, u, mark, c, f, inverse, update, va
   }
 };
 
-},{}],483:[function(require,module,exports){
+},{}],548:[function(require,module,exports){
 var Emitter = require('tiny-emitter');
 
 /**
@@ -58322,7 +62780,7 @@ exports.mixin = function (obj) {
   return obj;
 };
 
-},{"tiny-emitter":492}],484:[function(require,module,exports){
+},{"tiny-emitter":574}],549:[function(require,module,exports){
 // function utils
 
 /*
@@ -58355,7 +62813,7 @@ exports.memoize = function(fn, hasher) {
   };
 };
 
-},{}],485:[function(require,module,exports){
+},{}],550:[function(require,module,exports){
 'use strict';
 
 exports.array = require('./array');
@@ -58367,7 +62825,7 @@ exports.string = require('./string');
 exports.types = require('./types');
 exports.emitter = require('./emitter');
 
-},{"./array":465,"./boolean":476,"./emitter":483,"./function":484,"./number":487,"./object":488,"./string":489,"./types":490}],486:[function(require,module,exports){
+},{"./array":530,"./boolean":541,"./emitter":548,"./function":549,"./number":552,"./object":553,"./string":554,"./types":555}],551:[function(require,module,exports){
 'use strict';
 
 exports.symbols = {
@@ -58473,7 +62931,7 @@ exports.toSymbol = function (name, isUnit) {
   return name;
 };
 
-},{}],487:[function(require,module,exports){
+},{}],552:[function(require,module,exports){
 'use strict';
 
 var NumberFormatter = require('./NumberFormatter');
@@ -58760,7 +63218,7 @@ exports.nearlyEqual = function(x, y, epsilon) {
   return false;
 };
 
-},{"./NumberFormatter":464}],488:[function(require,module,exports){
+},{"./NumberFormatter":529}],553:[function(require,module,exports){
 'use strict';
 
 /**
@@ -59003,7 +63461,7 @@ exports.isFactory = function (object) {
   return object && typeof object.factory === 'function';
 };
 
-},{}],489:[function(require,module,exports){
+},{}],554:[function(require,module,exports){
 'use strict';
 
 var formatNumber = require('./number').format;
@@ -59148,7 +63606,7 @@ function formatArray (array, options) {
   }
 }
 
-},{"./bignumber/formatter":472,"./number":487}],490:[function(require,module,exports){
+},{"./bignumber/formatter":537,"./number":552}],555:[function(require,module,exports){
 'use strict';
 
 /**
@@ -59204,12 +63662,905 @@ exports.isScalar = function (x) {
   return !((x && x.isMatrix) || Array.isArray(x));
 };
 
-},{}],491:[function(require,module,exports){
+},{}],556:[function(require,module,exports){
 module.exports = '3.2.0';
 // Note: This file is automatically generated when building math.js.
 // Changes made in this file will be overwritten.
 
-},{}],492:[function(require,module,exports){
+},{}],557:[function(require,module,exports){
+'use strict';
+module.exports = 9007199254740991;
+
+},{}],558:[function(require,module,exports){
+/*
+ * mr-parser
+ *
+ * Copyright (c) 2015 Mauricio Poppe
+ * Licensed under the MIT license.
+ */
+
+'use strict'
+
+module.exports.Lexer = require('./lib/Lexer')
+module.exports.Parser = require('./lib/Parser')
+module.exports.nodeTypes = require('./lib/node/')
+
+},{"./lib/Lexer":559,"./lib/Parser":560,"./lib/node/":571}],559:[function(require,module,exports){
+// token types
+var tokenType = require('./token-type')
+
+var ESCAPES = {
+  'n': '\n',
+  'f': '\f',
+  'r': '\r',
+  't': '\t',
+  'v': '\v',
+  '\'': '\'',
+  '"': '"'
+}
+
+var DELIMITERS = {
+  ',': true,
+  '(': true,
+  ')': true,
+  '[': true,
+  ']': true,
+  ';': true,
+
+  // unary
+  '~': true,
+
+  // factorial
+  '!': true,
+
+  // arithmetic operators
+  '+': true,
+  '-': true,
+  '*': true,
+  '/': true,
+  '%': true,
+  '^': true,
+  '**': true,     // python power like
+
+  // misc operators
+  '|': true,      // bitwise or
+  '&': true,      // bitwise and
+  '^|': true,     // bitwise xor
+  '=': true,
+  ':': true,
+  '?': true,
+
+  '||': true,      // logical or
+  '&&': true,      // logical and
+  'xor': true,     // logical xor
+
+  // relational
+  '==': true,
+  '!=': true,
+  '===': true,
+  '!==': true,
+  '<': true,
+  '>': true,
+  '>=': true,
+  '<=': true,
+
+  // shifts
+  '>>>': true,
+  '<<': true,
+  '>>': true
+}
+
+// helpers
+
+function isDigit (c) {
+  return c >= '0' && c <= '9'
+}
+
+function isIdentifier (c) {
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+    c === '$' || c === '_'
+}
+
+function isWhitespace (c) {
+  return c === ' ' || c === '\r' || c === '\t' ||
+    c === '\n' || c === '\v' || c === '\u00A0'
+}
+
+function isDelimiter (str) {
+  return DELIMITERS[str]
+}
+
+function isQuote (c) {
+  return c === '\'' || c === '"'
+}
+
+// lexer
+
+function Lexer () {}
+
+Lexer.prototype.throwError = function (message, index) {
+  index = typeof index === 'undefined' ? this.index : index
+
+  var error = new Error(message + ' at index ' + index)
+  error.index = index
+  error.description = message
+  throw error
+}
+
+Lexer.prototype.lex = function (text) {
+  this.text = text
+  this.index = 0
+  this.tokens = []
+
+  while (this.index < this.text.length) {
+    // skip whitespaces
+    while (isWhitespace(this.peek())) {
+      this.consume()
+    }
+    var c = this.peek()
+    var c2 = c + this.peek(1)
+    var c3 = c2 + this.peek(2)
+
+    // order
+    // - delimiter of 3 characters
+    // - delimiter of 2 characters
+    // - delimiter of 1 character
+    // - number
+    // - variables, functions and named operators
+    if (isDelimiter(c3)) {
+      this.tokens.push({
+        type: tokenType.DELIMITER,
+        value: c3
+      })
+      this.consume()
+      this.consume()
+      this.consume()
+    } else if (isDelimiter(c2)) {
+      this.tokens.push({
+        type: tokenType.DELIMITER,
+        value: c2
+      })
+      this.consume()
+      this.consume()
+    } else if (isDelimiter(c)) {
+      this.tokens.push({
+        type: tokenType.DELIMITER,
+        value: c
+      })
+      this.consume()
+    } else if (isDigit(c) ||
+        (c === '.' && isDigit(this.peek(1)))) {
+      this.tokens.push({
+        type: tokenType.NUMBER,
+        value: this.readNumber()
+      })
+    } else if (isQuote(c)) {
+      this.tokens.push({
+        type: tokenType.STRING,
+        value: this.readString()
+      })
+    } else if (isIdentifier(c)) {
+      this.tokens.push({
+        type: tokenType.SYMBOL,
+        value: this.readIdentifier()
+      })
+    } else {
+      this.throwError('unexpected character ' + c)
+    }
+  }
+
+  // end token
+  this.tokens.push({ type: tokenType.EOF })
+
+  return this.tokens
+}
+
+Lexer.prototype.peek = function (nth) {
+  nth = nth || 0
+  if (this.index + nth >= this.text.length) {
+    return
+  }
+  return this.text.charAt(this.index + nth)
+}
+
+Lexer.prototype.consume = function () {
+  var current = this.peek()
+  this.index += 1
+  return current
+}
+
+Lexer.prototype.readNumber = function () {
+  var number = ''
+
+  if (this.peek() === '.') {
+    number += this.consume()
+    if (!isDigit(this.peek())) {
+      this.throwError('number expected')
+    }
+  } else {
+    while (isDigit(this.peek())) {
+      number += this.consume()
+    }
+    if (this.peek() === '.') {
+      number += this.consume()
+    }
+  }
+
+  // numbers after the decimal dot
+  while (isDigit(this.peek())) {
+    number += this.consume()
+  }
+
+  // exponent if available
+  if ((this.peek() === 'e' || this.peek() === 'E')) {
+    number += this.consume()
+
+    if (!(isDigit(this.peek()) ||
+        this.peek() === '+' ||
+        this.peek() === '-')) {
+      this.throwError()
+    }
+
+    if (this.peek() === '+' || this.peek() === '-') {
+      number += this.consume()
+    }
+
+    if (!isDigit(this.peek())) {
+      this.throwError('number expected')
+    }
+
+    while (isDigit(this.peek())) {
+      number += this.consume()
+    }
+  }
+  return number
+}
+
+Lexer.prototype.readIdentifier = function () {
+  var text = ''
+  while (isIdentifier(this.peek()) || isDigit(this.peek())) {
+    text += this.consume()
+  }
+  return text
+}
+
+Lexer.prototype.readString = function () {
+  var quote = this.consume()
+  var string = ''
+  var escape
+  while (true) {
+    var c = this.consume()
+    if (!c) {
+      this.throwError('string is not closed')
+    }
+    if (escape) {
+      if (c === 'u') {
+        var hex = this.text.substring(this.index + 1, this.index + 5)
+        if (!hex.match(/[\da-f]{4}/i)) {
+          this.throwError('invalid unicode escape')
+        }
+        this.index += 4
+        string += String.fromCharCode(parseInt(hex, 16))
+      } else {
+        var replacement = ESCAPES[c]
+        if (replacement) {
+          string += replacement
+        } else {
+          string += c
+        }
+      }
+      escape = false
+    } else if (c === quote) {
+      break
+    } else if (c === '\\') {
+      escape = true
+    } else {
+      string += c
+    }
+  }
+  return string
+}
+
+module.exports = Lexer
+
+},{"./token-type":572}],560:[function(require,module,exports){
+var tokenType = require('./token-type')
+
+var Lexer = require('./Lexer')
+var ConstantNode = require('./node/ConstantNode')
+var OperatorNode = require('./node/OperatorNode')
+var UnaryNode = require('./node/UnaryNode')
+var SymbolNode = require('./node/SymbolNode')
+var FunctionNode = require('./node/FunctionNode')
+var ArrayNode = require('./node/ArrayNode')
+var ConditionalNode = require('./node/ConditionalNode')
+var AssignmentNode = require('./node/AssignmentNode')
+var BlockNode = require('./node/BlockNode')
+
+/**
+ * Grammar DSL:
+ *
+ * program          : block (; block)*
+ *
+ * block            : assignment
+ *
+ * assignment       : ternary
+ *                  | symbol `=` assignment
+ *
+ * ternary          : logicalOR
+ *                  | logicalOR `?` ternary `:` ternary
+ *
+ * logicalOR        : logicalXOR
+ *                  | logicalXOR (`||`,`or`) logicalOR
+ *
+ * logicalXOR       : logicalAND
+ *                  : logicalAND `xor` logicalXOR
+ *
+ * logicalAND       : bitwiseOR
+ *                  | bitwiseOR (`&&`,`and`) logicalAND
+ *
+ * bitwiseOR        : bitwiseXOR
+ *                  | bitwiseXOR `|` bitwiseOR
+ *
+ * bitwiseXOR       : bitwiseAND
+ *                  | bitwiseAND `^|` bitwiseXOR
+ *
+ * bitwiseAND       : relational
+ *                  | relational `&` bitwiseAND
+ *
+ * relational       : shift
+ *                  | shift (`!=` | `==` | `>` | '<' | '<=' |'>=') shift)
+ *
+ * shift            : additive
+ *                  | additive (`>>` | `<<` | `>>>`) shift
+ *
+ * additive         : multiplicative
+ *                  | multiplicative (`+` | `-`) additive
+ *
+ * multiplicative   : unary
+ *                  | unary (`*` | `/` | `%`) unary
+ *                  | unary symbol
+ *
+ * unary            : pow
+ *                  | (`-` | `+` | `~`) unary
+ *
+ * pow              : factorial
+ *                  | factorial (`^`, '**') unary
+ *
+ * factorial        : symbol
+ *                  | symbol (`!`)
+ *
+ * symbol           : symbolToken
+ *                  | symbolToken functionCall
+ *                  | string
+ *
+ * functionCall     : `(` `)`
+ *                  | `(` ternary (, ternary)* `)`
+ *
+ * string           : `'` (character)* `'`
+ *                  : `"` (character)* `"`
+ *                  | array
+ *
+ * array            : `[` `]`
+ *                  | `[` assignment (, assignment)* `]`
+ *                  | number
+ *
+ * number           : number-token
+ *                  | parentheses
+ *
+ * parentheses      : `(` assignment `)`
+ *                  : end
+ *
+ * end              : NULL
+ *
+ * @param {[type]} lexer [description]
+ */
+function Parser () {
+  this.lexer = new Lexer()
+  this.tokens = null
+}
+
+Parser.prototype.current = function () {
+  return this.tokens[0]
+}
+
+Parser.prototype.next = function () {
+  return this.tokens[1]
+}
+
+Parser.prototype.peek = function () {
+  if (this.tokens.length) {
+    var first = this.tokens[0]
+    for (var i = 0; i < arguments.length; i += 1) {
+      if (first.value === arguments[i]) {
+        return true
+      }
+    }
+  }
+}
+
+Parser.prototype.consume = function (e) {
+  return this.tokens.shift()
+}
+
+Parser.prototype.expect = function (e) {
+  if (!this.peek(e)) {
+    throw Error('expected ' + e)
+  }
+  return this.consume()
+}
+
+Parser.prototype.isEOF = function () {
+  return this.current().type === tokenType.EOF
+}
+
+Parser.prototype.parse = function (text) {
+  this.tokens = this.lexer.lex(text)
+  return this.program()
+}
+
+Parser.prototype.program = function () {
+  var blocks = []
+  while (!this.isEOF()) {
+    blocks.push(this.assignment())
+    if (this.peek(';')) {
+      this.consume()
+    }
+  }
+  this.end()
+  return new BlockNode(blocks)
+}
+
+Parser.prototype.assignment = function () {
+  var left = this.ternary()
+  if (left instanceof SymbolNode && this.peek('=')) {
+    this.consume()
+    return new AssignmentNode(left.name, this.assignment())
+  }
+  return left
+}
+
+Parser.prototype.ternary = function () {
+  var predicate = this.logicalOR()
+  if (this.peek('?')) {
+    this.consume()
+    var truthy = this.ternary()
+    this.expect(':')
+    var falsy = this.ternary()
+    return new ConditionalNode(predicate, truthy, falsy)
+  }
+  return predicate
+}
+
+Parser.prototype.logicalOR = function () {
+  var left = this.logicalXOR()
+  if (this.peek('||')) {
+    var op = this.consume()
+    var right = this.logicalOR()
+    return new OperatorNode(op.value, [left, right])
+  }
+  return left
+}
+
+Parser.prototype.logicalXOR = function () {
+  var left = this.logicalAND()
+  if (this.current().value === 'xor') {
+    var op = this.consume()
+    var right = this.logicalXOR()
+    return new OperatorNode(op.value, [left, right])
+  }
+  return left
+}
+
+Parser.prototype.logicalAND = function () {
+  var left = this.bitwiseOR()
+  if (this.peek('&&')) {
+    var op = this.consume()
+    var right = this.logicalAND()
+    return new OperatorNode(op.value, [left, right])
+  }
+  return left
+}
+
+Parser.prototype.bitwiseOR = function () {
+  var left = this.bitwiseXOR()
+  if (this.peek('|')) {
+    var op = this.consume()
+    var right = this.bitwiseOR()
+    return new OperatorNode(op.value, [left, right])
+  }
+  return left
+}
+
+Parser.prototype.bitwiseXOR = function () {
+  var left = this.bitwiseAND()
+  if (this.peek('^|')) {
+    var op = this.consume()
+    var right = this.bitwiseXOR()
+    return new OperatorNode(op.value, [left, right])
+  }
+  return left
+}
+
+Parser.prototype.bitwiseAND = function () {
+  var left = this.relational()
+  if (this.peek('&')) {
+    var op = this.consume()
+    var right = this.bitwiseAND()
+    return new OperatorNode(op.value, [left, right])
+  }
+  return left
+}
+
+Parser.prototype.relational = function () {
+  var left = this.shift()
+  if (this.peek('==', '===', '!=', '!==', '>=', '<=', '>', '<')) {
+    var op = this.consume()
+    var right = this.shift()
+    return new OperatorNode(op.value, [left, right])
+  }
+  return left
+}
+
+Parser.prototype.shift = function () {
+  var left = this.additive()
+  if (this.peek('>>', '<<', '>>>')) {
+    var op = this.consume()
+    var right = this.shift()
+    return new OperatorNode(op.value, [left, right])
+  }
+  return left
+}
+
+Parser.prototype.additive = function () {
+  var left = this.multiplicative()
+  while (this.peek('+', '-')) {
+    var op = this.consume()
+    left = new OperatorNode(op.value, [left, this.multiplicative()])
+  }
+  return left
+}
+
+Parser.prototype.multiplicative = function () {
+  var op, right
+  var left = this.unary()
+  while (this.peek('*', '/', '%')) {
+    op = this.consume()
+    left = new OperatorNode(op.value, [left, this.unary()])
+  }
+
+  // implicit multiplication
+  // - 2 x
+  // - 2(x)
+  // - (2)2
+  if (this.current().type === tokenType.SYMBOL ||
+      this.peek('(') ||
+      (!(left.type instanceof ConstantNode) && this.current().type === tokenType.NUMBER)
+      ) {
+    right = this.multiplicative()
+    return new OperatorNode('*', [left, right])
+  }
+
+  return left
+}
+
+Parser.prototype.unary = function () {
+  if (this.peek('-', '+', '~')) {
+    var op = this.consume()
+    var right = this.unary()
+    return new UnaryNode(op.value, right)
+  }
+  return this.pow()
+}
+
+Parser.prototype.pow = function () {
+  var left = this.factorial()
+  if (this.peek('^', '**')) {
+    var op = this.consume()
+    var right = this.unary()
+    return new OperatorNode(op.value, [left, right])
+  }
+  return left
+}
+
+Parser.prototype.factorial = function () {
+  var left = this.symbol()
+  if (this.peek('!')) {
+    var op = this.consume()
+    return new OperatorNode(op.value, [left])
+  }
+  return left
+}
+
+Parser.prototype.symbol = function () {
+  var current = this.current()
+  if (current.type === tokenType.SYMBOL) {
+    var symbol = this.consume()
+    var node = this.functionCall(symbol)
+    return node
+  }
+  return this.string()
+}
+
+Parser.prototype.functionCall = function (symbolToken) {
+  var name = symbolToken.value
+  if (this.peek('(')) {
+    this.consume()
+    var params = []
+    while (!this.peek(')') && !this.isEOF()) {
+      params.push(this.assignment())
+      if (this.peek(',')) {
+        this.consume()
+      }
+    }
+    this.expect(')')
+    return new FunctionNode(name, params)
+  }
+  return new SymbolNode(name)
+}
+
+Parser.prototype.string = function () {
+  if (this.current().type === tokenType.STRING) {
+    return new ConstantNode(this.consume().value, 'string')
+  }
+  return this.array()
+}
+
+Parser.prototype.array = function () {
+  if (this.peek('[')) {
+    this.consume()
+    var params = []
+    while (!this.peek(']') && !this.isEOF()) {
+      params.push(this.assignment())
+      if (this.peek(',')) {
+        this.consume()
+      }
+    }
+    this.expect(']')
+    return new ArrayNode(params)
+  }
+  return this.number()
+}
+
+Parser.prototype.number = function () {
+  var token = this.current()
+  if (token.type === tokenType.NUMBER) {
+    return new ConstantNode(this.consume().value, 'number')
+  }
+  return this.parentheses()
+}
+
+Parser.prototype.parentheses = function () {
+  var token = this.current()
+  if (token.value === '(') {
+    this.consume()
+    var left = this.assignment()
+    this.expect(')')
+    return left
+  }
+  return this.end()
+}
+
+Parser.prototype.end = function () {
+  var token = this.current()
+  if (token.type !== tokenType.EOF) {
+    throw Error('unexpected end of expression')
+  }
+}
+
+module.exports = Parser
+
+},{"./Lexer":559,"./node/ArrayNode":561,"./node/AssignmentNode":562,"./node/BlockNode":563,"./node/ConditionalNode":564,"./node/ConstantNode":565,"./node/FunctionNode":566,"./node/OperatorNode":568,"./node/SymbolNode":569,"./node/UnaryNode":570,"./token-type":572}],561:[function(require,module,exports){
+var Node = require('./Node')
+
+function ArrayNode (nodes) {
+  this.nodes = nodes
+}
+
+ArrayNode.prototype = Object.create(Node.prototype)
+
+ArrayNode.prototype.type = 'ArrayNode'
+
+module.exports = ArrayNode
+
+},{"./Node":567}],562:[function(require,module,exports){
+var Node = require('./Node')
+
+function AssignmentNode (name, expr) {
+  this.name = name
+  this.expr = expr
+}
+
+AssignmentNode.prototype = Object.create(Node.prototype)
+
+AssignmentNode.prototype.type = 'AssignmentNode'
+
+module.exports = AssignmentNode
+
+},{"./Node":567}],563:[function(require,module,exports){
+var Node = require('./Node')
+
+function BlockNode (blocks) {
+  this.blocks = blocks
+}
+
+BlockNode.prototype = Object.create(Node.prototype)
+
+BlockNode.prototype.type = 'BlockNode'
+
+module.exports = BlockNode
+
+},{"./Node":567}],564:[function(require,module,exports){
+var Node = require('./Node')
+
+function ConditionalNode (predicate, truthy, falsy) {
+  this.condition = predicate
+  this.trueExpr = truthy
+  this.falseExpr = falsy
+}
+
+ConditionalNode.prototype = Object.create(Node.prototype)
+
+ConditionalNode.prototype.type = 'ConditionalNode'
+
+module.exports = ConditionalNode
+
+},{"./Node":567}],565:[function(require,module,exports){
+var Node = require('./Node')
+
+var SUPPORTED_TYPES = {
+  number: true,
+  string: true,
+  'boolean': true,
+  'undefined': true,
+  'null': true
+}
+
+function ConstantNode (value, type) {
+  if (!SUPPORTED_TYPES[type]) {
+    throw Error('unsupported type \'' + type + '\'')
+  }
+  this.value = value
+  this.valueType = type
+}
+
+ConstantNode.prototype = Object.create(Node.prototype)
+
+ConstantNode.prototype.type = 'ConstantNode'
+
+module.exports = ConstantNode
+
+},{"./Node":567}],566:[function(require,module,exports){
+var Node = require('./Node')
+
+function FunctionNode (name, args) {
+  this.name = name
+  this.args = args
+}
+
+FunctionNode.prototype = Object.create(Node.prototype)
+
+FunctionNode.prototype.type = 'FunctionNode'
+
+module.exports = FunctionNode
+
+},{"./Node":567}],567:[function(require,module,exports){
+function Node () {
+
+}
+
+Node.prototype.type = 'Node'
+
+module.exports = Node
+
+},{}],568:[function(require,module,exports){
+var Node = require('./Node')
+
+function OperatorNode (op, args) {
+  this.op = op
+  this.args = args || []
+}
+
+OperatorNode.prototype = Object.create(Node.prototype)
+
+OperatorNode.prototype.type = 'OperatorNode'
+
+module.exports = OperatorNode
+
+},{"./Node":567}],569:[function(require,module,exports){
+var Node = require('./Node')
+
+function SymbolNode (name) {
+  this.name = name
+}
+
+SymbolNode.prototype = Object.create(Node.prototype)
+
+SymbolNode.prototype.type = 'SymbolNode'
+
+module.exports = SymbolNode
+
+},{"./Node":567}],570:[function(require,module,exports){
+var Node = require('./Node')
+
+function UnaryNode (op, argument) {
+  this.op = op
+  this.argument = argument
+}
+
+UnaryNode.prototype = Object.create(Node.prototype)
+
+UnaryNode.prototype.type = 'UnaryNode'
+
+module.exports = UnaryNode
+
+},{"./Node":567}],571:[function(require,module,exports){
+module.exports = {
+  ArrayNode: require('./ArrayNode'),
+  AssignmentNode: require('./AssignmentNode'),
+  BlockNode: require('./BlockNode'),
+  ConditionalNode: require('./ConditionalNode'),
+  ConstantNode: require('./ConstantNode'),
+  FunctionNode: require('./FunctionNode'),
+  Node: require('./Node'),
+  OperatorNode: require('./OperatorNode'),
+  SymbolNode: require('./SymbolNode'),
+  UnaryNode: require('./UnaryNode')
+}
+
+},{"./ArrayNode":561,"./AssignmentNode":562,"./BlockNode":563,"./ConditionalNode":564,"./ConstantNode":565,"./FunctionNode":566,"./Node":567,"./OperatorNode":568,"./SymbolNode":569,"./UnaryNode":570}],572:[function(require,module,exports){
+module.exports = {
+  EOF: 0,
+  DELIMITER: 1,
+  NUMBER: 2,
+  STRING: 3,
+  SYMBOL: 4
+}
+
+},{}],573:[function(require,module,exports){
+"use strict"
+
+var doubleBits = require("double-bits")
+
+var SMALLEST_DENORM = Math.pow(2, -1074)
+var UINT_MAX = (-1)>>>0
+
+module.exports = nextafter
+
+function nextafter(x, y) {
+  if(isNaN(x) || isNaN(y)) {
+    return NaN
+  }
+  if(x === y) {
+    return x
+  }
+  if(x === 0) {
+    if(y < 0) {
+      return -SMALLEST_DENORM
+    } else {
+      return SMALLEST_DENORM
+    }
+  }
+  var hi = doubleBits.hi(x)
+  var lo = doubleBits.lo(x)
+  if((y > x) === (x > 0)) {
+    if(lo === UINT_MAX) {
+      hi += 1
+      lo = 0
+    } else {
+      lo += 1
+    }
+  } else {
+    if(lo === 0) {
+      lo = UINT_MAX
+      hi -= 1
+    } else {
+      lo -= 1
+    }
+  }
+  return doubleBits.pack(lo, hi)
+}
+},{"double-bits":10}],574:[function(require,module,exports){
 function E () {
 	// Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -59277,7 +64628,7 @@ E.prototype = {
 
 module.exports = E;
 
-},{}],493:[function(require,module,exports){
+},{}],575:[function(require,module,exports){
 /**
  * typed-function
  *
@@ -60584,13 +65935,243 @@ module.exports = E;
   return create();
 }));
 
-},{}],494:[function(require,module,exports){
+},{}],576:[function(require,module,exports){
+var ua = typeof window !== 'undefined' ? window.navigator.userAgent : ''
+  , isOSX = /OS X/.test(ua)
+  , isOpera = /Opera/.test(ua)
+  , maybeFirefox = !/like Gecko/.test(ua) && !isOpera
+
+var i, output = module.exports = {
+  0:  isOSX ? '<menu>' : '<UNK>'
+, 1:  '<mouse 1>'
+, 2:  '<mouse 2>'
+, 3:  '<break>'
+, 4:  '<mouse 3>'
+, 5:  '<mouse 4>'
+, 6:  '<mouse 5>'
+, 8:  '<backspace>'
+, 9:  '<tab>'
+, 12: '<clear>'
+, 13: '<enter>'
+, 16: '<shift>'
+, 17: '<control>'
+, 18: '<alt>'
+, 19: '<pause>'
+, 20: '<caps-lock>'
+, 21: '<ime-hangul>'
+, 23: '<ime-junja>'
+, 24: '<ime-final>'
+, 25: '<ime-kanji>'
+, 27: '<escape>'
+, 28: '<ime-convert>'
+, 29: '<ime-nonconvert>'
+, 30: '<ime-accept>'
+, 31: '<ime-mode-change>'
+, 27: '<escape>'
+, 32: '<space>'
+, 33: '<page-up>'
+, 34: '<page-down>'
+, 35: '<end>'
+, 36: '<home>'
+, 37: '<left>'
+, 38: '<up>'
+, 39: '<right>'
+, 40: '<down>'
+, 41: '<select>'
+, 42: '<print>'
+, 43: '<execute>'
+, 44: '<snapshot>'
+, 45: '<insert>'
+, 46: '<delete>'
+, 47: '<help>'
+, 91: '<meta>'  // meta-left -- no one handles left and right properly, so we coerce into one.
+, 92: '<meta>'  // meta-right
+, 93: isOSX ? '<meta>' : '<menu>'      // chrome,opera,safari all report this for meta-right (osx mbp).
+, 95: '<sleep>'
+, 106: '<num-*>'
+, 107: '<num-+>'
+, 108: '<num-enter>'
+, 109: '<num-->'
+, 110: '<num-.>'
+, 111: '<num-/>'
+, 144: '<num-lock>'
+, 145: '<scroll-lock>'
+, 160: '<shift-left>'
+, 161: '<shift-right>'
+, 162: '<control-left>'
+, 163: '<control-right>'
+, 164: '<alt-left>'
+, 165: '<alt-right>'
+, 166: '<browser-back>'
+, 167: '<browser-forward>'
+, 168: '<browser-refresh>'
+, 169: '<browser-stop>'
+, 170: '<browser-search>'
+, 171: '<browser-favorites>'
+, 172: '<browser-home>'
+
+  // ff/osx reports '<volume-mute>' for '-'
+, 173: isOSX && maybeFirefox ? '-' : '<volume-mute>'
+, 174: '<volume-down>'
+, 175: '<volume-up>'
+, 176: '<next-track>'
+, 177: '<prev-track>'
+, 178: '<stop>'
+, 179: '<play-pause>'
+, 180: '<launch-mail>'
+, 181: '<launch-media-select>'
+, 182: '<launch-app 1>'
+, 183: '<launch-app 2>'
+, 186: ';'
+, 187: '='
+, 188: ','
+, 189: '-'
+, 190: '.'
+, 191: '/'
+, 192: '`'
+, 219: '['
+, 220: '\\'
+, 221: ']'
+, 222: "'"
+, 223: '<meta>'
+, 224: '<meta>'       // firefox reports meta here.
+, 226: '<alt-gr>'
+, 229: '<ime-process>'
+, 231: isOpera ? '`' : '<unicode>'
+, 246: '<attention>'
+, 247: '<crsel>'
+, 248: '<exsel>'
+, 249: '<erase-eof>'
+, 250: '<play>'
+, 251: '<zoom>'
+, 252: '<no-name>'
+, 253: '<pa-1>'
+, 254: '<clear>'
+}
+
+for(i = 58; i < 65; ++i) {
+  output[i] = String.fromCharCode(i)
+}
+
+// 0-9
+for(i = 48; i < 58; ++i) {
+  output[i] = (i - 48)+''
+}
+
+// A-Z
+for(i = 65; i < 91; ++i) {
+  output[i] = String.fromCharCode(i)
+}
+
+// num0-9
+for(i = 96; i < 106; ++i) {
+  output[i] = '<num-'+(i - 96)+'>'
+}
+
+// F1-F24
+for(i = 112; i < 136; ++i) {
+  output[i] = 'F'+(i-111)
+}
+
+},{}],577:[function(require,module,exports){
+module.exports = extend
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function extend(target) {
+    for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i]
+
+        for (var key in source) {
+            if (hasOwnProperty.call(source, key)) {
+                target[key] = source[key]
+            }
+        }
+    }
+
+    return target
+}
+
+},{}],578:[function(require,module,exports){
 'use strict';
 let d3 = require('d3');
+window.d3 = d3;
+let functionPlot = require('function-plot');
 let math = require('mathjs');
 let pontoMedio = require('../lib/integral/ponto_medio');
 let trapezio = require('../lib/integral/trapezio');
 
+class ExemploIntegracao {
+    constructor() {
+    }
+    definirElementosEntrada(inputExpressao, inputLimiteInferior, inputLimiteSuperior, inputPassos, buttonIntegrar) {
+        this.inputExpressao = d3.select(inputExpressao);
+        this.inputLimiteInferior = d3.select(inputLimiteInferior);
+        this.inputLimiteSuperior = d3.select(inputLimiteSuperior);
+        this.inputPassos = d3.select(inputPassos);
+        this.buttonIntegrar = d3.select(buttonIntegrar);
+        this.registrarEventoIntegrar();
+    }
+    definirElementosResultado(textPontoMedio, textTrapezio) {
+        this.textPontoMedio = d3.select(textPontoMedio);
+        this.textTrapezio = d3.select(textTrapezio);
+    }
+    definirGrafico(graficoTarget) {
+        this.graficoTarget = graficoTarget;
+    }
+    registrarEventoIntegrar() {
+        let self = this;
+        this.buttonIntegrar.on('click', function () {
+            let expressao = self.inputExpressao.node().value;
+            let limiteInferior = parseFloat(self.inputLimiteInferior.node().value);
+            let limiteSuperior = parseFloat(self.inputLimiteSuperior.node().value);
+            let passos = parseFloat(self.inputPassos.node().value);
+            let funcao = self.gerarFuncao(expressao);
+            let resultados = self.integrar(funcao, limiteInferior, limiteSuperior, passos);
+            self.mostrarResultados(resultados);
+            self.exibirGrafico(funcao, limiteInferior, limiteSuperior);
+        });
+    }
+    mostrarResultados(resultados) {
+        this.textPontoMedio.text(resultados.pontoMedio.toFixed(3));
+        this.textTrapezio.text(resultados.trapezio.toFixed(3));
+    }
+    integrar(funcao, limiteInferior, limiteSuperior, passos) {
+        return {
+            trapezio: trapezio(funcao, limiteInferior, limiteSuperior, passos),
+            pontoMedio: pontoMedio(funcao, limiteInferior, limiteSuperior, passos),
+        };
+    }
+    gerarFuncao(expressao) {
+        return function (x) {
+            let expressaoCompilada = math.compile(expressao);
+            return expressaoCompilada.eval({ x: x });
+        }
+    }
+    exibirGrafico(funcao, limiteInferior, limiteSuperior) {
+        let yMin = Math.min(funcao(limiteInferior), funcao(limiteSuperior));
+        let yMax = Math.max(funcao(limiteInferior), funcao(limiteSuperior));
+        let horizontalMargin = Math.abs((limiteSuperior - limiteInferior) * 0.1);
+        let verticalMargin = Math.abs((yMax - yMin) * 0.1);
+        console.log(yMin, yMax);
+        this.graficoInstance = functionPlot({
+            target: '#grafico',
+            xAxis: { domain: [limiteInferior - horizontalMargin, limiteSuperior + horizontalMargin] },
+            yAxis: { domain: [yMin - verticalMargin, yMax + verticalMargin] },
+            grid: true,
+            data: [{
+                fnType: 'linear',
+                graphType: 'polyline',
+                fn: function(p) {
+                    return funcao(p.x);
+                },
+                range: [limiteInferior, limiteSuperior],
+                closed: true,
+                skipTip: true
+            }]
+        });
+    }
+};
 let txtExpressao = d3.select('input#expressao');
 let txtLimiteInferior = d3.select('input#limiteInferior');
 let txtLimiteSuperior = d3.select('input#limiteSuperior');
@@ -60599,28 +66180,2066 @@ let txtPassos = d3.select('input#passos');
 let resultadoPontoMedio = d3.select('#ponto-medio');
 let resultadoTrapezio = d3.select('#trapezio');
 
-d3.select('button#integrar').on('click', function() {
-    let expressao = txtExpressao.node().value;
-    let limiteInferior = parseFloat(txtLimiteInferior.node().value);
-    let limiteSuperior = parseFloat(txtLimiteSuperior.node().value);
-    let passos = parseFloat(txtPassos.node().value);
-    
-    let funcao = gerarFuncaoDaExpressao(expressao);
-    
-    let resultado = {
-        trapezio: trapezio(funcao, limiteInferior, limiteSuperior, passos),
-        pontoMedio: pontoMedio(funcao, limiteInferior, limiteSuperior, passos),
-    };
-    
-    resultadoPontoMedio.text(resultado.pontoMedio.toFixed(3));
-    resultadoTrapezio.text(resultado.trapezio.toFixed(3));
-    
-});
+let integracao = new ExemploIntegracao();
+integracao.definirElementosEntrada('#expressao', '#limiteInferior', '#limiteSuperior', '#passos', '#integrar');
+integracao.definirElementosResultado('#ponto-medio', '#trapezio');
+integracao.definirGrafico('#grafico');
 
-function gerarFuncaoDaExpressao(expressao) {
-    return function(x) {
-        let expressaoCompilada = math.compile(expressao);
-        return expressaoCompilada.eval({x: x});
+},{"../lib/integral/ponto_medio":1,"../lib/integral/trapezio":2,"d3":8,"function-plot":25,"mathjs":73}],579:[function(require,module,exports){
+'use strict'
+
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+function init () {
+  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  for (var i = 0, len = code.length; i < len; ++i) {
+    lookup[i] = code[i]
+    revLookup[code.charCodeAt(i)] = i
+  }
+
+  revLookup['-'.charCodeAt(0)] = 62
+  revLookup['_'.charCodeAt(0)] = 63
+}
+
+init()
+
+function toByteArray (b64) {
+  var i, j, l, tmp, placeHolders, arr
+  var len = b64.length
+
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // the number of equal signs (place holders)
+  // if there are two placeholders, than the two characters before it
+  // represent one byte
+  // if there is only one, then the three characters before it represent 2 bytes
+  // this is just a cheap hack to not do indexOf twice
+  placeHolders = b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
+
+  // base64 is 4/3 + up to two characters of the original data
+  arr = new Arr(len * 3 / 4 - placeHolders)
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  l = placeHolders > 0 ? len - 4 : len
+
+  var L = 0
+
+  for (i = 0, j = 0; i < l; i += 4, j += 3) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
+    arr[L++] = (tmp >> 16) & 0xFF
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  if (placeHolders === 2) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[L++] = tmp & 0xFF
+  } else if (placeHolders === 1) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var output = ''
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    output += lookup[tmp >> 2]
+    output += lookup[(tmp << 4) & 0x3F]
+    output += '=='
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + (uint8[len - 1])
+    output += lookup[tmp >> 10]
+    output += lookup[(tmp >> 4) & 0x3F]
+    output += lookup[(tmp << 2) & 0x3F]
+    output += '='
+  }
+
+  parts.push(output)
+
+  return parts.join('')
+}
+
+},{}],580:[function(require,module,exports){
+(function (global){
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
+ */
+/* eslint-disable no-proto */
+
+'use strict'
+
+var base64 = require('base64-js')
+var ieee754 = require('ieee754')
+var isArray = require('isarray')
+
+exports.Buffer = Buffer
+exports.SlowBuffer = SlowBuffer
+exports.INSPECT_MAX_BYTES = 50
+Buffer.poolSize = 8192 // not used by this implementation
+
+var rootParent = {}
+
+/**
+ * If `Buffer.TYPED_ARRAY_SUPPORT`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Use Object implementation (most compatible, even IE6)
+ *
+ * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
+ * Opera 11.6+, iOS 4.2+.
+ *
+ * Due to various browser bugs, sometimes the Object implementation will be used even
+ * when the browser supports typed arrays.
+ *
+ * Note:
+ *
+ *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,
+ *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
+ *
+ *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
+ *
+ *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
+ *     incorrect length in some situations.
+
+ * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
+ * get the Object implementation, which is slower but behaves correctly.
+ */
+Buffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined
+  ? global.TYPED_ARRAY_SUPPORT
+  : typedArraySupport()
+
+function typedArraySupport () {
+  try {
+    var arr = new Uint8Array(1)
+    arr.foo = function () { return 42 }
+    return arr.foo() === 42 && // typed array instances can be augmented
+        typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
+        arr.subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
+  } catch (e) {
+    return false
+  }
+}
+
+function kMaxLength () {
+  return Buffer.TYPED_ARRAY_SUPPORT
+    ? 0x7fffffff
+    : 0x3fffffff
+}
+
+/**
+ * The Buffer constructor returns instances of `Uint8Array` that have their
+ * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
+ * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
+ * and the `Uint8Array` methods. Square bracket notation works as expected -- it
+ * returns a single octet.
+ *
+ * The `Uint8Array` prototype remains unmodified.
+ */
+function Buffer (arg) {
+  if (!(this instanceof Buffer)) {
+    // Avoid going through an ArgumentsAdaptorTrampoline in the common case.
+    if (arguments.length > 1) return new Buffer(arg, arguments[1])
+    return new Buffer(arg)
+  }
+
+  if (!Buffer.TYPED_ARRAY_SUPPORT) {
+    this.length = 0
+    this.parent = undefined
+  }
+
+  // Common case.
+  if (typeof arg === 'number') {
+    return fromNumber(this, arg)
+  }
+
+  // Slightly less common case.
+  if (typeof arg === 'string') {
+    return fromString(this, arg, arguments.length > 1 ? arguments[1] : 'utf8')
+  }
+
+  // Unusual.
+  return fromObject(this, arg)
+}
+
+// TODO: Legacy, not needed anymore. Remove in next major version.
+Buffer._augment = function (arr) {
+  arr.__proto__ = Buffer.prototype
+  return arr
+}
+
+function fromNumber (that, length) {
+  that = allocate(that, length < 0 ? 0 : checked(length) | 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) {
+    for (var i = 0; i < length; i++) {
+      that[i] = 0
+    }
+  }
+  return that
+}
+
+function fromString (that, string, encoding) {
+  if (typeof encoding !== 'string' || encoding === '') encoding = 'utf8'
+
+  // Assumption: byteLength() return value is always < kMaxLength.
+  var length = byteLength(string, encoding) | 0
+  that = allocate(that, length)
+
+  that.write(string, encoding)
+  return that
+}
+
+function fromObject (that, object) {
+  if (Buffer.isBuffer(object)) return fromBuffer(that, object)
+
+  if (isArray(object)) return fromArray(that, object)
+
+  if (object == null) {
+    throw new TypeError('must start with number, buffer, array or string')
+  }
+
+  if (typeof ArrayBuffer !== 'undefined') {
+    if (object.buffer instanceof ArrayBuffer) {
+      return fromTypedArray(that, object)
+    }
+    if (object instanceof ArrayBuffer) {
+      return fromArrayBuffer(that, object)
+    }
+  }
+
+  if (object.length) return fromArrayLike(that, object)
+
+  return fromJsonObject(that, object)
+}
+
+function fromBuffer (that, buffer) {
+  var length = checked(buffer.length) | 0
+  that = allocate(that, length)
+  buffer.copy(that, 0, 0, length)
+  return that
+}
+
+function fromArray (that, array) {
+  var length = checked(array.length) | 0
+  that = allocate(that, length)
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+// Duplicate of fromArray() to keep fromArray() monomorphic.
+function fromTypedArray (that, array) {
+  var length = checked(array.length) | 0
+  that = allocate(that, length)
+  // Truncating the elements is probably not what people expect from typed
+  // arrays with BYTES_PER_ELEMENT > 1 but it's compatible with the behavior
+  // of the old Buffer constructor.
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+function fromArrayBuffer (that, array) {
+  array.byteLength // this throws if `array` is not a valid ArrayBuffer
+
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = new Uint8Array(array)
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    that = fromTypedArray(that, new Uint8Array(array))
+  }
+  return that
+}
+
+function fromArrayLike (that, array) {
+  var length = checked(array.length) | 0
+  that = allocate(that, length)
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+// Deserialize { type: 'Buffer', data: [1,2,3,...] } into a Buffer object.
+// Returns a zero-length buffer for inputs that don't conform to the spec.
+function fromJsonObject (that, object) {
+  var array
+  var length = 0
+
+  if (object.type === 'Buffer' && isArray(object.data)) {
+    array = object.data
+    length = checked(array.length) | 0
+  }
+  that = allocate(that, length)
+
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+if (Buffer.TYPED_ARRAY_SUPPORT) {
+  Buffer.prototype.__proto__ = Uint8Array.prototype
+  Buffer.__proto__ = Uint8Array
+  if (typeof Symbol !== 'undefined' && Symbol.species &&
+      Buffer[Symbol.species] === Buffer) {
+    // Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97
+    Object.defineProperty(Buffer, Symbol.species, {
+      value: null,
+      configurable: true
+    })
+  }
+} else {
+  // pre-set for values that may exist in the future
+  Buffer.prototype.length = undefined
+  Buffer.prototype.parent = undefined
+}
+
+function allocate (that, length) {
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = new Uint8Array(length)
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    that.length = length
+  }
+
+  var fromPool = length !== 0 && length <= Buffer.poolSize >>> 1
+  if (fromPool) that.parent = rootParent
+
+  return that
+}
+
+function checked (length) {
+  // Note: cannot use `length < kMaxLength` here because that fails when
+  // length is NaN (which is otherwise coerced to zero.)
+  if (length >= kMaxLength()) {
+    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
+                         'size: 0x' + kMaxLength().toString(16) + ' bytes')
+  }
+  return length | 0
+}
+
+function SlowBuffer (subject, encoding) {
+  if (!(this instanceof SlowBuffer)) return new SlowBuffer(subject, encoding)
+
+  var buf = new Buffer(subject, encoding)
+  delete buf.parent
+  return buf
+}
+
+Buffer.isBuffer = function isBuffer (b) {
+  return !!(b != null && b._isBuffer)
+}
+
+Buffer.compare = function compare (a, b) {
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    throw new TypeError('Arguments must be Buffers')
+  }
+
+  if (a === b) return 0
+
+  var x = a.length
+  var y = b.length
+
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i]
+      y = b[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+Buffer.isEncoding = function isEncoding (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'binary':
+    case 'base64':
+    case 'raw':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+}
+
+Buffer.concat = function concat (list, length) {
+  if (!isArray(list)) throw new TypeError('list argument must be an Array of Buffers.')
+
+  if (list.length === 0) {
+    return new Buffer(0)
+  }
+
+  var i
+  if (length === undefined) {
+    length = 0
+    for (i = 0; i < list.length; i++) {
+      length += list[i].length
+    }
+  }
+
+  var buf = new Buffer(length)
+  var pos = 0
+  for (i = 0; i < list.length; i++) {
+    var item = list[i]
+    item.copy(buf, pos)
+    pos += item.length
+  }
+  return buf
+}
+
+function byteLength (string, encoding) {
+  if (typeof string !== 'string') string = '' + string
+
+  var len = string.length
+  if (len === 0) return 0
+
+  // Use a for loop to avoid recursion
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'ascii':
+      case 'binary':
+      // Deprecated
+      case 'raw':
+      case 'raws':
+        return len
+      case 'utf8':
+      case 'utf-8':
+        return utf8ToBytes(string).length
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return len * 2
+      case 'hex':
+        return len >>> 1
+      case 'base64':
+        return base64ToBytes(string).length
+      default:
+        if (loweredCase) return utf8ToBytes(string).length // assume utf8
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+Buffer.byteLength = byteLength
+
+function slowToString (encoding, start, end) {
+  var loweredCase = false
+
+  start = start | 0
+  end = end === undefined || end === Infinity ? this.length : end | 0
+
+  if (!encoding) encoding = 'utf8'
+  if (start < 0) start = 0
+  if (end > this.length) end = this.length
+  if (end <= start) return ''
+
+  while (true) {
+    switch (encoding) {
+      case 'hex':
+        return hexSlice(this, start, end)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Slice(this, start, end)
+
+      case 'ascii':
+        return asciiSlice(this, start, end)
+
+      case 'binary':
+        return binarySlice(this, start, end)
+
+      case 'base64':
+        return base64Slice(this, start, end)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return utf16leSlice(this, start, end)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = (encoding + '').toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect
+// Buffer instances.
+Buffer.prototype._isBuffer = true
+
+Buffer.prototype.toString = function toString () {
+  var length = this.length | 0
+  if (length === 0) return ''
+  if (arguments.length === 0) return utf8Slice(this, 0, length)
+  return slowToString.apply(this, arguments)
+}
+
+Buffer.prototype.equals = function equals (b) {
+  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
+  if (this === b) return true
+  return Buffer.compare(this, b) === 0
+}
+
+Buffer.prototype.inspect = function inspect () {
+  var str = ''
+  var max = exports.INSPECT_MAX_BYTES
+  if (this.length > 0) {
+    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ')
+    if (this.length > max) str += ' ... '
+  }
+  return '<Buffer ' + str + '>'
+}
+
+Buffer.prototype.compare = function compare (b) {
+  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
+  return Buffer.compare(this, b)
+}
+
+Buffer.prototype.indexOf = function indexOf (val, byteOffset) {
+  if (byteOffset > 0x7fffffff) byteOffset = 0x7fffffff
+  else if (byteOffset < -0x80000000) byteOffset = -0x80000000
+  byteOffset >>= 0
+
+  if (this.length === 0) return -1
+  if (byteOffset >= this.length) return -1
+
+  // Negative offsets start from the end of the buffer
+  if (byteOffset < 0) byteOffset = Math.max(this.length + byteOffset, 0)
+
+  if (typeof val === 'string') {
+    if (val.length === 0) return -1 // special case: looking for empty string always fails
+    return String.prototype.indexOf.call(this, val, byteOffset)
+  }
+  if (Buffer.isBuffer(val)) {
+    return arrayIndexOf(this, val, byteOffset)
+  }
+  if (typeof val === 'number') {
+    if (Buffer.TYPED_ARRAY_SUPPORT && Uint8Array.prototype.indexOf === 'function') {
+      return Uint8Array.prototype.indexOf.call(this, val, byteOffset)
+    }
+    return arrayIndexOf(this, [ val ], byteOffset)
+  }
+
+  function arrayIndexOf (arr, val, byteOffset) {
+    var foundIndex = -1
+    for (var i = 0; byteOffset + i < arr.length; i++) {
+      if (arr[byteOffset + i] === val[foundIndex === -1 ? 0 : i - foundIndex]) {
+        if (foundIndex === -1) foundIndex = i
+        if (i - foundIndex + 1 === val.length) return byteOffset + foundIndex
+      } else {
+        foundIndex = -1
+      }
+    }
+    return -1
+  }
+
+  throw new TypeError('val must be string, number or Buffer')
+}
+
+function hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0
+  var remaining = buf.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+
+  // must be an even number of digits
+  var strLen = string.length
+  if (strLen % 2 !== 0) throw new Error('Invalid hex string')
+
+  if (length > strLen / 2) {
+    length = strLen / 2
+  }
+  for (var i = 0; i < length; i++) {
+    var parsed = parseInt(string.substr(i * 2, 2), 16)
+    if (isNaN(parsed)) throw new Error('Invalid hex string')
+    buf[offset + i] = parsed
+  }
+  return i
+}
+
+function utf8Write (buf, string, offset, length) {
+  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+function asciiWrite (buf, string, offset, length) {
+  return blitBuffer(asciiToBytes(string), buf, offset, length)
+}
+
+function binaryWrite (buf, string, offset, length) {
+  return asciiWrite(buf, string, offset, length)
+}
+
+function base64Write (buf, string, offset, length) {
+  return blitBuffer(base64ToBytes(string), buf, offset, length)
+}
+
+function ucs2Write (buf, string, offset, length) {
+  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+Buffer.prototype.write = function write (string, offset, length, encoding) {
+  // Buffer#write(string)
+  if (offset === undefined) {
+    encoding = 'utf8'
+    length = this.length
+    offset = 0
+  // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset
+    length = this.length
+    offset = 0
+  // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset | 0
+    if (isFinite(length)) {
+      length = length | 0
+      if (encoding === undefined) encoding = 'utf8'
+    } else {
+      encoding = length
+      length = undefined
+    }
+  // legacy write(string, encoding, offset, length) - remove in v0.13
+  } else {
+    var swap = encoding
+    encoding = offset
+    offset = length | 0
+    length = swap
+  }
+
+  var remaining = this.length - offset
+  if (length === undefined || length > remaining) length = remaining
+
+  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
+    throw new RangeError('attempt to write outside buffer bounds')
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'hex':
+        return hexWrite(this, string, offset, length)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Write(this, string, offset, length)
+
+      case 'ascii':
+        return asciiWrite(this, string, offset, length)
+
+      case 'binary':
+        return binaryWrite(this, string, offset, length)
+
+      case 'base64':
+        // Warning: maxLength not taken into account in base64Write
+        return base64Write(this, string, offset, length)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return ucs2Write(this, string, offset, length)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+Buffer.prototype.toJSON = function toJSON () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+}
+
+function base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return base64.fromByteArray(buf)
+  } else {
+    return base64.fromByteArray(buf.slice(start, end))
+  }
+}
+
+function utf8Slice (buf, start, end) {
+  end = Math.min(buf.length, end)
+  var res = []
+
+  var i = start
+  while (i < end) {
+    var firstByte = buf[i]
+    var codePoint = null
+    var bytesPerSequence = (firstByte > 0xEF) ? 4
+      : (firstByte > 0xDF) ? 3
+      : (firstByte > 0xBF) ? 2
+      : 1
+
+    if (i + bytesPerSequence <= end) {
+      var secondByte, thirdByte, fourthByte, tempCodePoint
+
+      switch (bytesPerSequence) {
+        case 1:
+          if (firstByte < 0x80) {
+            codePoint = firstByte
+          }
+          break
+        case 2:
+          secondByte = buf[i + 1]
+          if ((secondByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)
+            if (tempCodePoint > 0x7F) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 3:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)
+            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 4:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          fourthByte = buf[i + 3]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)
+            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
+              codePoint = tempCodePoint
+            }
+          }
+      }
+    }
+
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xFFFD
+      bytesPerSequence = 1
+    } else if (codePoint > 0xFFFF) {
+      // encode to utf16 (surrogate pair dance)
+      codePoint -= 0x10000
+      res.push(codePoint >>> 10 & 0x3FF | 0xD800)
+      codePoint = 0xDC00 | codePoint & 0x3FF
+    }
+
+    res.push(codePoint)
+    i += bytesPerSequence
+  }
+
+  return decodeCodePointsArray(res)
+}
+
+// Based on http://stackoverflow.com/a/22747272/680742, the browser with
+// the lowest limit is Chrome, with 0x10000 args.
+// We go 1 magnitude less, for safety
+var MAX_ARGUMENTS_LENGTH = 0x1000
+
+function decodeCodePointsArray (codePoints) {
+  var len = codePoints.length
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  var res = ''
+  var i = 0
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
+    )
+  }
+  return res
+}
+
+function asciiSlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; i++) {
+    ret += String.fromCharCode(buf[i] & 0x7F)
+  }
+  return ret
+}
+
+function binarySlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; i++) {
+    ret += String.fromCharCode(buf[i])
+  }
+  return ret
+}
+
+function hexSlice (buf, start, end) {
+  var len = buf.length
+
+  if (!start || start < 0) start = 0
+  if (!end || end < 0 || end > len) end = len
+
+  var out = ''
+  for (var i = start; i < end; i++) {
+    out += toHex(buf[i])
+  }
+  return out
+}
+
+function utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end)
+  var res = ''
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256)
+  }
+  return res
+}
+
+Buffer.prototype.slice = function slice (start, end) {
+  var len = this.length
+  start = ~~start
+  end = end === undefined ? len : ~~end
+
+  if (start < 0) {
+    start += len
+    if (start < 0) start = 0
+  } else if (start > len) {
+    start = len
+  }
+
+  if (end < 0) {
+    end += len
+    if (end < 0) end = 0
+  } else if (end > len) {
+    end = len
+  }
+
+  if (end < start) end = start
+
+  var newBuf
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    newBuf = this.subarray(start, end)
+    newBuf.__proto__ = Buffer.prototype
+  } else {
+    var sliceLen = end - start
+    newBuf = new Buffer(sliceLen, undefined)
+    for (var i = 0; i < sliceLen; i++) {
+      newBuf[i] = this[i + start]
+    }
+  }
+
+  if (newBuf.length) newBuf.parent = this.parent || this
+
+  return newBuf
+}
+
+/*
+ * Need to make sure that buffer isn't trying to write out of bounds.
+ */
+function checkOffset (offset, ext, length) {
+  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
+  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
+}
+
+Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    checkOffset(offset, byteLength, this.length)
+  }
+
+  var val = this[offset + --byteLength]
+  var mul = 1
+  while (byteLength > 0 && (mul *= 0x100)) {
+    val += this[offset + --byteLength] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  return this[offset]
+}
+
+Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return this[offset] | (this[offset + 1] << 8)
+}
+
+Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return (this[offset] << 8) | this[offset + 1]
+}
+
+Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return ((this[offset]) |
+      (this[offset + 1] << 8) |
+      (this[offset + 2] << 16)) +
+      (this[offset + 3] * 0x1000000)
+}
+
+Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] * 0x1000000) +
+    ((this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    this[offset + 3])
+}
+
+Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var i = byteLength
+  var mul = 1
+  var val = this[offset + --i]
+  while (i > 0 && (mul *= 0x100)) {
+    val += this[offset + --i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  if (!(this[offset] & 0x80)) return (this[offset])
+  return ((0xff - this[offset] + 1) * -1)
+}
+
+Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset] | (this[offset + 1] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset + 1] | (this[offset] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset]) |
+    (this[offset + 1] << 8) |
+    (this[offset + 2] << 16) |
+    (this[offset + 3] << 24)
+}
+
+Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] << 24) |
+    (this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    (this[offset + 3])
+}
+
+Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, true, 23, 4)
+}
+
+Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, false, 23, 4)
+}
+
+Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, true, 52, 8)
+}
+
+Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, false, 52, 8)
+}
+
+function checkInt (buf, value, offset, ext, max, min) {
+  if (!Buffer.isBuffer(buf)) throw new TypeError('buffer must be a Buffer instance')
+  if (value > max || value < min) throw new RangeError('value is out of bounds')
+  if (offset + ext > buf.length) throw new RangeError('index out of range')
+}
+
+Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkInt(this, value, offset, byteLength, Math.pow(2, 8 * byteLength), 0)
+
+  var mul = 1
+  var i = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkInt(this, value, offset, byteLength, Math.pow(2, 8 * byteLength), 0)
+
+  var i = byteLength - 1
+  var mul = 1
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+function objectWriteUInt16 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; i++) {
+    buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
+      (littleEndian ? i : 1 - i) * 8
+  }
+}
+
+Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+function objectWriteUInt32 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffffffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; i++) {
+    buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff
+  }
+}
+
+Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset + 3] = (value >>> 24)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 1] = (value >>> 8)
+    this[offset] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = 0
+  var mul = 1
+  var sub = value < 0 ? 1 : 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  var sub = value < 0 ? 1 : 0
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  if (value < 0) value = 0xff + value + 1
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 3] = (value >>> 24)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (value < 0) value = 0xffffffff + value + 1
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+function checkIEEE754 (buf, value, offset, ext, max, min) {
+  if (offset + ext > buf.length) throw new RangeError('index out of range')
+  if (offset < 0) throw new RangeError('index out of range')
+}
+
+function writeFloat (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 23, 4)
+  return offset + 4
+}
+
+Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, false, noAssert)
+}
+
+function writeDouble (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 52, 8)
+  return offset + 8
+}
+
+Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, false, noAssert)
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function copy (target, targetStart, start, end) {
+  if (!start) start = 0
+  if (!end && end !== 0) end = this.length
+  if (targetStart >= target.length) targetStart = target.length
+  if (!targetStart) targetStart = 0
+  if (end > 0 && end < start) end = start
+
+  // Copy 0 bytes; we're done
+  if (end === start) return 0
+  if (target.length === 0 || this.length === 0) return 0
+
+  // Fatal error conditions
+  if (targetStart < 0) {
+    throw new RangeError('targetStart out of bounds')
+  }
+  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
+  if (end < 0) throw new RangeError('sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length) end = this.length
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start
+  }
+
+  var len = end - start
+  var i
+
+  if (this === target && start < targetStart && targetStart < end) {
+    // descending copy from end
+    for (i = len - 1; i >= 0; i--) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
+    // ascending copy from start
+    for (i = 0; i < len; i++) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else {
+    Uint8Array.prototype.set.call(
+      target,
+      this.subarray(start, start + len),
+      targetStart
+    )
+  }
+
+  return len
+}
+
+// fill(value, start=0, end=buffer.length)
+Buffer.prototype.fill = function fill (value, start, end) {
+  if (!value) value = 0
+  if (!start) start = 0
+  if (!end) end = this.length
+
+  if (end < start) throw new RangeError('end < start')
+
+  // Fill 0 bytes; we're done
+  if (end === start) return
+  if (this.length === 0) return
+
+  if (start < 0 || start >= this.length) throw new RangeError('start out of bounds')
+  if (end < 0 || end > this.length) throw new RangeError('end out of bounds')
+
+  var i
+  if (typeof value === 'number') {
+    for (i = start; i < end; i++) {
+      this[i] = value
+    }
+  } else {
+    var bytes = utf8ToBytes(value.toString())
+    var len = bytes.length
+    for (i = start; i < end; i++) {
+      this[i] = bytes[i % len]
+    }
+  }
+
+  return this
+}
+
+// HELPER FUNCTIONS
+// ================
+
+var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
+
+function base64clean (str) {
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = stringtrim(str).replace(INVALID_BASE64_RE, '')
+  // Node converts strings with length < 2 to ''
+  if (str.length < 2) return ''
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '='
+  }
+  return str
+}
+
+function stringtrim (str) {
+  if (str.trim) return str.trim()
+  return str.replace(/^\s+|\s+$/g, '')
+}
+
+function toHex (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
+}
+
+function utf8ToBytes (string, units) {
+  units = units || Infinity
+  var codePoint
+  var length = string.length
+  var leadSurrogate = null
+  var bytes = []
+
+  for (var i = 0; i < length; i++) {
+    codePoint = string.charCodeAt(i)
+
+    // is surrogate component
+    if (codePoint > 0xD7FF && codePoint < 0xE000) {
+      // last char was a lead
+      if (!leadSurrogate) {
+        // no lead yet
+        if (codePoint > 0xDBFF) {
+          // unexpected trail
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        } else if (i + 1 === length) {
+          // unpaired lead
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        }
+
+        // valid lead
+        leadSurrogate = codePoint
+
+        continue
+      }
+
+      // 2 leads in a row
+      if (codePoint < 0xDC00) {
+        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+        leadSurrogate = codePoint
+        continue
+      }
+
+      // valid surrogate pair
+      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000
+    } else if (leadSurrogate) {
+      // valid bmp char, but last char was a lead
+      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+    }
+
+    leadSurrogate = null
+
+    // encode utf8
+    if (codePoint < 0x80) {
+      if ((units -= 1) < 0) break
+      bytes.push(codePoint)
+    } else if (codePoint < 0x800) {
+      if ((units -= 2) < 0) break
+      bytes.push(
+        codePoint >> 0x6 | 0xC0,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x10000) {
+      if ((units -= 3) < 0) break
+      bytes.push(
+        codePoint >> 0xC | 0xE0,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x110000) {
+      if ((units -= 4) < 0) break
+      bytes.push(
+        codePoint >> 0x12 | 0xF0,
+        codePoint >> 0xC & 0x3F | 0x80,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else {
+      throw new Error('Invalid code point')
+    }
+  }
+
+  return bytes
+}
+
+function asciiToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF)
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str, units) {
+  var c, hi, lo
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    if ((units -= 2) < 0) break
+
+    c = str.charCodeAt(i)
+    hi = c >> 8
+    lo = c % 256
+    byteArray.push(lo)
+    byteArray.push(hi)
+  }
+
+  return byteArray
+}
+
+function base64ToBytes (str) {
+  return base64.toByteArray(base64clean(str))
+}
+
+function blitBuffer (src, dst, offset, length) {
+  for (var i = 0; i < length; i++) {
+    if ((i + offset >= dst.length) || (i >= src.length)) break
+    dst[i + offset] = src[i]
+  }
+  return i
+}
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"base64-js":579,"ieee754":583,"isarray":581}],581:[function(require,module,exports){
+var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+},{}],582:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+function EventEmitter() {
+  this._events = this._events || {};
+  this._maxListeners = this._maxListeners || undefined;
+}
+module.exports = EventEmitter;
+
+// Backwards-compat with node 0.10.x
+EventEmitter.EventEmitter = EventEmitter;
+
+EventEmitter.prototype._events = undefined;
+EventEmitter.prototype._maxListeners = undefined;
+
+// By default EventEmitters will print a warning if more than 10 listeners are
+// added to it. This is a useful default which helps finding memory leaks.
+EventEmitter.defaultMaxListeners = 10;
+
+// Obviously not all Emitters should be limited to 10. This function allows
+// that to be increased. Set to zero for unlimited.
+EventEmitter.prototype.setMaxListeners = function(n) {
+  if (!isNumber(n) || n < 0 || isNaN(n))
+    throw TypeError('n must be a positive number');
+  this._maxListeners = n;
+  return this;
+};
+
+EventEmitter.prototype.emit = function(type) {
+  var er, handler, len, args, i, listeners;
+
+  if (!this._events)
+    this._events = {};
+
+  // If there is no 'error' event listener then throw.
+  if (type === 'error') {
+    if (!this._events.error ||
+        (isObject(this._events.error) && !this._events.error.length)) {
+      er = arguments[1];
+      if (er instanceof Error) {
+        throw er; // Unhandled 'error' event
+      }
+      throw TypeError('Uncaught, unspecified "error" event.');
+    }
+  }
+
+  handler = this._events[type];
+
+  if (isUndefined(handler))
+    return false;
+
+  if (isFunction(handler)) {
+    switch (arguments.length) {
+      // fast cases
+      case 1:
+        handler.call(this);
+        break;
+      case 2:
+        handler.call(this, arguments[1]);
+        break;
+      case 3:
+        handler.call(this, arguments[1], arguments[2]);
+        break;
+      // slower
+      default:
+        args = Array.prototype.slice.call(arguments, 1);
+        handler.apply(this, args);
+    }
+  } else if (isObject(handler)) {
+    args = Array.prototype.slice.call(arguments, 1);
+    listeners = handler.slice();
+    len = listeners.length;
+    for (i = 0; i < len; i++)
+      listeners[i].apply(this, args);
+  }
+
+  return true;
+};
+
+EventEmitter.prototype.addListener = function(type, listener) {
+  var m;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events)
+    this._events = {};
+
+  // To avoid recursion in the case that type === "newListener"! Before
+  // adding it to the listeners, first emit "newListener".
+  if (this._events.newListener)
+    this.emit('newListener', type,
+              isFunction(listener.listener) ?
+              listener.listener : listener);
+
+  if (!this._events[type])
+    // Optimize the case of one listener. Don't need the extra array object.
+    this._events[type] = listener;
+  else if (isObject(this._events[type]))
+    // If we've already got an array, just append.
+    this._events[type].push(listener);
+  else
+    // Adding the second element, need to change to array.
+    this._events[type] = [this._events[type], listener];
+
+  // Check for listener leak
+  if (isObject(this._events[type]) && !this._events[type].warned) {
+    if (!isUndefined(this._maxListeners)) {
+      m = this._maxListeners;
+    } else {
+      m = EventEmitter.defaultMaxListeners;
+    }
+
+    if (m && m > 0 && this._events[type].length > m) {
+      this._events[type].warned = true;
+      console.error('(node) warning: possible EventEmitter memory ' +
+                    'leak detected. %d listeners added. ' +
+                    'Use emitter.setMaxListeners() to increase limit.',
+                    this._events[type].length);
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
+    }
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.once = function(type, listener) {
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  var fired = false;
+
+  function g() {
+    this.removeListener(type, g);
+
+    if (!fired) {
+      fired = true;
+      listener.apply(this, arguments);
+    }
+  }
+
+  g.listener = listener;
+  this.on(type, g);
+
+  return this;
+};
+
+// emits a 'removeListener' event iff the listener was removed
+EventEmitter.prototype.removeListener = function(type, listener) {
+  var list, position, length, i;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events || !this._events[type])
+    return this;
+
+  list = this._events[type];
+  length = list.length;
+  position = -1;
+
+  if (list === listener ||
+      (isFunction(list.listener) && list.listener === listener)) {
+    delete this._events[type];
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+
+  } else if (isObject(list)) {
+    for (i = length; i-- > 0;) {
+      if (list[i] === listener ||
+          (list[i].listener && list[i].listener === listener)) {
+        position = i;
+        break;
+      }
+    }
+
+    if (position < 0)
+      return this;
+
+    if (list.length === 1) {
+      list.length = 0;
+      delete this._events[type];
+    } else {
+      list.splice(position, 1);
+    }
+
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.removeAllListeners = function(type) {
+  var key, listeners;
+
+  if (!this._events)
+    return this;
+
+  // not listening for removeListener, no need to emit
+  if (!this._events.removeListener) {
+    if (arguments.length === 0)
+      this._events = {};
+    else if (this._events[type])
+      delete this._events[type];
+    return this;
+  }
+
+  // emit removeListener for all listeners on all events
+  if (arguments.length === 0) {
+    for (key in this._events) {
+      if (key === 'removeListener') continue;
+      this.removeAllListeners(key);
+    }
+    this.removeAllListeners('removeListener');
+    this._events = {};
+    return this;
+  }
+
+  listeners = this._events[type];
+
+  if (isFunction(listeners)) {
+    this.removeListener(type, listeners);
+  } else if (listeners) {
+    // LIFO order
+    while (listeners.length)
+      this.removeListener(type, listeners[listeners.length - 1]);
+  }
+  delete this._events[type];
+
+  return this;
+};
+
+EventEmitter.prototype.listeners = function(type) {
+  var ret;
+  if (!this._events || !this._events[type])
+    ret = [];
+  else if (isFunction(this._events[type]))
+    ret = [this._events[type]];
+  else
+    ret = this._events[type].slice();
+  return ret;
+};
+
+EventEmitter.prototype.listenerCount = function(type) {
+  if (this._events) {
+    var evlistener = this._events[type];
+
+    if (isFunction(evlistener))
+      return 1;
+    else if (evlistener)
+      return evlistener.length;
+  }
+  return 0;
+};
+
+EventEmitter.listenerCount = function(emitter, type) {
+  return emitter.listenerCount(type);
+};
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+
+},{}],583:[function(require,module,exports){
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+  var e, m
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var nBits = -7
+  var i = isLE ? (nBytes - 1) : 0
+  var d = isLE ? -1 : 1
+  var s = buffer[offset + i]
+
+  i += d
+
+  e = s & ((1 << (-nBits)) - 1)
+  s >>= (-nBits)
+  nBits += eLen
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  m = e & ((1 << (-nBits)) - 1)
+  e >>= (-nBits)
+  nBits += mLen
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  if (e === 0) {
+    e = 1 - eBias
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
+  } else {
+    m = m + Math.pow(2, mLen)
+    e = e - eBias
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
+
+exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+  var i = isLE ? 0 : (nBytes - 1)
+  var d = isLE ? 1 : -1
+  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+
+  value = Math.abs(value)
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0
+    e = eMax
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2)
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--
+      c *= 2
+    }
+    if (e + eBias >= 1) {
+      value += rt / c
+    } else {
+      value += rt * Math.pow(2, 1 - eBias)
+    }
+    if (value * c >= 2) {
+      e++
+      c /= 2
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0
+      e = eMax
+    } else if (e + eBias >= 1) {
+      m = (value * c - 1) * Math.pow(2, mLen)
+      e = e + eBias
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+      e = 0
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+
+  e = (e << mLen) | m
+  eLen += mLen
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+
+  buffer[offset + i - d] |= s * 128
+}
+
+},{}],584:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
     }
 }
-},{"../lib/integral/ponto_medio":1,"../lib/integral/trapezio":2,"d3":4,"mathjs":8}]},{},[494]);
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = setTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    clearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}]},{},[578]);
