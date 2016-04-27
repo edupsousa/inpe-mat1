@@ -2,14 +2,14 @@
 var exemplos = {};
 
 exemplos.interpolacao = function() {
-    let GraficoInterpolador = require('./GraficoInterpolador');
-    let grafico = new GraficoInterpolador('#grafico', 900, 400, 'tbody#pontos');
+    var GraficoInterpolador = require('./GraficoInterpolador');
+    var grafico = new GraficoInterpolador('#grafico', 900, 400, 'tbody#pontos');
     return grafico;
 };
 
 exemplos.integracao = function() {
-    let ExemploIntegracao = require('./ExemploIntegracao');
-    let integracao = new ExemploIntegracao();
+    var ExemploIntegracao = require('./ExemploIntegracao');
+    var integracao = new ExemploIntegracao();
     integracao.definirElementosEntrada('#expressao', '#limiteInferior', '#limiteSuperior', '#passos', '#integrar');
     integracao.definirElementosResultado('#secao-resultados', '#ponto-medio', '#trapezio');
     integracao.definirGrafico('#grafico');
@@ -17,8 +17,8 @@ exemplos.integracao = function() {
 };
 
 exemplos.edo = function() {
-    let ExemploEDO = require('./ExemploEDO');
-    let edo = new ExemploEDO();
+    var ExemploEDO = require('./ExemploEDO');
+    var edo = new ExemploEDO();
     edo.definirEntradas('#expressao', '#limiteInferior', '#valorInicial', '#limiteSuperior', '#intervalo', '#resolver');
     edo.definirResultados('#tableResultado', '#grafico', '#secao-resultados');
     return edo;

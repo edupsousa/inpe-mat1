@@ -1,11 +1,11 @@
 'use strict';
-let d3 = require('d3');
+var d3 = require('d3');
 window.d3 = d3;
-let $ = require('jquery');
-let functionPlot = require('function-plot');
-let math = require('mathjs');
-let pontoMedio = require('../lib/integral/ponto_medio');
-let trapezio = require('../lib/integral/trapezio');
+var $ = require('jquery');
+var functionPlot = require('function-plot');
+var math = require('mathjs');
+var pontoMedio = require('../lib/integral/ponto_medio');
+var trapezio = require('../lib/integral/trapezio');
 
 class ExemploIntegracao {
     constructor() {
@@ -27,14 +27,14 @@ class ExemploIntegracao {
         this.graficoTarget = graficoTarget;
     }
     registrarEventoIntegrar() {
-        let self = this;
+        var self = this;
         this.buttonIntegrar.on('click', function () {
-            let expressao = self.inputExpressao.node().value;
-            let limiteInferior = parseFloat(self.inputLimiteInferior.node().value);
-            let limiteSuperior = parseFloat(self.inputLimiteSuperior.node().value);
-            let passos = parseFloat(self.inputPassos.node().value);
-            let funcao = self.gerarFuncao(expressao);
-            let resultados = self.integrar(funcao, limiteInferior, limiteSuperior, passos);
+            var expressao = self.inputExpressao.node().value;
+            var limiteInferior = parseFloat(self.inputLimiteInferior.node().value);
+            var limiteSuperior = parseFloat(self.inputLimiteSuperior.node().value);
+            var passos = parseFloat(self.inputPassos.node().value);
+            var funcao = self.gerarFuncao(expressao);
+            var resultados = self.integrar(funcao, limiteInferior, limiteSuperior, passos);
             self.mostrarResultados(resultados);
             self.exibirGrafico(funcao, limiteInferior, limiteSuperior);
         });
@@ -52,15 +52,15 @@ class ExemploIntegracao {
     }
     gerarFuncao(expressao) {
         return function (x) {
-            let expressaoCompilada = math.compile(expressao);
+            var expressaoCompilada = math.compile(expressao);
             return expressaoCompilada.eval({ x: x });
         }
     }
     exibirGrafico(funcao, limiteInferior, limiteSuperior) {
-        let yMin = Math.min(funcao(limiteInferior), funcao(limiteSuperior));
-        let yMax = Math.max(funcao(limiteInferior), funcao(limiteSuperior));
-        let horizontalMargin = Math.abs((limiteSuperior - limiteInferior) * 0.1);
-        let verticalMargin = Math.abs((yMax - yMin) * 0.1);
+        var yMin = Math.min(funcao(limiteInferior), funcao(limiteSuperior));
+        var yMax = Math.max(funcao(limiteInferior), funcao(limiteSuperior));
+        var horizontalMargin = Math.abs((limiteSuperior - limiteInferior) * 0.1);
+        var verticalMargin = Math.abs((yMax - yMin) * 0.1);
         if (horizontalMargin === 0) 
             horizontalMargin = 1;
         if (verticalMargin === 0)

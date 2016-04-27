@@ -1,8 +1,8 @@
 'use strict';
-let interpolar = require('../lib/interpolacao/interpolar_meg');
-let d3 = require('d3');
+var interpolar = require('../lib/interpolacao/interpolar_meg');
+var d3 = require('d3');
 window.d3 = d3;
-let functionPlot = require('function-plot');
+var functionPlot = require('function-plot');
 
 class GraficoInterpolador {
     constructor(elemento, largura, altura, elementoTabela) {
@@ -13,23 +13,23 @@ class GraficoInterpolador {
         this.elementoTabela = d3.select(elementoTabela);
     }
     registrarEventoClick() {
-        let self = this;
+        var self = this;
         self.instancia.canvas.on('click', function () {
-            let ponto = self.adicionarPonto(d3.mouse(this));
-            let interpolacao = self.gerarInterpolacao();
+            var ponto = self.adicionarPonto(d3.mouse(this));
+            var interpolacao = self.gerarInterpolacao();
             self.adicionarInterpolacao(interpolacao);
             self.novoPontoTabela(self.pontos.length, ponto[0], ponto[1], interpolacao.p);
         });
     }
     adicionarPonto(coordenadas) {
-        let xScale = this.instancia.meta.xScale;
-        let yScale = this.instancia.meta.yScale;
-        let ponto = [d3.round(xScale.invert(coordenadas[0]), 3), d3.round(yScale.invert(coordenadas[1]), 3)];
+        var xScale = this.instancia.meta.xScale;
+        var yScale = this.instancia.meta.yScale;
+        var ponto = [d3.round(xScale.invert(coordenadas[0]), 3), d3.round(yScale.invert(coordenadas[1]), 3)];
         this.pontos.push(ponto);
         return ponto;
     }
     novoPontoTabela(n, x, y, polinomio) {
-        let tr = this.elementoTabela.append('tr');
+        var tr = this.elementoTabela.append('tr');
         tr.append('td').text(n);
         tr.append('td').text(x);
         tr.append('td').text(y);

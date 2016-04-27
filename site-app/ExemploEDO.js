@@ -1,11 +1,11 @@
 'use strict';
-let math = require('mathjs');
-let $ = require('jquery');
-let euler = require('../lib/edo/euler');
-let rk4 = require('../lib/edo/rk4');
-let d3 = require('d3');
+var math = require('mathjs');
+var $ = require('jquery');
+var euler = require('../lib/edo/euler');
+var rk4 = require('../lib/edo/rk4');
+var d3 = require('d3');
 window.d3 = d3;
-let functionPlot = require('function-plot');
+var functionPlot = require('function-plot');
 
 class ExemploEDO {
     construct() { }
@@ -19,20 +19,20 @@ class ExemploEDO {
         this.registrarEventoResolver();
     }
     registrarEventoResolver() {
-        let self = this;
+        var self = this;
         this.buttonResolver.click(function () {
             self.resolver();
         });
     }
     resolver() {
         this.limparResultados();
-        let expressao = this.inputExpressao.val();
-        let limiteInferior = parseFloat(this.inputLimiteInferior.val());
-        let limiteSuperior = parseFloat(this.inputLimiteSuperior.val());
-        let valorInicial = parseFloat(this.inputValorInicial.val());
-        let intervalo = parseFloat(this.inputIntervalo.val());
-        let funcao = this.gerarFuncao(expressao);
-        let resultados = {
+        var expressao = this.inputExpressao.val();
+        var limiteInferior = parseFloat(this.inputLimiteInferior.val());
+        var limiteSuperior = parseFloat(this.inputLimiteSuperior.val());
+        var valorInicial = parseFloat(this.inputValorInicial.val());
+        var intervalo = parseFloat(this.inputIntervalo.val());
+        var funcao = this.gerarFuncao(expressao);
+        var resultados = {
             euler: euler(funcao, limiteInferior, limiteSuperior, intervalo, valorInicial),
             rk4: rk4(funcao, limiteInferior, limiteSuperior, intervalo, valorInicial)
         }
@@ -52,13 +52,12 @@ class ExemploEDO {
         this.tableResultado.children('tbody').empty();
     }
     preencherTabelaResultados(resultados) {
-        let tbody = $('#tableResultado tbody');
-        console.log(resultados);
-        for (let i = 0; i < resultados.euler.length; i++) {
-            let x = resultados.euler[i].x;
-            let yEuler = resultados.euler[i].y;
-            let yRK4 = resultados.rk4[i].y;
-            let tr = $('<tr></tr>');
+        var tbody = this.tableResultado.children('tbody');
+        for (var i = 0; i < resultados.euler.length; i++) {
+            var x = resultados.euler[i].x;
+            var yEuler = resultados.euler[i].y;
+            var yRK4 = resultados.rk4[i].y;
+            var tr = $('<tr></tr>');
             tr.append('<td>' + x.toFixed(3) + '</td>');
             tr.append('<td>' + yEuler.toFixed(3) + '</td>');
             tr.append('<td>' + yRK4.toFixed(3) + '</td>');
@@ -67,14 +66,14 @@ class ExemploEDO {
     }
     gerarFuncao(expressao) {
         return function (x, y) {
-            let expressaoCompilada = math.compile(expressao);
+            var expressaoCompilada = math.compile(expressao);
             return expressaoCompilada.eval({ x: x, y: y });
         }
     }
     plotarGrafico(resultados) {
-        let eulerData = this.resultado2Vetor(resultados.euler);
-        let rk4Data = this.resultado2Vetor(resultados.rk4);
-        let dominio = this.obterDominioGrafico([eulerData, rk4Data]);
+        var eulerData = this.resultado2Vetor(resultados.euler);
+        var rk4Data = this.resultado2Vetor(resultados.rk4);
+        var dominio = this.obterDominioGrafico([eulerData, rk4Data]);
         functionPlot({
             target: this.idGrafico,
             grid: true,
@@ -103,7 +102,7 @@ class ExemploEDO {
         });
     }
     obterDominioGrafico(data) {
-        let dominio = {
+        var dominio = {
             x : [],
             y : []
         }
@@ -124,8 +123,8 @@ class ExemploEDO {
            });
         });
         
-        let xMargin = (dominio.x[1] - dominio.x[0]) * 0.1;
-        let yMargin = (dominio.y[1] - dominio.y[0]) * 0.1;
+        var xMargin = (dominio.x[1] - dominio.x[0]) * 0.1;
+        var yMargin = (dominio.y[1] - dominio.y[0]) * 0.1;
         dominio.x[0] = Math.floor(dominio.x[0] - xMargin);
         dominio.x[1] = Math.ceil(dominio.x[1] + xMargin);
         dominio.y[0] = Math.floor(dominio.y[0] - yMargin);
