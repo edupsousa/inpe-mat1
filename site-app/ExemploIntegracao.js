@@ -22,7 +22,6 @@ class ExemploIntegracao {
         this.secaoResultados = $(secaoResultados);
         this.textPontoMedio = d3.select(textPontoMedio);
         this.textTrapezio = d3.select(textTrapezio);
-        this.ocultarResultados();
     }
     definirGrafico(graficoTarget) {
         this.graficoTarget = graficoTarget;

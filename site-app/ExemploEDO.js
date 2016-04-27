@@ -135,6 +135,4 @@ class ExemploEDO {
     }
 }
 
-let edo = new ExemploEDO();
-edo.definirEntradas('#expressao', '#limiteInferior', '#valorInicial', '#limiteSuperior', '#intervalo', '#resolver');
-edo.definirResultados('#tableResultado', '#grafico', '#secao-resultados');
+module.exports = ExemploEDO;
