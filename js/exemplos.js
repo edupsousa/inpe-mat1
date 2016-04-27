@@ -2,9 +2,9 @@
 'use strict';
 
 function euler(f, a, b, h, y0) {
-    let steps = (b-a) / h;
-    let xy = [{x: a, y: y0}];
-    for (let n = 1; n <= steps; n++) {
+    var steps = (b-a) / h;
+    var xy = [{x: a, y: y0}];
+    for (var n = 1; n <= steps; n++) {
         xy[n] = {
             x: xy[n-1].x + h,
             y: xy[n-1].y + h * f(xy[n-1].x, xy[n-1].y)
@@ -18,13 +18,13 @@ module.exports = euler;
 'use strict';
 
 function rk4(f, a, b, h, y0) {
-    let steps = (b-a) / h;
-    let xy = [{x: a, y: y0}];
-    for (let n = 1; n <= steps; n++) {
-        let k1 = h * f(xy[n-1].x, xy[n-1].y);
-        let k2 = h * f(xy[n-1].x + h / 2, xy[n-1].y + k1 / 2);
-        let k3 = h * f(xy[n-1].x + h / 2, xy[n-1].y + k2 / 2);
-        let k4 = h * f(xy[n-1].x + h, xy[n-1].y + k3);
+    var steps = (b-a) / h;
+    var xy = [{x: a, y: y0}];
+    for (var n = 1; n <= steps; n++) {
+        var k1 = h * f(xy[n-1].x, xy[n-1].y);
+        var k2 = h * f(xy[n-1].x + h / 2, xy[n-1].y + k1 / 2);
+        var k3 = h * f(xy[n-1].x + h / 2, xy[n-1].y + k2 / 2);
+        var k4 = h * f(xy[n-1].x + h, xy[n-1].y + k3);
         xy[n] = {
             x: xy[n-1].x + h,
             y: xy[n-1].y + 1/6 * (k1 + 2 * (k2 + k3) + k4)
@@ -38,11 +38,11 @@ module.exports = rk4;
 'use strict';
 
 function pontoMedio(f, a, b, steps) {
-    let h = (b - a) / steps; 
-    let sum = 0;
-    for (let n = 0; n < steps; n++) {
-        let x0 = a + h * n;
-        let x1 = x0 + h;
+    var h = (b - a) / steps; 
+    var sum = 0;
+    for (var n = 0; n < steps; n++) {
+        var x0 = a + h * n;
+        var x1 = x0 + h;
         sum += h*f((x0+x1)/2);
     }
     return sum;
@@ -53,10 +53,10 @@ module.exports = pontoMedio;
 'use strict';
 
 function trapezio(f, a, b, steps) {
-    let h = (b - a) / steps;
-    let sum = f(a) + f(b);
-    for (let n = 1; n < steps; n++) {
-        let x = a + h * n;
+    var h = (b - a) / steps;
+    var sum = f(a) + f(b);
+    for (var n = 1; n < steps; n++) {
+        var x = a + h * n;
         sum += 2 * f(x);
     }
     return (h / 2) * sum;
@@ -131,8 +131,8 @@ function determinante(matriz) {
     if (matriz.length === 1) {
         return matriz[0][0];
     } else {
-        let sum = 0;
-        for (let i = 0; i < matriz[0].length; i++) {
+        var sum = 0;
+        for (var i = 0; i < matriz[0].length; i++) {
             sum += matriz[0][i] * Math.pow(-1, i+2) * determinante(menor(matriz, 0, i));
         }
         return sum;
@@ -140,11 +140,11 @@ function determinante(matriz) {
 }
 
 function menor(matriz, l, c) {
-    let resultado = [];
-    for (let i = 0; i < matriz.length; i++) {
+    var resultado = [];
+    for (var i = 0; i < matriz.length; i++) {
         if (i !== l) {
             resultado.push([]);
-            for (let j = 0; j < matriz[i].length; j++) {
+            for (var j = 0; j < matriz[i].length; j++) {
                 if (j !== c) {
                     resultado[resultado.length-1].push(matriz[i][j]);
                 }
@@ -163,21 +163,21 @@ function meg(a, b) {
     if (determinante(a) === 0)
         return false;
         
-    for (let i = 0; i < a.length - 1; i++) {
-        for (let j = i + 1; j < a.length; j++) {
-            let pivo = a[j][i] / a[i][i];
-            for (let k = 0; k < a.length; k++) {
+    for (var i = 0; i < a.length - 1; i++) {
+        for (var j = i + 1; j < a.length; j++) {
+            var pivo = a[j][i] / a[i][i];
+            for (var k = 0; k < a.length; k++) {
                 a[j][k] = a[j][k] - pivo * a[i][k]; 
             }
             b[j] = b[j] - pivo * b[i];
         }
     }
     
-    let r = {};
-    for (let k = b.length - 1; k >= 0; k--) {
+    var r = {};
+    for (var k = b.length - 1; k >= 0; k--) {
         b[k] = b[k] / a[k][k];
         a[k][k] = 1;
-        for (let j = k - 1; j >= 0; j--) {
+        for (var j = k - 1; j >= 0; j--) {
             b[j] = b[j] - a[j][k] * b[k];
             a[j][k] = 0;
         }
@@ -76101,13 +76101,13 @@ function extend(target) {
 
 },{}],584:[function(require,module,exports){
 'use strict';
-let math = require('mathjs');
-let $ = require('jquery');
-let euler = require('../lib/edo/euler');
-let rk4 = require('../lib/edo/rk4');
-let d3 = require('d3');
+var math = require('mathjs');
+var $ = require('jquery');
+var euler = require('../lib/edo/euler');
+var rk4 = require('../lib/edo/rk4');
+var d3 = require('d3');
 window.d3 = d3;
-let functionPlot = require('function-plot');
+var functionPlot = require('function-plot');
 
 class ExemploEDO {
     construct() { }
@@ -76121,20 +76121,20 @@ class ExemploEDO {
         this.registrarEventoResolver();
     }
     registrarEventoResolver() {
-        let self = this;
+        var self = this;
         this.buttonResolver.click(function () {
             self.resolver();
         });
     }
     resolver() {
         this.limparResultados();
-        let expressao = this.inputExpressao.val();
-        let limiteInferior = parseFloat(this.inputLimiteInferior.val());
-        let limiteSuperior = parseFloat(this.inputLimiteSuperior.val());
-        let valorInicial = parseFloat(this.inputValorInicial.val());
-        let intervalo = parseFloat(this.inputIntervalo.val());
-        let funcao = this.gerarFuncao(expressao);
-        let resultados = {
+        var expressao = this.inputExpressao.val();
+        var limiteInferior = parseFloat(this.inputLimiteInferior.val());
+        var limiteSuperior = parseFloat(this.inputLimiteSuperior.val());
+        var valorInicial = parseFloat(this.inputValorInicial.val());
+        var intervalo = parseFloat(this.inputIntervalo.val());
+        var funcao = this.gerarFuncao(expressao);
+        var resultados = {
             euler: euler(funcao, limiteInferior, limiteSuperior, intervalo, valorInicial),
             rk4: rk4(funcao, limiteInferior, limiteSuperior, intervalo, valorInicial)
         }
@@ -76154,13 +76154,12 @@ class ExemploEDO {
         this.tableResultado.children('tbody').empty();
     }
     preencherTabelaResultados(resultados) {
-        let tbody = $('#tableResultado tbody');
-        console.log(resultados);
-        for (let i = 0; i < resultados.euler.length; i++) {
-            let x = resultados.euler[i].x;
-            let yEuler = resultados.euler[i].y;
-            let yRK4 = resultados.rk4[i].y;
-            let tr = $('<tr></tr>');
+        var tbody = this.tableResultado.children('tbody');
+        for (var i = 0; i < resultados.euler.length; i++) {
+            var x = resultados.euler[i].x;
+            var yEuler = resultados.euler[i].y;
+            var yRK4 = resultados.rk4[i].y;
+            var tr = $('<tr></tr>');
             tr.append('<td>' + x.toFixed(3) + '</td>');
             tr.append('<td>' + yEuler.toFixed(3) + '</td>');
             tr.append('<td>' + yRK4.toFixed(3) + '</td>');
@@ -76169,14 +76168,14 @@ class ExemploEDO {
     }
     gerarFuncao(expressao) {
         return function (x, y) {
-            let expressaoCompilada = math.compile(expressao);
+            var expressaoCompilada = math.compile(expressao);
             return expressaoCompilada.eval({ x: x, y: y });
         }
     }
     plotarGrafico(resultados) {
-        let eulerData = this.resultado2Vetor(resultados.euler);
-        let rk4Data = this.resultado2Vetor(resultados.rk4);
-        let dominio = this.obterDominioGrafico([eulerData, rk4Data]);
+        var eulerData = this.resultado2Vetor(resultados.euler);
+        var rk4Data = this.resultado2Vetor(resultados.rk4);
+        var dominio = this.obterDominioGrafico([eulerData, rk4Data]);
         functionPlot({
             target: this.idGrafico,
             grid: true,
@@ -76205,7 +76204,7 @@ class ExemploEDO {
         });
     }
     obterDominioGrafico(data) {
-        let dominio = {
+        var dominio = {
             x : [],
             y : []
         }
@@ -76226,8 +76225,8 @@ class ExemploEDO {
            });
         });
         
-        let xMargin = (dominio.x[1] - dominio.x[0]) * 0.1;
-        let yMargin = (dominio.y[1] - dominio.y[0]) * 0.1;
+        var xMargin = (dominio.x[1] - dominio.x[0]) * 0.1;
+        var yMargin = (dominio.y[1] - dominio.y[0]) * 0.1;
         dominio.x[0] = Math.floor(dominio.x[0] - xMargin);
         dominio.x[1] = Math.ceil(dominio.x[1] + xMargin);
         dominio.y[0] = Math.floor(dominio.y[0] - yMargin);
@@ -76240,13 +76239,13 @@ class ExemploEDO {
 module.exports = ExemploEDO;
 },{"../lib/edo/euler":1,"../lib/edo/rk4":2,"d3":13,"function-plot":30,"jquery":59,"mathjs":79}],585:[function(require,module,exports){
 'use strict';
-let d3 = require('d3');
+var d3 = require('d3');
 window.d3 = d3;
-let $ = require('jquery');
-let functionPlot = require('function-plot');
-let math = require('mathjs');
-let pontoMedio = require('../lib/integral/ponto_medio');
-let trapezio = require('../lib/integral/trapezio');
+var $ = require('jquery');
+var functionPlot = require('function-plot');
+var math = require('mathjs');
+var pontoMedio = require('../lib/integral/ponto_medio');
+var trapezio = require('../lib/integral/trapezio');
 
 class ExemploIntegracao {
     constructor() {
@@ -76268,14 +76267,14 @@ class ExemploIntegracao {
         this.graficoTarget = graficoTarget;
     }
     registrarEventoIntegrar() {
-        let self = this;
+        var self = this;
         this.buttonIntegrar.on('click', function () {
-            let expressao = self.inputExpressao.node().value;
-            let limiteInferior = parseFloat(self.inputLimiteInferior.node().value);
-            let limiteSuperior = parseFloat(self.inputLimiteSuperior.node().value);
-            let passos = parseFloat(self.inputPassos.node().value);
-            let funcao = self.gerarFuncao(expressao);
-            let resultados = self.integrar(funcao, limiteInferior, limiteSuperior, passos);
+            var expressao = self.inputExpressao.node().value;
+            var limiteInferior = parseFloat(self.inputLimiteInferior.node().value);
+            var limiteSuperior = parseFloat(self.inputLimiteSuperior.node().value);
+            var passos = parseFloat(self.inputPassos.node().value);
+            var funcao = self.gerarFuncao(expressao);
+            var resultados = self.integrar(funcao, limiteInferior, limiteSuperior, passos);
             self.mostrarResultados(resultados);
             self.exibirGrafico(funcao, limiteInferior, limiteSuperior);
         });
@@ -76293,15 +76292,15 @@ class ExemploIntegracao {
     }
     gerarFuncao(expressao) {
         return function (x) {
-            let expressaoCompilada = math.compile(expressao);
+            var expressaoCompilada = math.compile(expressao);
             return expressaoCompilada.eval({ x: x });
         }
     }
     exibirGrafico(funcao, limiteInferior, limiteSuperior) {
-        let yMin = Math.min(funcao(limiteInferior), funcao(limiteSuperior));
-        let yMax = Math.max(funcao(limiteInferior), funcao(limiteSuperior));
-        let horizontalMargin = Math.abs((limiteSuperior - limiteInferior) * 0.1);
-        let verticalMargin = Math.abs((yMax - yMin) * 0.1);
+        var yMin = Math.min(funcao(limiteInferior), funcao(limiteSuperior));
+        var yMax = Math.max(funcao(limiteInferior), funcao(limiteSuperior));
+        var horizontalMargin = Math.abs((limiteSuperior - limiteInferior) * 0.1);
+        var verticalMargin = Math.abs((yMax - yMin) * 0.1);
         if (horizontalMargin === 0) 
             horizontalMargin = 1;
         if (verticalMargin === 0)
@@ -76329,10 +76328,10 @@ module.exports = ExemploIntegracao;
 
 },{"../lib/integral/ponto_medio":3,"../lib/integral/trapezio":4,"d3":13,"function-plot":30,"jquery":59,"mathjs":79}],586:[function(require,module,exports){
 'use strict';
-let interpolar = require('../lib/interpolacao/interpolar_meg');
-let d3 = require('d3');
+var interpolar = require('../lib/interpolacao/interpolar_meg');
+var d3 = require('d3');
 window.d3 = d3;
-let functionPlot = require('function-plot');
+var functionPlot = require('function-plot');
 
 class GraficoInterpolador {
     constructor(elemento, largura, altura, elementoTabela) {
@@ -76343,23 +76342,23 @@ class GraficoInterpolador {
         this.elementoTabela = d3.select(elementoTabela);
     }
     registrarEventoClick() {
-        let self = this;
+        var self = this;
         self.instancia.canvas.on('click', function () {
-            let ponto = self.adicionarPonto(d3.mouse(this));
-            let interpolacao = self.gerarInterpolacao();
+            var ponto = self.adicionarPonto(d3.mouse(this));
+            var interpolacao = self.gerarInterpolacao();
             self.adicionarInterpolacao(interpolacao);
             self.novoPontoTabela(self.pontos.length, ponto[0], ponto[1], interpolacao.p);
         });
     }
     adicionarPonto(coordenadas) {
-        let xScale = this.instancia.meta.xScale;
-        let yScale = this.instancia.meta.yScale;
-        let ponto = [d3.round(xScale.invert(coordenadas[0]), 3), d3.round(yScale.invert(coordenadas[1]), 3)];
+        var xScale = this.instancia.meta.xScale;
+        var yScale = this.instancia.meta.yScale;
+        var ponto = [d3.round(xScale.invert(coordenadas[0]), 3), d3.round(yScale.invert(coordenadas[1]), 3)];
         this.pontos.push(ponto);
         return ponto;
     }
     novoPontoTabela(n, x, y, polinomio) {
-        let tr = this.elementoTabela.append('tr');
+        var tr = this.elementoTabela.append('tr');
         tr.append('td').text(n);
         tr.append('td').text(x);
         tr.append('td').text(y);
@@ -76420,14 +76419,14 @@ module.exports = GraficoInterpolador;
 var exemplos = {};
 
 exemplos.interpolacao = function() {
-    let GraficoInterpolador = require('./GraficoInterpolador');
-    let grafico = new GraficoInterpolador('#grafico', 900, 400, 'tbody#pontos');
+    var GraficoInterpolador = require('./GraficoInterpolador');
+    var grafico = new GraficoInterpolador('#grafico', 900, 400, 'tbody#pontos');
     return grafico;
 };
 
 exemplos.integracao = function() {
-    let ExemploIntegracao = require('./ExemploIntegracao');
-    let integracao = new ExemploIntegracao();
+    var ExemploIntegracao = require('./ExemploIntegracao');
+    var integracao = new ExemploIntegracao();
     integracao.definirElementosEntrada('#expressao', '#limiteInferior', '#limiteSuperior', '#passos', '#integrar');
     integracao.definirElementosResultado('#secao-resultados', '#ponto-medio', '#trapezio');
     integracao.definirGrafico('#grafico');
@@ -76435,8 +76434,8 @@ exemplos.integracao = function() {
 };
 
 exemplos.edo = function() {
-    let ExemploEDO = require('./ExemploEDO');
-    let edo = new ExemploEDO();
+    var ExemploEDO = require('./ExemploEDO');
+    var edo = new ExemploEDO();
     edo.definirEntradas('#expressao', '#limiteInferior', '#valorInicial', '#limiteSuperior', '#intervalo', '#resolver');
     edo.definirResultados('#tableResultado', '#grafico', '#secao-resultados');
     return edo;
