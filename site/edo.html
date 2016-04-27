@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Integração Numérica</title>
+    <title>EDO - Problema de Valor Inicial</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
         crossorigin="anonymous">
     <style>
@@ -24,65 +24,63 @@
             <li>
                 <a href="interpolacao.html">Interpolação Polinomial</a>
             </li>
-            <li class="active">
-                <a href="#">Integração Numérica</a>
-            </li>
             <li>
-                <a href="edo.html">EDO - Problema de Valor Inicial</a>
+                <a href="integracao.html">Integração Numérica</a>
+            </li>
+            <li class="active">
+                <a href="#">EDO - Problema de Valor Inicial</a>
             </li>
         </ul>
     </nav>
 
     <div class="container">
-        <h1>Integração Numérica</h1>
-        <p class="info">Informe os parâmetros para integração.</p>
+        <h1>EDO - Problema de Valor Inicial</h1>
+        <p class="info">Informe os parâmetros do problema de valor inicial.</p>
 
         <div class="row">
            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <form action="" method="POST" role="form" class="form-inline">
                     <div class="form-group">
-                        <label for="">f(x) = </label>
-                        <input type="text" class="form-control" id="expressao" value="x^2">
+                        <label for="">f(x, y) = </label>
+                        <input type="text" class="form-control input-sm" id="expressao" value="2x+3">
                     </div>
 
                     <div class="form-group">
-                        <label for="">a = </label>
-                        <input type="number" class="form-control" id="limiteInferior" value="0">
+                        <label for="">x<sub>0</sub> = </label>
+                        <input type="number" class="form-control input-sm" id="limiteInferior" value="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="">y(a) = </label>
+                        <input type="number" class="form-control input-sm" id="valorInicial" value="1">
                     </div>
 
                     <div class="form-group">
-                        <label for="">b = </label>
-                        <input type="number" class="form-control" id="limiteSuperior" value="1">
+                        <label for="">x<sub>max</sub> = </label>
+                        <input type="number" class="form-control input-sm" id="limiteSuperior" value="2">
                     </div>
 
                     <div class="form-group">
-                        <label for="">n = </label>
-                        <input type="number" class="form-control" id="passos" value="4">
+                        <label for="">h = </label>
+                        <input type="number" class="form-control input-sm" id="intervalo" value="0.25">
                     </div>
 
-                    <button type="button" class="btn btn-primary" id="integrar">Integrar</button>
+                    <button type="button" class="btn btn-primary" id="resolver">Resolver</button>
                 </form>
            </div>
         </div>
         <div class="row" id="secao-resultados" style="display: none;">
             <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
                 <h3>Resultados</h3>
-                <table class="table table-hover">
+                <table id="tableResultado" class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>Método</th>
-                            <th>Resultado</th>
+                            <th class="text-center">x</th>
+                            <th class="text-center" style="color: #0000ff;">y (euler)</th>
+                            <th class="text-center" style="color: #ff0000;">y (rk4)</th>
                         </tr>
                     </thead>
-                    <tbody class="resultados">
-                        <tr>
-                            <td>Retângulo (Ponto Médio)</td>
-                            <td id="ponto-medio"></td>
-                        </tr>
-                        <tr>
-                            <td>Trapézio</td>
-                            <td id="trapezio"></td>
-                        </tr>
+                    <tbody>
                     </tbody>
                 </table>
             </div>
@@ -94,6 +92,6 @@
             </div>
         </div>
     </div>
-    <script src="js/integracao.js"></script>
+    <script src="js/edo.js"></script>
 </body>
 </html>
