@@ -69,9 +69,9 @@ module.exports = trapezio;
 var meg = require('../sistema_linear/meg');
 
 function polinomio(a, b) {
-    let p = '';
-    for (let i = b.length - 1; i >= 0; i--) {
-        let potencia = b.length - (b.length - i);
+    var p = '';
+    for (var i = b.length - 1; i >= 0; i--) {
+        var potencia = b.length - (b.length - i);
         if (b[i] !== 0) {
             if (i < b.length - 1 || b[i] < 0)
                 p += (b[i] > 0 ? '+' : '-' );
@@ -91,9 +91,9 @@ function polinomio(a, b) {
 
 function funcao(a, b) {
     return function(valor) {
-        let resultado = 0;
-        for (let i = b.length - 1; i >= 0; i--) {
-            let potencia = b.length - (b.length - i);
+        var resultado = 0;
+        for (var i = b.length - 1; i >= 0; i--) {
+            var potencia = b.length - (b.length - i);
             resultado += b[i] * Math.pow(valor, potencia);
         }
         return resultado;
@@ -101,12 +101,12 @@ function funcao(a, b) {
 }
 
 function interpolar(pontos) {
-   let a = [];
-   let b = [];
-   for (let i = 0; i < pontos.length; i++) {
+   var a = [];
+   var b = [];
+   for (var i = 0; i < pontos.length; i++) {
        a.push([]);
        b.push(pontos[i][1]);
-       for (let j = 0; j < pontos.length; j++) {
+       for (var j = 0; j < pontos.length; j++) {
             a[a.length - 1].push(Math.pow(pontos[i][0],j));
        }
    }
@@ -76109,132 +76109,143 @@ var d3 = require('d3');
 window.d3 = d3;
 var functionPlot = require('function-plot');
 
-class ExemploEDO {
-    construct() { }
-    definirEntradas(idExpressao, idLimiteInferior, idValorInicial, idLimiteSuperior, idIntervalo, idResolver) {
-        this.inputExpressao = $(idExpressao);
-        this.inputLimiteInferior = $(idLimiteInferior);
-        this.inputValorInicial = $(idValorInicial);
-        this.inputLimiteSuperior = $(idLimiteSuperior);
-        this.inputIntervalo = $(idIntervalo);
-        this.buttonResolver = $(idResolver);
-        this.registrarEventoResolver();
+function ExemploEDO() {
+
+}
+
+ExemploEDO.prototype.definirEntradas = function(idExpressao, idLimiteInferior, idValorInicial, idLimiteSuperior, idIntervalo, idResolver) {
+    this.inputExpressao = $(idExpressao);
+    this.inputLimiteInferior = $(idLimiteInferior);
+    this.inputValorInicial = $(idValorInicial);
+    this.inputLimiteSuperior = $(idLimiteSuperior);
+    this.inputIntervalo = $(idIntervalo);
+    this.buttonResolver = $(idResolver);
+    this.registrarEventoResolver();
+};
+
+ExemploEDO.prototype.registrarEventoResolver = function () {
+    var self = this;
+    this.buttonResolver.click(function () {
+        self.resolver();
+    });
+};
+
+ExemploEDO.prototype.resolver = function () {
+    this.limparResultados();
+    var expressao = this.inputExpressao.val();
+    var limiteInferior = parseFloat(this.inputLimiteInferior.val());
+    var limiteSuperior = parseFloat(this.inputLimiteSuperior.val());
+    var valorInicial = parseFloat(this.inputValorInicial.val());
+    var intervalo = parseFloat(this.inputIntervalo.val());
+    var funcao = this.gerarFuncao(expressao);
+    var resultados = {
+        euler: euler(funcao, limiteInferior, limiteSuperior, intervalo, valorInicial),
+        rk4: rk4(funcao, limiteInferior, limiteSuperior, intervalo, valorInicial)
     }
-    registrarEventoResolver() {
-        var self = this;
-        this.buttonResolver.click(function () {
-            self.resolver();
-        });
+    this.preencherTabelaResultados(resultados);
+    this.plotarGrafico(resultados);
+    this.mostrarResultados();
+};
+
+ExemploEDO.prototype.definirResultados = function(idTableResultado, idGrafico, idSecaoResultados) {
+    this.tableResultado = $(idTableResultado);
+    this.idGrafico = idGrafico;
+    this.secaoResultados = $(idSecaoResultados);
+};
+
+ExemploEDO.prototype.mostrarResultados = function () {
+    this.secaoResultados.show('slow');
+};
+
+ExemploEDO.prototype.limparResultados = function () {
+    this.tableResultado.children('tbody').empty();
+};
+
+ExemploEDO.prototype.preencherTabelaResultados = function (resultados) {
+    var tbody = this.tableResultado.children('tbody');
+    for (var i = 0; i < resultados.euler.length; i++) {
+        var x = resultados.euler[i].x;
+        var yEuler = resultados.euler[i].y;
+        var yRK4 = resultados.rk4[i].y;
+        var tr = $('<tr></tr>');
+        tr.append('<td>' + x.toFixed(3) + '</td>');
+        tr.append('<td>' + yEuler.toFixed(3) + '</td>');
+        tr.append('<td>' + yRK4.toFixed(3) + '</td>');
+        tbody.append(tr);
     }
-    resolver() {
-        this.limparResultados();
-        var expressao = this.inputExpressao.val();
-        var limiteInferior = parseFloat(this.inputLimiteInferior.val());
-        var limiteSuperior = parseFloat(this.inputLimiteSuperior.val());
-        var valorInicial = parseFloat(this.inputValorInicial.val());
-        var intervalo = parseFloat(this.inputIntervalo.val());
-        var funcao = this.gerarFuncao(expressao);
-        var resultados = {
-            euler: euler(funcao, limiteInferior, limiteSuperior, intervalo, valorInicial),
-            rk4: rk4(funcao, limiteInferior, limiteSuperior, intervalo, valorInicial)
-        }
-        this.preencherTabelaResultados(resultados);
-        this.plotarGrafico(resultados);
-        this.mostrarResultados();
+};
+
+ExemploEDO.prototype.gerarFuncao = function (expressao) {
+    return function (x, y) {
+        var expressaoCompilada = math.compile(expressao);
+        return expressaoCompilada.eval({ x: x, y: y });
     }
-    definirResultados(idTableResultado, idGrafico, idSecaoResultados) {
-        this.tableResultado = $(idTableResultado);
-        this.idGrafico = idGrafico;
-        this.secaoResultados = $(idSecaoResultados);
-    }
-    mostrarResultados() {
-        this.secaoResultados.show('slow');
-    }
-    limparResultados() {
-        this.tableResultado.children('tbody').empty();
-    }
-    preencherTabelaResultados(resultados) {
-        var tbody = this.tableResultado.children('tbody');
-        for (var i = 0; i < resultados.euler.length; i++) {
-            var x = resultados.euler[i].x;
-            var yEuler = resultados.euler[i].y;
-            var yRK4 = resultados.rk4[i].y;
-            var tr = $('<tr></tr>');
-            tr.append('<td>' + x.toFixed(3) + '</td>');
-            tr.append('<td>' + yEuler.toFixed(3) + '</td>');
-            tr.append('<td>' + yRK4.toFixed(3) + '</td>');
-            tbody.append(tr);
-        }
-    }
-    gerarFuncao(expressao) {
-        return function (x, y) {
-            var expressaoCompilada = math.compile(expressao);
-            return expressaoCompilada.eval({ x: x, y: y });
-        }
-    }
-    plotarGrafico(resultados) {
-        var eulerData = this.resultado2Vetor(resultados.euler);
-        var rk4Data = this.resultado2Vetor(resultados.rk4);
-        var dominio = this.obterDominioGrafico([eulerData, rk4Data]);
-        functionPlot({
-            target: this.idGrafico,
-            grid: true,
-            xAxis: {
-                domain: dominio.x
-            },
-            yAxis: {
-                domain: dominio.y
-            },
-            data: [{
-                points: eulerData,
-                fnType: 'points',
-                graphType: 'scatter',
-                color: '#0000ff'
-            },{
+};
+
+ExemploEDO.prototype.plotarGrafico = function (resultados) {
+    var eulerData = this.resultado2Vetor(resultados.euler);
+    var rk4Data = this.resultado2Vetor(resultados.rk4);
+    var dominio = this.obterDominioGrafico([eulerData, rk4Data]);
+    functionPlot({
+        target: this.idGrafico,
+        grid: true,
+        xAxis: {
+            domain: dominio.x
+        },
+        yAxis: {
+            domain: dominio.y
+        },
+        data: [{
+            points: eulerData,
+            fnType: 'points',
+            graphType: 'scatter',
+            color: '#0000ff'
+        }, {
                 points: rk4Data,
                 fnType: 'points',
                 graphType: 'scatter',
                 color: '#ff0000'
             }]
-        })
+    })
+};
+
+ExemploEDO.prototype.resultado2Vetor = function (resultado) {
+    return resultado.map(function (ponto) {
+        return [ponto.x, ponto.y];
+    });
+};
+
+ExemploEDO.prototype.obterDominioGrafico = function (data) {
+    var dominio = {
+        x: [],
+        y: []
     }
-    resultado2Vetor(resultado) {
-        return resultado.map(function(ponto) {
-            return [ponto.x, ponto.y];
+    data.forEach(function (dataSet) {
+        dataSet.forEach(function (point) {
+            if (dominio.x[0] === undefined || dominio.x[0] > point[0]) {
+                dominio.x[0] = point[0];
+            }
+            if (dominio.x[1] === undefined || dominio.x[1] < point[0]) {
+                dominio.x[1] = point[0];
+            }
+            if (dominio.y[0] === undefined || dominio.y[0] > point[1]) {
+                dominio.y[0] = point[1];
+            }
+            if (dominio.y[1] === undefined || dominio.y[1] < point[1]) {
+                dominio.y[1] = point[1];
+            }
         });
-    }
-    obterDominioGrafico(data) {
-        var dominio = {
-            x : [],
-            y : []
-        }
-        data.forEach(function(dataSet) {
-           dataSet.forEach(function(point) {
-               if (dominio.x[0] === undefined || dominio.x[0] > point[0]) {
-                   dominio.x[0] = point[0];
-               }
-               if (dominio.x[1] === undefined || dominio.x[1] < point[0]) {
-                   dominio.x[1] = point[0];
-               }
-               if (dominio.y[0] === undefined || dominio.y[0] > point[1]) {
-                   dominio.y[0] = point[1];
-               }
-               if (dominio.y[1] === undefined || dominio.y[1] < point[1]) {
-                   dominio.y[1] = point[1];
-               }
-           });
-        });
-        
-        var xMargin = (dominio.x[1] - dominio.x[0]) * 0.1;
-        var yMargin = (dominio.y[1] - dominio.y[0]) * 0.1;
-        dominio.x[0] = Math.floor(dominio.x[0] - xMargin);
-        dominio.x[1] = Math.ceil(dominio.x[1] + xMargin);
-        dominio.y[0] = Math.floor(dominio.y[0] - yMargin);
-        dominio.y[1] = Math.ceil(dominio.y[1] + yMargin);        
-        
-        return dominio;
-    }
-}
+    });
+
+    var xMargin = (dominio.x[1] - dominio.x[0]) * 0.1;
+    var yMargin = (dominio.y[1] - dominio.y[0]) * 0.1;
+    dominio.x[0] = Math.floor(dominio.x[0] - xMargin);
+    dominio.x[1] = Math.ceil(dominio.x[1] + xMargin);
+    dominio.y[0] = Math.floor(dominio.y[0] - yMargin);
+    dominio.y[1] = Math.ceil(dominio.y[1] + yMargin);
+
+    return dominio;
+};
 
 module.exports = ExemploEDO;
 },{"../lib/edo/euler":1,"../lib/edo/rk4":2,"d3":13,"function-plot":30,"jquery":59,"mathjs":79}],585:[function(require,module,exports){
@@ -76247,81 +76258,86 @@ var math = require('mathjs');
 var pontoMedio = require('../lib/integral/ponto_medio');
 var trapezio = require('../lib/integral/trapezio');
 
-class ExemploIntegracao {
-    constructor() {
-    }
-    definirElementosEntrada(inputExpressao, inputLimiteInferior, inputLimiteSuperior, inputPassos, buttonIntegrar) {
-        this.inputExpressao = d3.select(inputExpressao);
-        this.inputLimiteInferior = d3.select(inputLimiteInferior);
-        this.inputLimiteSuperior = d3.select(inputLimiteSuperior);
-        this.inputPassos = d3.select(inputPassos);
-        this.buttonIntegrar = d3.select(buttonIntegrar);
-        this.registrarEventoIntegrar();
-    }
-    definirElementosResultado(secaoResultados, textPontoMedio, textTrapezio) {
-        this.secaoResultados = $(secaoResultados);
-        this.textPontoMedio = d3.select(textPontoMedio);
-        this.textTrapezio = d3.select(textTrapezio);
-    }
-    definirGrafico(graficoTarget) {
-        this.graficoTarget = graficoTarget;
-    }
-    registrarEventoIntegrar() {
-        var self = this;
-        this.buttonIntegrar.on('click', function () {
-            var expressao = self.inputExpressao.node().value;
-            var limiteInferior = parseFloat(self.inputLimiteInferior.node().value);
-            var limiteSuperior = parseFloat(self.inputLimiteSuperior.node().value);
-            var passos = parseFloat(self.inputPassos.node().value);
-            var funcao = self.gerarFuncao(expressao);
-            var resultados = self.integrar(funcao, limiteInferior, limiteSuperior, passos);
-            self.mostrarResultados(resultados);
-            self.exibirGrafico(funcao, limiteInferior, limiteSuperior);
-        });
-    }
-    mostrarResultados(resultados) {
-        this.textPontoMedio.text(resultados.pontoMedio.toFixed(3));
-        this.textTrapezio.text(resultados.trapezio.toFixed(3));
-        this.secaoResultados.show('slow');
-    }
-    integrar(funcao, limiteInferior, limiteSuperior, passos) {
-        return {
-            trapezio: trapezio(funcao, limiteInferior, limiteSuperior, passos),
-            pontoMedio: pontoMedio(funcao, limiteInferior, limiteSuperior, passos),
-        };
-    }
-    gerarFuncao(expressao) {
-        return function (x) {
-            var expressaoCompilada = math.compile(expressao);
-            return expressaoCompilada.eval({ x: x });
-        }
-    }
-    exibirGrafico(funcao, limiteInferior, limiteSuperior) {
-        var yMin = Math.min(funcao(limiteInferior), funcao(limiteSuperior));
-        var yMax = Math.max(funcao(limiteInferior), funcao(limiteSuperior));
-        var horizontalMargin = Math.abs((limiteSuperior - limiteInferior) * 0.1);
-        var verticalMargin = Math.abs((yMax - yMin) * 0.1);
-        if (horizontalMargin === 0) 
-            horizontalMargin = 1;
-        if (verticalMargin === 0)
-            verticalMargin = 1;
-        this.graficoInstance = functionPlot({
-            target: '#grafico',
-            xAxis: { domain: [limiteInferior - horizontalMargin, limiteSuperior + horizontalMargin] },
-            yAxis: { domain: [yMin - verticalMargin, yMax + verticalMargin] },
-            grid: true,
-            data: [{
-                fnType: 'linear',
-                graphType: 'polyline',
-                fn: function(p) {
-                    return funcao(p.x);
-                },
-                range: [limiteInferior, limiteSuperior],
-                closed: true,
-                skipTip: true
-            }]
-        });
-    }
+function ExemploIntegracao() {
+
+};
+
+ExemploIntegracao.prototype.definirElementosEntrada = function definirElementosEntrada(inputExpressao, inputLimiteInferior, inputLimiteSuperior, inputPassos, buttonIntegrar) {
+    this.inputExpressao = d3.select(inputExpressao);
+    this.inputLimiteInferior = d3.select(inputLimiteInferior);
+    this.inputLimiteSuperior = d3.select(inputLimiteSuperior);
+    this.inputPassos = d3.select(inputPassos);
+    this.buttonIntegrar = d3.select(buttonIntegrar);
+    this.registrarEventoIntegrar();
+};
+
+ExemploIntegracao.prototype.definirElementosResultado = function definirElementosResultado(secaoResultados, textPontoMedio, textTrapezio) {
+    this.secaoResultados = $(secaoResultados);
+    this.textPontoMedio = d3.select(textPontoMedio);
+    this.textTrapezio = d3.select(textTrapezio);
+};
+
+ExemploIntegracao.prototype.definirGrafico = function definirGrafico(graficoTarget) {
+    this.graficoTarget = graficoTarget;
+};
+
+ExemploIntegracao.prototype.registrarEventoIntegrar = function registrarEventoIntegrar() {
+    var self = this;
+    this.buttonIntegrar.on('click', function () {
+        var expressao = self.inputExpressao.node().value;
+        var limiteInferior = parseFloat(self.inputLimiteInferior.node().value);
+        var limiteSuperior = parseFloat(self.inputLimiteSuperior.node().value);
+        var passos = parseFloat(self.inputPassos.node().value);
+        var funcao = self.gerarFuncao(expressao);
+        var resultados = self.integrar(funcao, limiteInferior, limiteSuperior, passos);
+        self.mostrarResultados(resultados);
+        self.exibirGrafico(funcao, limiteInferior, limiteSuperior);
+    });
+};
+
+ExemploIntegracao.prototype.mostrarResultados = function mostrarResultados(resultados) {
+    this.textPontoMedio.text(resultados.pontoMedio.toFixed(3));
+    this.textTrapezio.text(resultados.trapezio.toFixed(3));
+    this.secaoResultados.show('slow');
+};
+
+ExemploIntegracao.prototype.integrar = function integrar(funcao, limiteInferior, limiteSuperior, passos) {
+    return {
+        trapezio: trapezio(funcao, limiteInferior, limiteSuperior, passos),
+        pontoMedio: pontoMedio(funcao, limiteInferior, limiteSuperior, passos)
+    };
+};
+
+ExemploIntegracao.prototype.gerarFuncao = function gerarFuncao(expressao) {
+    return function (x) {
+        var expressaoCompilada = math.compile(expressao);
+        return expressaoCompilada.eval({ x: x });
+    };
+};
+
+ExemploIntegracao.prototype.exibirGrafico = function exibirGrafico(funcao, limiteInferior, limiteSuperior) {
+    var yMin = Math.min(funcao(limiteInferior), funcao(limiteSuperior));
+    var yMax = Math.max(funcao(limiteInferior), funcao(limiteSuperior));
+    var horizontalMargin = Math.abs((limiteSuperior - limiteInferior) * 0.1);
+    var verticalMargin = Math.abs((yMax - yMin) * 0.1);
+    if (horizontalMargin === 0) horizontalMargin = 1;
+    if (verticalMargin === 0) verticalMargin = 1;
+    this.graficoInstance = functionPlot({
+        target: '#grafico',
+        xAxis: { domain: [limiteInferior - horizontalMargin, limiteSuperior + horizontalMargin] },
+        yAxis: { domain: [yMin - verticalMargin, yMax + verticalMargin] },
+        grid: true,
+        data: [{
+            fnType: 'linear',
+            graphType: 'polyline',
+            fn: function fn(p) {
+                return funcao(p.x);
+            },
+            range: [limiteInferior, limiteSuperior],
+            closed: true,
+            skipTip: true
+        }]
+    });
 };
 
 module.exports = ExemploIntegracao;
@@ -76333,85 +76349,89 @@ var d3 = require('d3');
 window.d3 = d3;
 var functionPlot = require('function-plot');
 
-class GraficoInterpolador {
-    constructor(elemento, largura, altura, elementoTabela) {
-        this.pontos = [];
-        this.opcoes = this.obterOpcoesIniciais(elemento, largura, altura);
-        this.instancia = this.definirInstancia(this.opcoes);
-        this.registrarEventoClick();
-        this.elementoTabela = d3.select(elementoTabela);
-    }
-    registrarEventoClick() {
-        var self = this;
-        self.instancia.canvas.on('click', function () {
-            var ponto = self.adicionarPonto(d3.mouse(this));
-            var interpolacao = self.gerarInterpolacao();
-            self.adicionarInterpolacao(interpolacao);
-            self.novoPontoTabela(self.pontos.length, ponto[0], ponto[1], interpolacao.p);
-        });
-    }
-    adicionarPonto(coordenadas) {
-        var xScale = this.instancia.meta.xScale;
-        var yScale = this.instancia.meta.yScale;
-        var ponto = [d3.round(xScale.invert(coordenadas[0]), 3), d3.round(yScale.invert(coordenadas[1]), 3)];
-        this.pontos.push(ponto);
-        return ponto;
-    }
-    novoPontoTabela(n, x, y, polinomio) {
-        var tr = this.elementoTabela.append('tr');
-        tr.append('td').text(n);
-        tr.append('td').text(x);
-        tr.append('td').text(y);
-        tr.append('td').text(polinomio);
-    }
-    
-    adicionarInterpolacao(interpolacao) {
-        this.opcoes.data.push({
-            fnType: 'linear',
-            graphType: 'polyline',
-            color: 'teal',
-            fn: function (p) {
-                return interpolacao.f(p.x);
+function GraficoInterpolador(elemento, largura, altura, elementoTabela) {
+    this.pontos = [];
+    this.opcoes = this.obterOpcoesIniciais(elemento, largura, altura);
+    this.instancia = this.definirInstancia(this.opcoes);
+    this.registrarEventoClick();
+    this.elementoTabela = d3.select(elementoTabela);
+}
+
+GraficoInterpolador.prototype.registrarEventoClick = function registrarEventoClick() {
+    var self = this;
+    self.instancia.canvas.on('click', function () {
+        var ponto = self.adicionarPonto(d3.mouse(this));
+        var interpolacao = self.gerarInterpolacao();
+        self.adicionarInterpolacao(interpolacao);
+        self.novoPontoTabela(self.pontos.length, ponto[0], ponto[1], interpolacao.p);
+    });
+};
+
+GraficoInterpolador.prototype.adicionarPonto = function adicionarPonto(coordenadas) {
+    var xScale = this.instancia.meta.xScale;
+    var yScale = this.instancia.meta.yScale;
+    var ponto = [d3.round(xScale.invert(coordenadas[0]), 3), d3.round(yScale.invert(coordenadas[1]), 3)];
+    this.pontos.push(ponto);
+    return ponto;
+};
+
+GraficoInterpolador.prototype.novoPontoTabela = function novoPontoTabela(n, x, y, polinomio) {
+    var tr = this.elementoTabela.append('tr');
+    tr.append('td').text(n);
+    tr.append('td').text(x);
+    tr.append('td').text(y);
+    tr.append('td').text(polinomio);
+};
+
+GraficoInterpolador.prototype.adicionarInterpolacao = function adicionarInterpolacao(interpolacao) {
+    this.opcoes.data.push({
+        fnType: 'linear',
+        graphType: 'polyline',
+        color: 'teal',
+        fn: function fn(p) {
+            return interpolacao.f(p.x);
+        },
+        skipTip: true
+    });
+    this.definirInstancia(this.opcoes);
+};
+
+GraficoInterpolador.prototype.gerarInterpolacao = function gerarInterpolacao() {
+    return interpolar(this.pontos);
+};
+
+GraficoInterpolador.prototype.definirInstancia = function definirInstancia(opcoes) {
+    return functionPlot(opcoes);
+};
+
+GraficoInterpolador.prototype.obterOpcoesIniciais = function obterOpcoesIniciais(elemento, largura, altura) {
+    return {
+        target: elemento,
+        width: largura,
+        height: altura,
+        grid: true,
+        disableZoom: true,
+        xAxis: {
+            label: 'eixo - x',
+            domain: [-20, 20]
+        },
+        yAxis: {
+            label: 'eixo - y',
+            domain: [-10, 10]
+        },
+        data: [{
+            fnType: 'points',
+            sampler: 'builtIn',
+            points: this.pontos,
+            graphType: 'scatter',
+            color: 'black',
+            attr: {
+                r: '2px'
             },
             skipTip: true
-        });
-        this.definirInstancia(this.opcoes);
-    }
-    gerarInterpolacao() {
-        return interpolar(this.pontos);
-    }
-    definirInstancia(opcoes) {
-        return functionPlot(opcoes);
-    }
-    obterOpcoesIniciais(elemento, largura, altura) {
-        return {
-            target: elemento,
-            width: largura,
-            height: altura,
-            grid: true,
-            disableZoom: true,
-            xAxis: {
-                label: 'eixo - x',
-                domain: [-20, 20]
-            },
-            yAxis: {
-                label: 'eixo - y',
-                domain: [-10, 10]
-            },
-            data: [{
-                fnType: 'points',
-                sampler: 'builtIn',
-                points: this.pontos,
-                graphType: 'scatter',
-                color: 'black',
-                attr: {
-                    r: '2px',
-                },
-                skipTip: true
-            }],
-        };
-    }
-}
+        }]
+    };
+};
 
 module.exports = GraficoInterpolador;
 },{"../lib/interpolacao/interpolar_meg":5,"d3":13,"function-plot":30}],587:[function(require,module,exports){
